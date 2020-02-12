@@ -1,8 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="gowFme" name="OSCAudioPlayer" projectType="guiapp" jucerVersion="5.4.6">
+<JUCERPROJECT id="gowFme" name="OSCAudioPlayer" projectType="guiapp" jucerVersion="5.4.7"
+              headerPath="../../../../glm/glm/">
   <MAINGROUP id="FyPVfO" name="OSCAudioPlayer">
+    <GROUP id="{C0A6F8B8-450C-163F-77B6-E0380DEB11BE}" name="Assets">
+      <FILE id="zIqKPl" name="Raleway-Regular.ttf" compile="0" resource="1"
+            file="../../../Library/Fonts/Raleway-Regular.ttf"/>
+    </GROUP>
     <GROUP id="{95A5C06C-B4E9-E01E-019B-DDE92792A038}" name="Source">
+      <GROUP id="{78B2BA97-B19B-FFD9-1DD4-16A761947A98}" name="UIElements">
+        <FILE id="hg248b" name="MinimalLookAndFeel.h" compile="0" resource="0"
+              file="Source/UIElements/MinimalLookAndFeel.h"/>
+      </GROUP>
+      <FILE id="ijLPGz" name="EnvironmentModel.h" compile="0" resource="0"
+            file="Source/EnvironmentModel.h"/>
+      <FILE id="xLvmit" name="AudioFileListComponent.h" compile="0" resource="0"
+            file="Source/AudioFileListComponent.h"/>
+      <FILE id="JLXVLq" name="IOSettingsComponent.h" compile="0" resource="0"
+            file="Source/IOSettingsComponent.h"/>
+      <FILE id="SjdrY9" name="SoundEnvironmentComponent.h" compile="0" resource="0"
+            file="Source/SoundEnvironmentComponent.h"/>
       <FILE id="cM4RsR" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>
       <FILE id="IWDRtt" name="MainComponent.cpp" compile="1" resource="0"
             file="Source/MainComponent.cpp"/>
@@ -70,6 +87,7 @@
   </MODULES>
   <LIVE_SETTINGS>
     <WINDOWS buildEnabled="0"/>
+    <OSX/>
   </LIVE_SETTINGS>
   <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1"/>
 </JUCERPROJECT>
