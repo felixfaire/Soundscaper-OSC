@@ -12,6 +12,7 @@
 
 #include "AppModel.h"
 #include "Audio/AudioController.h"
+#include "Audio/SpatialSampler.h"
 
 /** This class contains the core functionality of the app.
     handling the passing of messages to trigger sounds and
@@ -35,7 +36,7 @@ public:
         File folder = mModel.mCurrentAudioFolder;
         mModel.mSoundFiles = folder.findChildFiles(File::TypesOfFileToFind::findFiles, false, "*.wav");
         
-        int noteNum = 60;
+        int noteNum = 0;
         
         for (auto& wavFile : mModel.mSoundFiles)
         {
@@ -44,11 +45,9 @@ public:
             if (reader != nullptr)
             {
                 Logger::getCurrentLogger()->writeToLog("Loading file: " + wavFile.getFileNameWithoutExtension());
-                auto notes = BigInteger();
-                notes.setBit(noteNum, true);
-                auto* newSound = new SamplerSound(wavFile.getFileNameWithoutExtension(), *reader, notes, noteNum, 0.01, 10.0, 15.0);
+                auto* newSound = new SpatialSamplerSound(wavFile.getFileNameWithoutExtension(), *reader, noteNum, 0.01, 1.0, 5.0);
                 mAudio.mSynth.addSound(newSound);
-                mAudio.mSynth.addVoice(new SamplerVoice());
+                mAudio.mSynth.addVoice(new SpatialSamplerVoice());
                 noteNum++;
             }
         }
@@ -59,9 +58,9 @@ public:
         }
     }
     
-    void triggerSource(int index) //vec3 pos)
+    void triggerSource(int index, glm::vec3 pos)
     {
-        const int noteNum = 60 + index;
+        const int noteNum = index;
         mAudio.mSynth.noteOn(1, noteNum, 1.0f);
     }
     

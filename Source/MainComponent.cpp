@@ -18,8 +18,8 @@ MainComponent::MainComponent()
     mFileList.reset(new AudioFileListComponent(mModel));
     mDemoPlayer.reset(new DemoVoicePlayerComponent(mModel));
     
-    mDemoPlayer->onTrigger = [this](int index){
-        mController.triggerSource(index);
+    mDemoPlayer->onTrigger = [this](int index, glm::vec3 p){
+        mController.triggerSource(index, p);
     };
     
     mTabbedContainer.reset(new TabbedComponent(TabbedButtonBar::Orientation::TabsAtTop));

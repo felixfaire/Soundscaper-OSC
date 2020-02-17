@@ -10,6 +10,8 @@
 
 #pragma once
 
+#include "Audio/SpatialSynth.h"
+
 class AudioController   : public AudioSource
 {
 public:
@@ -65,7 +67,7 @@ public:
         Logger::getCurrentLogger()->writeToLog ("Releasing audio resources");
     }
     
-    Synthesiser        mSynth;
+    SpatialSynth         mSynth;
     
     AudioDeviceManager& getDeviceManager() { return mDeviceManager; }
     

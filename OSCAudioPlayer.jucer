@@ -1,16 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="gowFme" name="OSCAudioPlayer" projectType="guiapp" jucerVersion="5.4.7"
+<JUCERPROJECT id="gowFme" name="OSCAudioPlayer" projectType="guiapp" jucerVersion="5.4.6"
               headerPath="../../../../glm/glm/">
   <MAINGROUP id="FyPVfO" name="OSCAudioPlayer">
     <GROUP id="{C0A6F8B8-450C-163F-77B6-E0380DEB11BE}" name="Assets">
-      <FILE id="zIqKPl" name="Raleway-Regular.ttf" compile="0" resource="1"
-            file="../../../Library/Fonts/Raleway-Regular.ttf"/>
+      <FILE id="rZZaOC" name="Raleway-Regular.ttf" compile="0" resource="1"
+            file="assets/Raleway-Regular.ttf"/>
     </GROUP>
     <GROUP id="{95A5C06C-B4E9-E01E-019B-DDE92792A038}" name="Source">
       <GROUP id="{C86DF6EF-350D-F740-3D04-A826B64EA7EE}" name="Audio">
         <FILE id="nU301z" name="AudioController.h" compile="0" resource="0"
               file="Source/Audio/AudioController.h"/>
+        <FILE id="kTYUYi" name="SpatialSampler.cpp" compile="1" resource="0"
+              file="Source/Audio/SpatialSampler.cpp"/>
+        <FILE id="o7XAQE" name="SpatialSampler.h" compile="0" resource="0"
+              file="Source/Audio/SpatialSampler.h"/>
+        <FILE id="gIIQID" name="SpatialSynth.cpp" compile="1" resource="0"
+              file="Source/Audio/SpatialSynth.cpp"/>
+        <FILE id="GYRCvF" name="SpatialSynth.h" compile="0" resource="0" file="Source/Audio/SpatialSynth.h"/>
       </GROUP>
       <GROUP id="{78B2BA97-B19B-FFD9-1DD4-16A761947A98}" name="UIElements">
         <FILE id="hg248b" name="MinimalLookAndFeel.h" compile="0" resource="0"

@@ -56,11 +56,13 @@ public:
     void mouseDown(const MouseEvent& event) override
     {
         const int index = (int)mDemoFileBox.getSelectedId() - 1;
-        
+        const glm::vec3 position = glm::vec3(jmap((float)event.getMouseDownX(), 0.0f, (float)getWidth(), -1.0f, 1.0f),
+                                             0.0f,
+                                             jmap((float)event.getMouseDownY(), 0.0f, (float)getHeight(), -1.0f, 1.0f));
         jassert(index < m.mSoundFiles.size());
         
         if (onTrigger != nullptr)
-            onTrigger(index);
+            onTrigger(index, position);
     }
     
     void updateFileList()
@@ -74,7 +76,7 @@ public:
             mDemoFileBox.setSelectedId(1);
     }
     
-    std::function<void(int)> onTrigger;
+    std::function<void(int, glm::vec3)> onTrigger;
 
 private:
 

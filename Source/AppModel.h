@@ -21,7 +21,19 @@ struct AppModel
 public:
     AppModel()
     {
-        mCurrentAudioFolder = File::getCurrentWorkingDirectory().getChildFile("../../../../assets/samples");
+        mCurrentAudioFolder = File::getCurrentWorkingDirectory();//.getChildFile("../../../../assets/samples");
+        File parentSearch = mCurrentAudioFolder;
+
+        for (int i = 0; i < 5; ++i)
+        {
+            parentSearch = parentSearch.getParentDirectory();
+            
+            if (parentSearch.getFileNameWithoutExtension() == "OSCAudioPlayer")
+            {
+                mCurrentAudioFolder = parentSearch.getChildFile("assets/samples");
+                break;
+            }
+        }
         
         // Load default stereo model
         mSpeakers.add({glm::vec3(-0.5f, 0.0f, 0.0f)});
