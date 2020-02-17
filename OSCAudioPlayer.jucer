@@ -8,12 +8,18 @@
             file="../../../Library/Fonts/Raleway-Regular.ttf"/>
     </GROUP>
     <GROUP id="{95A5C06C-B4E9-E01E-019B-DDE92792A038}" name="Source">
+      <GROUP id="{C86DF6EF-350D-F740-3D04-A826B64EA7EE}" name="Audio">
+        <FILE id="nU301z" name="AudioController.h" compile="0" resource="0"
+              file="Source/Audio/AudioController.h"/>
+      </GROUP>
       <GROUP id="{78B2BA97-B19B-FFD9-1DD4-16A761947A98}" name="UIElements">
         <FILE id="hg248b" name="MinimalLookAndFeel.h" compile="0" resource="0"
               file="Source/UIElements/MinimalLookAndFeel.h"/>
       </GROUP>
-      <FILE id="ijLPGz" name="EnvironmentModel.h" compile="0" resource="0"
-            file="Source/EnvironmentModel.h"/>
+      <FILE id="beLorD" name="AppController.h" compile="0" resource="0" file="Source/AppController.h"/>
+      <FILE id="ijLPGz" name="AppModel.h" compile="0" resource="0" file="Source/AppModel.h"/>
+      <FILE id="bCvIXp" name="DemoVoicePlayerComponent.h" compile="0" resource="0"
+            file="Source/DemoVoicePlayerComponent.h"/>
       <FILE id="xLvmit" name="AudioFileListComponent.h" compile="0" resource="0"
             file="Source/AudioFileListComponent.h"/>
       <FILE id="JLXVLq" name="IOSettingsComponent.h" compile="0" resource="0"

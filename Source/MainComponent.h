@@ -9,17 +9,20 @@
 #pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
-#include "EnvironmentModel.h"
+#include "AppModel.h"
+#include "AppController.h"
 #include "IOSettingsComponent.h"
 #include "AudioFileListComponent.h"
 #include "UIElements/MinimalLookAndFeel.h"
+#include "DemoVoicePlayerComponent.h"
+
 
 //==============================================================================
 /*
     This component lives inside our window, and this is where you should put all
     your controls and content.
 */
-class MainComponent   : public AudioAppComponent,
+class MainComponent   : public Component,
                         public FilenameComponentListener
 {
 public:
@@ -28,17 +31,11 @@ public:
     ~MainComponent();
 
     //==============================================================================
-    void prepareToPlay (int samplesPerBlockExpected, double sampleRate) override;
-    void getNextAudioBlock (const AudioSourceChannelInfo& bufferToFill) override;
-    void releaseResources() override;
-
-    //==============================================================================
     void paint (Graphics& g) override;
     void resized() override;
     
     void mouseDown(const MouseEvent& event) override;
-    
-    void loadAudioFiles();
+
     void filenameComponentChanged(FilenameComponent* component) override;
 
 private:
@@ -48,13 +45,12 @@ private:
     
     std::unique_ptr<IOSettingsComponent>          mIOSettings;
     std::unique_ptr<AudioFileListComponent>       mFileList;
+    std::unique_ptr<DemoVoicePlayerComponent>     mDemoPlayer;
     
-    EnvironmentModel                              mModel;
+    AppModel                                      mModel;
+    AppController                                 mController;
     
-    Synthesiser  mSynth;
-    
-    AudioFormatManager  mFormatManager;
-    MinimalLookAndFeel  mLookAndFeel;
+    MinimalLookAndFeel                            mLookAndFeel;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 };

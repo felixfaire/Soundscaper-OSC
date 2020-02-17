@@ -18,15 +18,14 @@
 class AudioFileListComponent    : public Component
 {
 public:
-    AudioFileListComponent()
+    AudioFileListComponent(AppModel& model)
+        : m(model)
     {
-        File assetsPath = File::getCurrentWorkingDirectory().getChildFile("../../../../assets/samples");
-        
         mSamplesFolder.reset(new FilenameComponent("Samples Folder",
-                                           assetsPath,
+                                           m.mCurrentAudioFolder,
                                            true, true, false, "", "",
                                            "Select Samples Folder"));
-                                               
+        
         addAndMakeVisible(*mSamplesFolder);
     }
 
@@ -41,7 +40,7 @@ public:
     void resized() override
     {
         auto b = getLocalBounds();
-        mSamplesFolder->setBounds(b.removeFromTop(40).reduced(10));
+        mSamplesFolder->setBounds(b.removeFromTop(50).reduced(10));
     }
     
     File               getCurrentFile()   { return mSamplesFolder->getCurrentFile(); }
@@ -49,6 +48,7 @@ public:
 
 private:
 
+    AppModel&                                     m;
     std::unique_ptr<FilenameComponent>            mSamplesFolder;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioFileListComponent)
