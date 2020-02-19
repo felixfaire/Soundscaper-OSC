@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "Audio/SpatialSynth.h"
+#include "SpatialSynth.h"
 
 class AudioController   : public AudioSource
 {
@@ -58,8 +58,7 @@ public:
 
     void getNextAudioBlock (const AudioSourceChannelInfo& bufferToFill) override
     {
-        MidiBuffer midi;
-        mSynth.renderNextBlock(*bufferToFill.buffer, midi, bufferToFill.startSample, bufferToFill.numSamples);
+        mSynth.renderNextBlock(*bufferToFill.buffer, bufferToFill.startSample, bufferToFill.numSamples);
     }
 
     void releaseResources() override

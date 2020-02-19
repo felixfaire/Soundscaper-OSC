@@ -1,6 +1,7 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include "vec3.hpp"
 
 /** These classes are based on the Juce SpatialSynth classes
     but replace the midi functionality for arbitrary 
@@ -99,8 +100,7 @@ public:
     */
     virtual void startNote (int midiNoteNumber,
                             float velocity,
-                            SpatialSynthSound* sound,
-                            int currentPitchWheelPosition) = 0;
+                            SpatialSynthSound* sound) = 0;
 
     /** Called to stop a note.
 
@@ -128,22 +128,8 @@ public:
     /** Called to let the voice know that the pitch wheel has been moved.
         This will be called during the rendering callback, so must be fast and thread-safe.
     */
-    virtual void pitchWheelMoved (int newPitchWheelValue) = 0;
+    virtual void positionChanged (glm::vec3 position) = 0;
 
-    /** Called to let the voice know that a midi controller has been moved.
-        This will be called during the rendering callback, so must be fast and thread-safe.
-    */
-    virtual void controllerMoved (int controllerNumber, int newControllerValue) = 0;
-
-    /** Called to let the voice know that the aftertouch has changed.
-        This will be called during the rendering callback, so must be fast and thread-safe.
-    */
-    virtual void aftertouchChanged (int newAftertouchValue);
-
-    /** Called to let the voice know that the channel pressure has changed.
-        This will be called during the rendering callback, so must be fast and thread-safe.
-    */
-    virtual void channelPressureChanged (int newChannelPressureValue);
 
     //==============================================================================
     /** Renders the next block of data for this voice.
@@ -180,13 +166,7 @@ public:
     */
     virtual void setCurrentPlaybackSampleRate (double newRate);
 
-    /** Returns true if the voice is currently playing a sound which is mapped to the given
-        midi channel.
-
-        If it's not currently playing, this will return false.
-    */
-    virtual bool isPlayingChannel (int midiChannel) const;
-
+    
     /** Returns the current target sample rate at which rendering is being done.
         Subclasses may need to know this so that they can pitch things correctly.
     */
@@ -203,22 +183,10 @@ public:
     */
     void setKeyDown (bool isNowDown) noexcept                   { keyIsDown = isNowDown; }
 
-    /** Returns true if the sustain pedal is currently active for this voice. */
-    bool isSustainPedalDown() const noexcept                    { return sustainPedalDown; }
-
-    /** Modifies the sustain pedal flag. */
-    void setSustainPedalDown (bool isNowDown) noexcept          { sustainPedalDown = isNowDown; }
-
-    /** Returns true if the sostenuto pedal is currently active for this voice. */
-    bool isSostenutoPedalDown() const noexcept                  { return sostenutoPedalDown; }
-
-    /** Modifies the sostenuto pedal flag. */
-    void setSostenutoPedalDown (bool isNowDown) noexcept        { sostenutoPedalDown = isNowDown; }
-
     /** Returns true if a voice is sounding in its release phase **/
     bool isPlayingButReleased() const noexcept
     {
-        return isVoiceActive() && ! (isKeyDown() || isSostenutoPedalDown() || isSustainPedalDown());
+        return isVoiceActive() && !isKeyDown();
     }
 
     /** Returns true if this voice started playing its current note before the other voice did. */
@@ -245,10 +213,11 @@ private:
     friend class SpatialSynth;
 
     double currentSampleRate = 44100.0;
-    int currentlyPlayingNote = -1, currentPlayingMidiChannel = 0;
+    int currentlyPlayingNote = -1;
     uint32 noteOnTime = 0;
     SpatialSynthSound::Ptr currentlyPlayingSound;
-    bool keyIsDown = false, sustainPedalDown = false, sostenutoPedalDown = false;
+    bool keyIsDown = false;
+    
 
     AudioBuffer<float> tempBuffer;
 
@@ -365,8 +334,7 @@ public:
 
         The midiChannel parameter is the channel, between 1 and 16 inclusive.
     */
-    virtual void noteOn (int midiChannel,
-                         int midiNoteNumber,
+    virtual void noteOn (int midiNoteNumber,
                          float velocity);
 
     /** Triggers a note-off event.
@@ -381,8 +349,7 @@ public:
 
         The midiChannel parameter is the channel, between 1 and 16 inclusive.
     */
-    virtual void noteOff (int midiChannel,
-                          int midiNoteNumber,
+    virtual void noteOff (int midiNoteNumber,
                           float velocity,
                           bool allowTailOff);
 
@@ -400,8 +367,7 @@ public:
         This method will be called automatically according to the midi data passed into
         renderNextBlock(), but may be called explicitly too.
     */
-    virtual void allNotesOff (int midiChannel,
-                              bool allowTailOff);
+    virtual void allNotesOff (bool allowTailOff);
 
     /** Sends a pitch-wheel message to any active voices.
 
@@ -414,69 +380,9 @@ public:
         @param midiChannel          the midi channel, from 1 to 16 inclusive
         @param wheelValue           the wheel position, from 0 to 0x3fff, as returned by MidiMessage::getPitchWheelValue()
     */
-    virtual void handlePitchWheel (int midiChannel,
-                                   int wheelValue);
+    virtual void handlePositionChange (int noteID,
+                                      glm::vec3 newPosition);
 
-    /** Sends a midi controller message to any active voices.
-
-        This will send a midi controller message to any voices that are playing sounds on
-        the given midi channel.
-
-        This method will be called automatically according to the midi data passed into
-        renderNextBlock(), but may be called explicitly too.
-
-        @param midiChannel          the midi channel, from 1 to 16 inclusive
-        @param controllerNumber     the midi controller type, as returned by MidiMessage::getControllerNumber()
-        @param controllerValue      the midi controller value, between 0 and 127, as returned by MidiMessage::getControllerValue()
-    */
-    virtual void handleController (int midiChannel,
-                                   int controllerNumber,
-                                   int controllerValue);
-
-    /** Sends an aftertouch message.
-
-        This will send an aftertouch message to any voices that are playing sounds on
-        the given midi channel and note number.
-
-        This method will be called automatically according to the midi data passed into
-        renderNextBlock(), but may be called explicitly too.
-
-        @param midiChannel          the midi channel, from 1 to 16 inclusive
-        @param midiNoteNumber       the midi note number, 0 to 127
-        @param aftertouchValue      the aftertouch value, between 0 and 127,
-                                    as returned by MidiMessage::getAftertouchValue()
-    */
-    virtual void handleAftertouch (int midiChannel, int midiNoteNumber, int aftertouchValue);
-
-    /** Sends a channel pressure message.
-
-        This will send a channel pressure message to any voices that are playing sounds on
-        the given midi channel.
-
-        This method will be called automatically according to the midi data passed into
-        renderNextBlock(), but may be called explicitly too.
-
-        @param midiChannel              the midi channel, from 1 to 16 inclusive
-        @param channelPressureValue     the pressure value, between 0 and 127, as returned
-                                        by MidiMessage::getChannelPressureValue()
-    */
-    virtual void handleChannelPressure (int midiChannel, int channelPressureValue);
-
-    /** Handles a sustain pedal event. */
-    virtual void handleSustainPedal (int midiChannel, bool isDown);
-
-    /** Handles a sostenuto pedal event. */
-    virtual void handleSostenutoPedal (int midiChannel, bool isDown);
-
-    /** Can be overridden to handle soft pedal events. */
-    virtual void handleSoftPedal (int midiChannel, bool isDown);
-
-    /** Can be overridden to handle an incoming program change message.
-        The base class implementation of this has no effect, but you may want to make your
-        own synth react to program changes.
-    */
-    virtual void handleProgramChange (int midiChannel,
-                                      int programNumber);
 
     //==============================================================================
     /** Tells the synthesiser what the sample rate is for the audio it's being used to render.
@@ -499,12 +405,10 @@ public:
         with timestamps outside the specified region will be ignored.
     */
     void renderNextBlock (AudioBuffer<float>& outputAudio,
-                          const MidiBuffer& inputMidi,
                           int startSample,
                           int numSamples);
 
     void renderNextBlock (AudioBuffer<double>& outputAudio,
-                          const MidiBuffer& inputMidi,
                           int startSample,
                           int numSamples);
 
@@ -543,9 +447,6 @@ protected:
     OwnedArray<SpatialSynthVoice> voices;
     ReferenceCountedArray<SpatialSynthSound> sounds;
 
-    /** The last pitch-wheel values for each midi channel. */
-    int lastPitchWheelValues [16];
-
     /** Renders the voices for the given range.
         By default this just calls renderNextBlock() on each voice, but you may need
         to override it to handle custom cases.
@@ -564,9 +465,8 @@ protected:
         method, or (preferably) override findVoiceToSteal().
     */
     virtual SpatialSynthVoice* findFreeVoice (SpatialSynthSound* soundToPlay,
-                                             int midiChannel,
-                                             int midiNoteNumber,
-                                             bool stealIfNoneAvailable) const;
+                                              int midiNoteNumber,
+                                              bool stealIfNoneAvailable) const;
 
     /** Chooses a voice that is most suitable for being re-used.
         The default method will attempt to find the oldest voice that isn't the
@@ -574,8 +474,7 @@ protected:
         you can override this method and do something more cunning instead.
     */
     virtual SpatialSynthVoice* findVoiceToSteal (SpatialSynthSound* soundToPlay,
-                                                int midiChannel,
-                                                int midiNoteNumber) const;
+                                                 int midiNoteNumber) const;
 
     /** Starts a specified voice playing a particular sound.
         You'll probably never need to call this, it's used internally by noteOn(), but
@@ -583,7 +482,6 @@ protected:
     */
     void startVoice (SpatialSynthVoice* voice,
                      SpatialSynthSound* sound,
-                     int midiChannel,
                      int midiNoteNumber,
                      float velocity);
 
@@ -594,8 +492,6 @@ protected:
     */
     void stopVoice (SpatialSynthVoice*, float velocity, bool allowTailOff);
 
-    /** Can be overridden to do custom handling of incoming midi events. */
-    virtual void handleMidiEvent (const MidiMessage&);
 
 private:
     //==============================================================================
@@ -604,18 +500,9 @@ private:
     int minimumSubBlockSize = 32;
     bool subBlockSubdivisionIsStrict = false;
     bool shouldStealNotes = true;
-    BigInteger sustainPedalsDown;
 
     template <typename floatType>
-    void processNextBlock (AudioBuffer<floatType>&, const MidiBuffer&, int startSample, int numSamples);
-
-   #if JUCE_CATCH_DEPRECATED_CODE_MISUSE
-    // Note the new parameters for these methods.
-    virtual int findFreeVoice (const bool) const { return 0; }
-    virtual int noteOff (int, int, int) { return 0; }
-    virtual int findFreeVoice (SpatialSynthSound*, const bool) { return 0; }
-    virtual int findVoiceToSteal (SpatialSynthSound*) const { return 0; }
-   #endif
+    void processNextBlock (AudioBuffer<floatType>&, int startSample, int numSamples);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SpatialSynth)
 };

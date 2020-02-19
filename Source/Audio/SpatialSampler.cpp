@@ -39,7 +39,7 @@ bool SpatialSamplerVoice::canPlaySound (SpatialSynthSound* sound)
     return dynamic_cast<const SpatialSamplerSound*> (sound) != nullptr;
 }
 
-void SpatialSamplerVoice::startNote (int midiNoteNumber, float velocity, SpatialSynthSound* s, int /*currentPitchWheelPosition*/)
+void SpatialSamplerVoice::startNote (int midiNoteNumber, float velocity, SpatialSynthSound* s)
 {
     if (auto* sound = dynamic_cast<const SpatialSamplerSound*> (s))
     {
@@ -74,7 +74,6 @@ void SpatialSamplerVoice::stopNote (float /*velocity*/, bool allowTailOff)
     }
 }
 
-void SpatialSamplerVoice::pitchWheelMoved (int /*newValue*/) {}
 
 //==============================================================================
 void SpatialSamplerVoice::renderNextBlock (AudioBuffer<float>& outputBuffer, int startSample, int numSamples)

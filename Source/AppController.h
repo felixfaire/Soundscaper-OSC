@@ -61,7 +61,7 @@ public:
     void triggerSource(int index, glm::vec3 pos)
     {
         const int noteNum = index;
-        mAudio.mSynth.noteOn(1, noteNum, 1.0f);
+        mAudio.mSynth.noteOn(noteNum, 1.0f);
     }
     
     AudioDeviceManager& getDeviceManager() { return mAudio.getDeviceManager(); }

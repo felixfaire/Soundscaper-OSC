@@ -8,11 +8,6 @@ SpatialSynthSound::~SpatialSynthSound() {}
 SpatialSynthVoice::SpatialSynthVoice() {}
 SpatialSynthVoice::~SpatialSynthVoice() {}
 
-bool SpatialSynthVoice::isPlayingChannel (const int midiChannel) const
-{
-    return currentPlayingMidiChannel == midiChannel;
-}
-
 void SpatialSynthVoice::setCurrentPlaybackSampleRate (const double newRate)
 {
     currentSampleRate = newRate;
@@ -27,11 +22,7 @@ void SpatialSynthVoice::clearCurrentNote()
 {
     currentlyPlayingNote = -1;
     currentlyPlayingSound = nullptr;
-    currentPlayingMidiChannel = 0;
 }
-
-void SpatialSynthVoice::aftertouchChanged (int) {}
-void SpatialSynthVoice::channelPressureChanged (int) {}
 
 bool SpatialSynthVoice::wasStartedBefore (const SpatialSynthVoice& other) const noexcept
 {
@@ -53,8 +44,7 @@ void SpatialSynthVoice::renderNextBlock (AudioBuffer<double>& outputBuffer,
 //==============================================================================
 SpatialSynth::SpatialSynth()
 {
-    for (int i = 0; i < numElementsInArray (lastPitchWheelValues); ++i)
-        lastPitchWheelValues[i] = 0x2000;
+    
 }
 
 SpatialSynth::~SpatialSynth()
@@ -123,7 +113,7 @@ void SpatialSynth::setCurrentPlaybackSampleRate (const double newRate)
     if (sampleRate != newRate)
     {
         const ScopedLock sl (lock);
-        allNotesOff (0, false);
+        allNotesOff (false);
         sampleRate = newRate;
 
         for (auto* voice : voices)
@@ -133,78 +123,33 @@ void SpatialSynth::setCurrentPlaybackSampleRate (const double newRate)
 
 template <typename floatType>
 void SpatialSynth::processNextBlock (AudioBuffer<floatType>& outputAudio,
-                                    const MidiBuffer& midiData,
                                     int startSample,
                                     int numSamples)
 {
     // must set the sample rate before using this!
     jassert (sampleRate != 0);
     const int targetChannels = outputAudio.getNumChannels();
-
-    MidiBuffer::Iterator midiIterator (midiData);
-    midiIterator.setNextSamplePosition (startSample);
-
-    bool firstEvent = true;
-    int midiEventPos;
-    MidiMessage m;
-
+    
     const ScopedLock sl (lock);
-
-    while (numSamples > 0)
-    {
-        if (! midiIterator.getNextEvent (m, midiEventPos))
-        {
-            if (targetChannels > 0)
-                renderVoices (outputAudio, startSample, numSamples);
-
-            return;
-        }
-
-        const int samplesToNextMidiMessage = midiEventPos - startSample;
-
-        if (samplesToNextMidiMessage >= numSamples)
-        {
-            if (targetChannels > 0)
-                renderVoices (outputAudio, startSample, numSamples);
-
-            handleMidiEvent (m);
-            break;
-        }
-
-        if (samplesToNextMidiMessage < ((firstEvent && ! subBlockSubdivisionIsStrict) ? 1 : minimumSubBlockSize))
-        {
-            handleMidiEvent (m);
-            continue;
-        }
-
-        firstEvent = false;
-
-        if (targetChannels > 0)
-            renderVoices (outputAudio, startSample, samplesToNextMidiMessage);
-
-        handleMidiEvent (m);
-        startSample += samplesToNextMidiMessage;
-        numSamples  -= samplesToNextMidiMessage;
-    }
-
-    while (midiIterator.getNextEvent (m, midiEventPos))
-        handleMidiEvent (m);
+    
+    if (targetChannels > 0)
+        renderVoices (outputAudio, startSample, numSamples);
 }
 
 // explicit template instantiation
-template void SpatialSynth::processNextBlock<float>  (AudioBuffer<float>&,  const MidiBuffer&, int, int);
-template void SpatialSynth::processNextBlock<double> (AudioBuffer<double>&, const MidiBuffer&, int, int);
+template void SpatialSynth::processNextBlock<float>  (AudioBuffer<float>&,  int, int);
+template void SpatialSynth::processNextBlock<double> (AudioBuffer<double>&, int, int);
 
-void SpatialSynth::renderNextBlock (AudioBuffer<float>& outputAudio, const MidiBuffer& inputMidi,
+void SpatialSynth::renderNextBlock (AudioBuffer<float>& outputAudio,
                                    int startSample, int numSamples)
 {
-    processNextBlock (outputAudio, inputMidi, startSample, numSamples);
+    processNextBlock (outputAudio, startSample, numSamples);
 }
 
-void SpatialSynth::renderNextBlock (AudioBuffer<double>& outputAudio, const MidiBuffer& inputMidi,
+void SpatialSynth::renderNextBlock (AudioBuffer<double>& outputAudio,
                                    int startSample, int numSamples)
 {
-    processNextBlock (outputAudio, inputMidi, startSample, numSamples);
+    processNextBlock (outputAudio, startSample, numSamples);
 }
 
 void SpatialSynth::renderVoices (AudioBuffer<float>& buffer, int startSample, int numSamples)
@@ -219,49 +164,8 @@ void SpatialSynth::renderVoices (AudioBuffer<double>& buffer, int startSample, i
         voice->renderNextBlock (buffer, startSample, numSamples);
 }
 
-void SpatialSynth::handleMidiEvent (const MidiMessage& m)
-{
-    const int channel = m.getChannel();
-
-    if (m.isNoteOn())
-    {
-        noteOn (channel, m.getNoteNumber(), m.getFloatVelocity());
-    }
-    else if (m.isNoteOff())
-    {
-        noteOff (channel, m.getNoteNumber(), m.getFloatVelocity(), true);
-    }
-    else if (m.isAllNotesOff() || m.isAllSoundOff())
-    {
-        allNotesOff (channel, true);
-    }
-    else if (m.isPitchWheel())
-    {
-        const int wheelPos = m.getPitchWheelValue();
-        lastPitchWheelValues [channel - 1] = wheelPos;
-        handlePitchWheel (channel, wheelPos);
-    }
-    else if (m.isAftertouch())
-    {
-        handleAftertouch (channel, m.getNoteNumber(), m.getAfterTouchValue());
-    }
-    else if (m.isChannelPressure())
-    {
-        handleChannelPressure (channel, m.getChannelPressureValue());
-    }
-    else if (m.isController())
-    {
-        handleController (channel, m.getControllerNumber(), m.getControllerValue());
-    }
-    else if (m.isProgramChange())
-    {
-        handleProgramChange (channel, m.getProgramChangeNumber());
-    }
-}
-
 //==============================================================================
-void SpatialSynth::noteOn (const int midiChannel,
-                           const int midiNoteNumber,
+void SpatialSynth::noteOn (const int midiNoteNumber,
                            const float velocity)
 {
     const ScopedLock sl (lock);
@@ -273,18 +177,17 @@ void SpatialSynth::noteOn (const int midiChannel,
             // If hitting a note that's still ringing, stop it first (it could be
             // still playing because of the sustain or sostenuto pedal).
             for (auto* voice : voices)
-                if (voice->getCurrentlyPlayingNote() == midiNoteNumber && voice->isPlayingChannel (midiChannel))
+                if (voice->getCurrentlyPlayingNote() == midiNoteNumber)
                     stopVoice (voice, 1.0f, true);
 
-            startVoice (findFreeVoice (sound, midiChannel, midiNoteNumber, shouldStealNotes),
-                        sound, midiChannel, midiNoteNumber, velocity);
+            startVoice (findFreeVoice (sound, midiNoteNumber, shouldStealNotes),
+                        sound, midiNoteNumber, velocity);
         }
     }
 }
 
 void SpatialSynth::startVoice (SpatialSynthVoice* const voice,
                               SpatialSynthSound* const sound,
-                              const int midiChannel,
                               const int midiNoteNumber,
                               const float velocity)
 {
@@ -294,15 +197,11 @@ void SpatialSynth::startVoice (SpatialSynthVoice* const voice,
             voice->stopNote (0.0f, false);
 
         voice->currentlyPlayingNote = midiNoteNumber;
-        voice->currentPlayingMidiChannel = midiChannel;
         voice->noteOnTime = ++lastNoteOnCounter;
         voice->currentlyPlayingSound = sound;
         voice->setKeyDown (true);
-        voice->setSostenutoPedalDown (false);
-        voice->setSustainPedalDown (sustainPedalsDown[midiChannel]);
 
-        voice->startNote (midiNoteNumber, velocity, sound,
-                          lastPitchWheelValues [midiChannel - 1]);
+        voice->startNote (midiNoteNumber, velocity, sound);
     }
 }
 
@@ -316,155 +215,53 @@ void SpatialSynth::stopVoice (SpatialSynthVoice* voice, float velocity, const bo
     jassert (allowTailOff || (voice->getCurrentlyPlayingNote() < 0 && voice->getCurrentlyPlayingSound() == nullptr));
 }
 
-void SpatialSynth::noteOff (const int midiChannel,
-                           const int midiNoteNumber,
-                           const float velocity,
-                           const bool allowTailOff)
+void SpatialSynth::noteOff (const int midiNoteNumber,
+                            const float velocity,
+                            const bool allowTailOff)
 {
     const ScopedLock sl (lock);
 
     for (auto* voice : voices)
     {
-        if (voice->getCurrentlyPlayingNote() == midiNoteNumber
-              && voice->isPlayingChannel (midiChannel))
+        if (voice->getCurrentlyPlayingNote() == midiNoteNumber)
         {
             if (auto sound = voice->getCurrentlyPlayingSound())
             {
                 if (sound->appliesToNote (midiNoteNumber))
                 {
-                    jassert (! voice->keyIsDown || voice->isSustainPedalDown() == sustainPedalsDown [midiChannel]);
+                    jassert (!voice->keyIsDown);
 
                     voice->setKeyDown (false);
 
-                    if (! (voice->isSustainPedalDown() || voice->isSostenutoPedalDown()))
-                        stopVoice (voice, velocity, allowTailOff);
+                    stopVoice (voice, velocity, allowTailOff);
                 }
             }
         }
     }
 }
 
-void SpatialSynth::allNotesOff (const int midiChannel, const bool allowTailOff)
+void SpatialSynth::allNotesOff (const bool allowTailOff)
 {
     const ScopedLock sl (lock);
 
     for (auto* voice : voices)
-        if (midiChannel <= 0 || voice->isPlayingChannel (midiChannel))
-            voice->stopNote (1.0f, allowTailOff);
-
-    sustainPedalsDown.clear();
+        voice->stopNote (1.0f, allowTailOff);
 }
 
-void SpatialSynth::handlePitchWheel (const int midiChannel, const int wheelValue)
+void SpatialSynth::handlePositionChange (int noteID, glm::vec3 newPosition)
 {
     const ScopedLock sl (lock);
 
     for (auto* voice : voices)
-        if (midiChannel <= 0 || voice->isPlayingChannel (midiChannel))
-            voice->pitchWheelMoved (wheelValue);
+        if (voice->getCurrentlyPlayingNote() == noteID)
+            voice->positionChanged (newPosition);
 }
 
-void SpatialSynth::handleController (const int midiChannel,
-                                    const int controllerNumber,
-                                    const int controllerValue)
-{
-    switch (controllerNumber)
-    {
-        case 0x40:  handleSustainPedal   (midiChannel, controllerValue >= 64); break;
-        case 0x42:  handleSostenutoPedal (midiChannel, controllerValue >= 64); break;
-        case 0x43:  handleSoftPedal      (midiChannel, controllerValue >= 64); break;
-        default:    break;
-    }
-
-    const ScopedLock sl (lock);
-
-    for (auto* voice : voices)
-        if (midiChannel <= 0 || voice->isPlayingChannel (midiChannel))
-            voice->controllerMoved (controllerNumber, controllerValue);
-}
-
-void SpatialSynth::handleAftertouch (int midiChannel, int midiNoteNumber, int aftertouchValue)
-{
-    const ScopedLock sl (lock);
-
-    for (auto* voice : voices)
-        if (voice->getCurrentlyPlayingNote() == midiNoteNumber
-              && (midiChannel <= 0 || voice->isPlayingChannel (midiChannel)))
-            voice->aftertouchChanged (aftertouchValue);
-}
-
-void SpatialSynth::handleChannelPressure (int midiChannel, int channelPressureValue)
-{
-    const ScopedLock sl (lock);
-
-    for (auto* voice : voices)
-        if (midiChannel <= 0 || voice->isPlayingChannel (midiChannel))
-            voice->channelPressureChanged (channelPressureValue);
-}
-
-void SpatialSynth::handleSustainPedal (int midiChannel, bool isDown)
-{
-    jassert (midiChannel > 0 && midiChannel <= 16);
-    const ScopedLock sl (lock);
-
-    if (isDown)
-    {
-        sustainPedalsDown.setBit (midiChannel);
-
-        for (auto* voice : voices)
-            if (voice->isPlayingChannel (midiChannel) && voice->isKeyDown())
-                voice->setSustainPedalDown (true);
-    }
-    else
-    {
-        for (auto* voice : voices)
-        {
-            if (voice->isPlayingChannel (midiChannel))
-            {
-                voice->setSustainPedalDown (false);
-
-                if (! (voice->isKeyDown() || voice->isSostenutoPedalDown()))
-                    stopVoice (voice, 1.0f, true);
-            }
-        }
-
-        sustainPedalsDown.clearBit (midiChannel);
-    }
-}
-
-void SpatialSynth::handleSostenutoPedal (int midiChannel, bool isDown)
-{
-    jassert (midiChannel > 0 && midiChannel <= 16);
-    const ScopedLock sl (lock);
-
-    for (auto* voice : voices)
-    {
-        if (voice->isPlayingChannel (midiChannel))
-        {
-            if (isDown)
-                voice->setSostenutoPedalDown (true);
-            else if (voice->isSostenutoPedalDown())
-                stopVoice (voice, 1.0f, true);
-        }
-    }
-}
-
-void SpatialSynth::handleSoftPedal (int midiChannel, bool /*isDown*/)
-{
-    ignoreUnused (midiChannel);
-    jassert (midiChannel > 0 && midiChannel <= 16);
-}
-
-void SpatialSynth::handleProgramChange (int midiChannel, int programNumber)
-{
-    ignoreUnused (midiChannel, programNumber);
-    jassert (midiChannel > 0 && midiChannel <= 16);
-}
 
 //==============================================================================
 SpatialSynthVoice* SpatialSynth::findFreeVoice (SpatialSynthSound* soundToPlay,
-                                              int midiChannel, int midiNoteNumber,
-                                              const bool stealIfNoneAvailable) const
+                                                int midiNoteNumber,
+                                                const bool stealIfNoneAvailable) const
 {
     const ScopedLock sl (lock);
 
@@ -473,13 +270,13 @@ SpatialSynthVoice* SpatialSynth::findFreeVoice (SpatialSynthSound* soundToPlay,
             return voice;
 
     if (stealIfNoneAvailable)
-        return findVoiceToSteal (soundToPlay, midiChannel, midiNoteNumber);
+        return findVoiceToSteal (soundToPlay, midiNoteNumber);
 
     return nullptr;
 }
 
 SpatialSynthVoice* SpatialSynth::findVoiceToSteal (SpatialSynthSound* soundToPlay,
-                                                 int /*midiChannel*/, int midiNoteNumber) const
+                                                   int midiNoteNumber) const
 {
     // This voice-stealing algorithm applies the following heuristics:
     // - Re-use the oldest notes first

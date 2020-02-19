@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="gowFme" name="OSCAudioPlayer" projectType="guiapp" jucerVersion="5.4.6"
+<JUCERPROJECT id="gowFme" name="OSCAudioPlayer" projectType="guiapp" jucerVersion="5.4.7"
               headerPath="../../../../glm/glm/">
   <MAINGROUP id="FyPVfO" name="OSCAudioPlayer">
     <GROUP id="{C0A6F8B8-450C-163F-77B6-E0380DEB11BE}" name="Assets">

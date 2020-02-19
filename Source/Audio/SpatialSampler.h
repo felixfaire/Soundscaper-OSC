@@ -64,7 +64,7 @@ public:
     void setEnvelopeParameters (ADSR::Parameters parametersToUse)    { params = parametersToUse; }
 
     //==============================================================================
-    bool appliesToNote (int note) override {return note == noteID; };
+    bool appliesToNote (int note) override { return note == noteID; };
 
 private:
     //==============================================================================
@@ -107,10 +107,10 @@ public:
     //==============================================================================
     bool canPlaySound (SpatialSynthSound*) override;
 
-    void startNote (int midiNoteNumber, float velocity, SpatialSynthSound*, int pitchWheel) override;
+    void startNote (int midiNoteNumber, float velocity, SpatialSynthSound*) override;
     void stopNote (float velocity, bool allowTailOff) override;
 
-    void pitchWheelMoved (int newValue) override;
+    void positionChanged (glm::vec3 newValue) override {}
 
     void renderNextBlock (AudioBuffer<float>&, int startSample, int numSamples) override;
     using SpatialSynthVoice::renderNextBlock;
