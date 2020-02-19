@@ -1,45 +1,6 @@
 
 #include "SpatialSynth.h"
 
-SpatialSynthSound::SpatialSynthSound() {}
-SpatialSynthSound::~SpatialSynthSound() {}
-
-//==============================================================================
-SpatialSynthVoice::SpatialSynthVoice() {}
-SpatialSynthVoice::~SpatialSynthVoice() {}
-
-void SpatialSynthVoice::setCurrentPlaybackSampleRate (const double newRate)
-{
-    currentSampleRate = newRate;
-}
-
-bool SpatialSynthVoice::isVoiceActive() const
-{
-    return getCurrentlyPlayingNote() >= 0;
-}
-
-void SpatialSynthVoice::clearCurrentNote()
-{
-    currentlyPlayingNote = -1;
-    currentlyPlayingSound = nullptr;
-}
-
-bool SpatialSynthVoice::wasStartedBefore (const SpatialSynthVoice& other) const noexcept
-{
-    return noteOnTime < other.noteOnTime;
-}
-
-void SpatialSynthVoice::renderNextBlock (AudioBuffer<double>& outputBuffer,
-                                        int startSample, int numSamples)
-{
-    AudioBuffer<double> subBuffer (outputBuffer.getArrayOfWritePointers(),
-                                   outputBuffer.getNumChannels(),
-                                   startSample, numSamples);
-
-    tempBuffer.makeCopyOf (subBuffer, true);
-    renderNextBlock (tempBuffer, 0, numSamples);
-    subBuffer.makeCopyOf (tempBuffer, true);
-}
 
 //==============================================================================
 SpatialSynth::SpatialSynth()
@@ -108,7 +69,7 @@ void SpatialSynth::setMinimumRenderingSubdivisionSize (int numSamples, bool shou
 }
 
 //==============================================================================
-void SpatialSynth::setCurrentPlaybackSampleRate (const double newRate)
+void SpatialSynth::setOutputInfo (int numChannels, const double newRate)
 {
     if (sampleRate != newRate)
     {
@@ -117,7 +78,7 @@ void SpatialSynth::setCurrentPlaybackSampleRate (const double newRate)
         sampleRate = newRate;
 
         for (auto* voice : voices)
-            voice->setCurrentPlaybackSampleRate (newRate);
+            voice->setOutputInfo(numChannels, newRate);
     }
 }
 
@@ -166,7 +127,8 @@ void SpatialSynth::renderVoices (AudioBuffer<double>& buffer, int startSample, i
 
 //==============================================================================
 void SpatialSynth::noteOn (const int midiNoteNumber,
-                           const float velocity)
+                           const float velocity,
+                           const glm::vec3& pos)
 {
     const ScopedLock sl (lock);
 
@@ -181,7 +143,7 @@ void SpatialSynth::noteOn (const int midiNoteNumber,
                     stopVoice (voice, 1.0f, true);
 
             startVoice (findFreeVoice (sound, midiNoteNumber, shouldStealNotes),
-                        sound, midiNoteNumber, velocity);
+                        sound, midiNoteNumber, velocity, pos);
         }
     }
 }
@@ -189,7 +151,8 @@ void SpatialSynth::noteOn (const int midiNoteNumber,
 void SpatialSynth::startVoice (SpatialSynthVoice* const voice,
                               SpatialSynthSound* const sound,
                               const int midiNoteNumber,
-                              const float velocity)
+                              const float velocity,
+                              const glm::vec3& pos)
 {
     if (voice != nullptr && sound != nullptr)
     {
@@ -201,7 +164,7 @@ void SpatialSynth::startVoice (SpatialSynthVoice* const voice,
         voice->currentlyPlayingSound = sound;
         voice->setKeyDown (true);
 
-        voice->startNote (midiNoteNumber, velocity, sound);
+        voice->startNote (midiNoteNumber, velocity, pos, sound);
     }
 }
 

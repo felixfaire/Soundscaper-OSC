@@ -61,7 +61,7 @@ public:
 
     //==============================================================================
     /** Changes the parameters of the ADSR envelope which will be applied to the sample. */
-    void setEnvelopeParameters (ADSR::Parameters parametersToUse)    { params = parametersToUse; }
+    void setEnvelopeParameters (ADSR::Parameters parametersToUse)    { adsrParams = parametersToUse; }
 
     //==============================================================================
     bool appliesToNote (int note) override { return note == noteID; };
@@ -77,7 +77,7 @@ private:
     int length = 0;
     int noteID = 0;
 
-    ADSR::Parameters params;
+    ADSR::Parameters adsrParams;
 
     JUCE_LEAK_DETECTOR (SpatialSamplerSound)
 };
@@ -107,7 +107,7 @@ public:
     //==============================================================================
     bool canPlaySound (SpatialSynthSound*) override;
 
-    void startNote (int midiNoteNumber, float velocity, SpatialSynthSound*) override;
+    void startNote (int midiNoteNumber, float velocity, const glm::vec3& pos, SpatialSynthSound*) override;
     void stopNote (float velocity, bool allowTailOff) override;
 
     void positionChanged (glm::vec3 newValue) override {}
@@ -119,7 +119,7 @@ private:
     //==============================================================================
     double pitchRatio = 0;
     double sourceSamplePosition = 0;
-    float lgain = 0, rgain = 0;
+    glm::vec3 position;
 
     ADSR adsr;
 

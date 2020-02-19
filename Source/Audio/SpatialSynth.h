@@ -1,229 +1,14 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "vec3.hpp"
 
-/** These classes are based on the Juce SpatialSynth classes
+#include "SpatialSynthSound.h"
+#include "SpatialSynthVoice.h"
+
+/** These classes are based on the Juce Synth classes
     but replace the midi functionality for arbitrary 
     control sources and prioritise multichannel output.
 */
-
-//==============================================================================
-/**
-    Describes one of the sounds that a SpatialSynth can play.
-
-    A synthesiser can contain one or more sounds, and a sound can choose which
-    midi notes and channels can trigger it.
-
-    The SpatialSynthSound is a passive class that just describes what the sound is -
-    the actual audio rendering for a sound is done by a SpatialSynthVoice. This allows
-    more than one SpatialSynthVoice to play the same sound at the same time.
-
-    @see SpatialSynth, SpatialSynthVoice
-
-    @tags{Audio}
-*/
-class SpatialSynthSound    : public ReferenceCountedObject
-{
-protected:
-    //==============================================================================
-    SpatialSynthSound();
-
-public:
-    /** Destructor. */
-    ~SpatialSynthSound() override;
-
-    //==============================================================================
-    /** Returns true if this sound should be played when a given midi note is pressed.
-
-        The SpatialSynth will use this information when deciding which sounds to trigger
-        for a given note.
-    */
-    virtual bool appliesToNote (int midiNoteNumber) = 0;
-
-
-    /** The class is reference-counted, so this is a handy pointer class for it. */
-    using Ptr = ReferenceCountedObjectPtr<SpatialSynthSound>;
-
-
-private:
-    //==============================================================================
-    JUCE_LEAK_DETECTOR (SpatialSynthSound)
-};
-
-
-//==============================================================================
-/**
-    Represents a voice that a SpatialSynth can use to play a SpatialSynthSound.
-
-    A voice plays a single sound at a time, and a synthesiser holds an array of
-    voices so that it can play polyphonically.
-
-    @see SpatialSynth, SpatialSynthSound
-
-    @tags{Audio}
-*/
-class SpatialSynthVoice
-{
-public:
-    //==============================================================================
-    /** Creates a voice. */
-    SpatialSynthVoice();
-
-    /** Destructor. */
-    virtual ~SpatialSynthVoice();
-
-    //==============================================================================
-    /** Returns the midi note that this voice is currently playing.
-        Returns a value less than 0 if no note is playing.
-    */
-    int getCurrentlyPlayingNote() const noexcept                        { return currentlyPlayingNote; }
-
-    /** Returns the sound that this voice is currently playing.
-        Returns nullptr if it's not playing.
-    */
-    SpatialSynthSound::Ptr getCurrentlyPlayingSound() const noexcept     { return currentlyPlayingSound; }
-
-    /** Must return true if this voice object is capable of playing the given sound.
-
-        If there are different classes of sound, and different classes of voice, a voice can
-        choose which ones it wants to take on.
-
-        A typical implementation of this method may just return true if there's only one type
-        of voice and sound, or it might check the type of the sound object passed-in and
-        see if it's one that it understands.
-    */
-    virtual bool canPlaySound (SpatialSynthSound*) = 0;
-
-    /** Called to start a new note.
-        This will be called during the rendering callback, so must be fast and thread-safe.
-    */
-    virtual void startNote (int midiNoteNumber,
-                            float velocity,
-                            SpatialSynthSound* sound) = 0;
-
-    /** Called to stop a note.
-
-        This will be called during the rendering callback, so must be fast and thread-safe.
-
-        The velocity indicates how quickly the note was released - 0 is slowly, 1 is quickly.
-
-        If allowTailOff is false or the voice doesn't want to tail-off, then it must stop all
-        sound immediately, and must call clearCurrentNote() to reset the state of this voice
-        and allow the synth to reassign it another sound.
-
-        If allowTailOff is true and the voice decides to do a tail-off, then it's allowed to
-        begin fading out its sound, and it can stop playing until it's finished. As soon as it
-        finishes playing (during the rendering callback), it must make sure that it calls
-        clearCurrentNote().
-    */
-    virtual void stopNote (float velocity, bool allowTailOff) = 0;
-
-    /** Returns true if this voice is currently busy playing a sound.
-        By default this just checks the getCurrentlyPlayingNote() value, but can
-        be overridden for more advanced checking.
-    */
-    virtual bool isVoiceActive() const;
-
-    /** Called to let the voice know that the pitch wheel has been moved.
-        This will be called during the rendering callback, so must be fast and thread-safe.
-    */
-    virtual void positionChanged (glm::vec3 position) = 0;
-
-
-    //==============================================================================
-    /** Renders the next block of data for this voice.
-
-        The output audio data must be added to the current contents of the buffer provided.
-        Only the region of the buffer between startSample and (startSample + numSamples)
-        should be altered by this method.
-
-        If the voice is currently silent, it should just return without doing anything.
-
-        If the sound that the voice is playing finishes during the course of this rendered
-        block, it must call clearCurrentNote(), to tell the synthesiser that it has finished.
-
-        The size of the blocks that are rendered can change each time it is called, and may
-        involve rendering as little as 1 sample at a time. In between rendering callbacks,
-        the voice's methods will be called to tell it about note and controller events.
-    */
-    virtual void renderNextBlock (AudioBuffer<float>& outputBuffer,
-                                  int startSample,
-                                  int numSamples) = 0;
-
-    /** A double-precision version of renderNextBlock() */
-    virtual void renderNextBlock (AudioBuffer<double>& outputBuffer,
-                                  int startSample,
-                                  int numSamples);
-
-    /** Changes the voice's reference sample rate.
-
-        The rate is set so that subclasses know the output rate and can set their pitch
-        accordingly.
-
-        This method is called by the synth, and subclasses can access the current rate with
-        the currentSampleRate member.
-    */
-    virtual void setCurrentPlaybackSampleRate (double newRate);
-
-    
-    /** Returns the current target sample rate at which rendering is being done.
-        Subclasses may need to know this so that they can pitch things correctly.
-    */
-    double getSampleRate() const noexcept                       { return currentSampleRate; }
-
-    /** Returns true if the key that triggered this voice is still held down.
-        Note that the voice may still be playing after the key was released (e.g because the
-        sostenuto pedal is down).
-    */
-    bool isKeyDown() const noexcept                             { return keyIsDown; }
-
-    /** Allows you to modify the flag indicating that the key that triggered this voice is still held down.
-        @see isKeyDown
-    */
-    void setKeyDown (bool isNowDown) noexcept                   { keyIsDown = isNowDown; }
-
-    /** Returns true if a voice is sounding in its release phase **/
-    bool isPlayingButReleased() const noexcept
-    {
-        return isVoiceActive() && !isKeyDown();
-    }
-
-    /** Returns true if this voice started playing its current note before the other voice did. */
-    bool wasStartedBefore (const SpatialSynthVoice& other) const noexcept;
-
-protected:
-    /** Resets the state of this voice after a sound has finished playing.
-
-        The subclass must call this when it finishes playing a note and becomes available
-        to play new ones.
-
-        It must either call it in the stopNote() method, or if the voice is tailing off,
-        then it should call it later during the renderNextBlock method, as soon as it
-        finishes its tail-off.
-
-        It can also be called at any time during the render callback if the sound happens
-        to have finished, e.g. if it's playing a sample and the sample finishes.
-    */
-    void clearCurrentNote();
-
-
-private:
-    //==============================================================================
-    friend class SpatialSynth;
-
-    double currentSampleRate = 44100.0;
-    int currentlyPlayingNote = -1;
-    uint32 noteOnTime = 0;
-    SpatialSynthSound::Ptr currentlyPlayingSound;
-    bool keyIsDown = false;
-    
-
-    AudioBuffer<float> tempBuffer;
-
-    JUCE_LEAK_DETECTOR (SpatialSynthVoice)
-};
-
 
 //==============================================================================
 /**
@@ -335,7 +120,8 @@ public:
         The midiChannel parameter is the channel, between 1 and 16 inclusive.
     */
     virtual void noteOn (int midiNoteNumber,
-                         float velocity);
+                         float velocity,
+                         const glm::vec3& pos);
 
     /** Triggers a note-off event.
 
@@ -390,7 +176,7 @@ public:
         This value is propagated to the voices so that they can use it to render the correct
         pitches.
     */
-    virtual void setCurrentPlaybackSampleRate (double sampleRate);
+    virtual void setOutputInfo (int numChannels, double sampleRate);
 
     /** Creates the next block of audio output.
 
@@ -483,7 +269,8 @@ protected:
     void startVoice (SpatialSynthVoice* voice,
                      SpatialSynthSound* sound,
                      int midiNoteNumber,
-                     float velocity);
+                     float velocity,
+                     const glm::vec3& pos);
 
     /** Stops a given voice.
         You should never need to call this, it's used internally by noteOff, but is protected

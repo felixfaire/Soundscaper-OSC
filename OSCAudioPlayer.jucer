@@ -18,6 +18,14 @@
         <FILE id="gIIQID" name="SpatialSynth.cpp" compile="1" resource="0"
               file="Source/Audio/SpatialSynth.cpp"/>
         <FILE id="GYRCvF" name="SpatialSynth.h" compile="0" resource="0" file="Source/Audio/SpatialSynth.h"/>
+        <FILE id="ktybeo" name="SpatialSynthSound.cpp" compile="1" resource="0"
+              file="Source/Audio/SpatialSynthSound.cpp"/>
+        <FILE id="NORDPb" name="SpatialSynthSound.h" compile="0" resource="0"
+              file="Source/Audio/SpatialSynthSound.h"/>
+        <FILE id="G9PsM1" name="SpatialSynthVoice.cpp" compile="1" resource="0"
+              file="Source/Audio/SpatialSynthVoice.cpp"/>
+        <FILE id="VXgex9" name="SpatialSynthVoice.h" compile="0" resource="0"
+              file="Source/Audio/SpatialSynthVoice.h"/>
       </GROUP>
       <GROUP id="{78B2BA97-B19B-FFD9-1DD4-16A761947A98}" name="UIElements">
         <FILE id="hg248b" name="MinimalLookAndFeel.h" compile="0" resource="0"

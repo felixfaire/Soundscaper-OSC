@@ -58,10 +58,10 @@ public:
         }
     }
     
-    void triggerSource(int index, glm::vec3 pos)
+    void triggerSource(int index, const glm::vec3& pos)
     {
         const int noteNum = index;
-        mAudio.mSynth.noteOn(noteNum, 1.0f);
+        mAudio.mSynth.noteOn(noteNum, 1.0f, pos);
     }
     
     AudioDeviceManager& getDeviceManager() { return mAudio.getDeviceManager(); }

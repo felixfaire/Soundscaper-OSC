@@ -20,8 +20,8 @@ SpatialSamplerSound::SpatialSamplerSound (const String& soundName,
 
         source.read (data.get(), 0, length + 4, 0, true, true);
 
-        params.attack  = static_cast<float> (attackTimeSecs);
-        params.release = static_cast<float> (releaseTimeSecs);
+        adsrParams.attack  = static_cast<float> (attackTimeSecs);
+        adsrParams.release = static_cast<float> (releaseTimeSecs);
     }
 }
 
@@ -39,19 +39,18 @@ bool SpatialSamplerVoice::canPlaySound (SpatialSynthSound* sound)
     return dynamic_cast<const SpatialSamplerSound*> (sound) != nullptr;
 }
 
-void SpatialSamplerVoice::startNote (int midiNoteNumber, float velocity, SpatialSynthSound* s)
+void SpatialSamplerVoice::startNote (int midiNoteNumber, float velocity, const glm::vec3& pos, SpatialSynthSound* s)
 {
     if (auto* sound = dynamic_cast<const SpatialSamplerSound*> (s))
     {
         /*pitchRatio = std::pow (2.0, (midiNoteNumber - sound->midiRootNote) / 12.0)
                         * sound->sourceSampleRate / getSampleRate();*/
         pitchRatio = 1.0;
+        position = pos;
         sourceSamplePosition = 0.0;
-        lgain = velocity;
-        rgain = velocity;
 
         adsr.setSampleRate (sound->sourceSampleRate);
-        adsr.setParameters (sound->params);
+        adsr.setParameters (sound->adsrParams);
 
         adsr.noteOn();
     }
@@ -89,8 +88,8 @@ void SpatialSamplerVoice::renderNextBlock (AudioBuffer<float>& outputBuffer, int
 
         while (--numSamples >= 0)
         {
-            auto pos = (int) sourceSamplePosition;
-            auto alpha = (float) (sourceSamplePosition - pos);
+            auto pos = (int)sourceSamplePosition;
+            auto alpha = (float)(sourceSamplePosition - pos);
             auto invAlpha = 1.0f - alpha;
 
             // just using a very simple linear interpolation here..
@@ -100,8 +99,8 @@ void SpatialSamplerVoice::renderNextBlock (AudioBuffer<float>& outputBuffer, int
 
             auto envelopeValue = adsr.getNextSample();
 
-            l *= lgain * envelopeValue;
-            r *= rgain * envelopeValue;
+            l *= envelopeValue;
+            r *= envelopeValue;
 
             if (outR != nullptr)
             {

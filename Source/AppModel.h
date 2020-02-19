@@ -28,7 +28,7 @@ public:
         {
             parentSearch = parentSearch.getParentDirectory();
             
-            if (parentSearch.getFileNameWithoutExtension() == "OSCAudioPlayer")
+            if (parentSearch.getFileNameWithoutExtension().toLowerCase() == "oscaudioplayer")
             {
                 mCurrentAudioFolder = parentSearch.getChildFile("assets/samples");
                 break;

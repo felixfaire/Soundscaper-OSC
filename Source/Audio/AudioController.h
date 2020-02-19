@@ -53,7 +53,9 @@ public:
         message << " sampleRate = " << sampleRate;
         Logger::getCurrentLogger()->writeToLog (message);
         
-        mSynth.setCurrentPlaybackSampleRate(sampleRate);
+        auto* device = mDeviceManager.getCurrentAudioDevice();
+        const int numChannels = device->getOutputChannelNames().size();
+        mSynth.setOutputInfo(numChannels, sampleRate);
     }
 
     void getNextAudioBlock (const AudioSourceChannelInfo& bufferToFill) override
