@@ -26,6 +26,7 @@ public:
     {
         mFormatManager.registerBasicFormats();
         mAudio.setAudioChannels(0, 2);
+        mAudio.mSynth.updateSpeakerPositions(mModel.mSpeakerPositions);
     }
     
     void loadAudioFiles()

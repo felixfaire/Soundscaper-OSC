@@ -38,10 +38,10 @@ public:
         
         g.setColour(Colour::greyLevel(0.8f));
         
-        for (auto& s : m.mSpeakers)
+        for (auto& s : m.mSpeakerPositions)
         {
-            const float x = jmap(s.position.x, -1.0f, 1.0f, 0.0f, (float)getWidth());
-            const float y = jmap(s.position.y, -1.0f, 1.0f, 0.0f, (float)getHeight());
+            const float x = jmap(s.x, -1.0f, 1.0f, 0.0f, (float)getWidth());
+            const float y = jmap(s.y, -1.0f, 1.0f, 0.0f, (float)getHeight());
             
             g.drawEllipse(x, y, 20.0f, 20.0f, 2.0f);
         }

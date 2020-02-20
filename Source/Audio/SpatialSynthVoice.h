@@ -90,7 +90,7 @@ public:
     /** Called to let the voice know that the pitch wheel has been moved.
         This will be called during the rendering callback, so must be fast and thread-safe.
     */
-    virtual void positionChanged (glm::vec3 position) = 0;
+    void positionChanged (const glm::vec3& newPosition);
 
 
     //==============================================================================
@@ -128,8 +128,9 @@ public:
     */
     virtual void setCurrentPlaybackSampleRate(double newRate);
     
-    virtual void setOutputInfo (int numChannels, double newRate);
-
+    void setNumSpeakerOutputs(int numSpeakers);
+    
+    const bool const getNeedsDBAPUpdate() { return needsDBAPUpdate; }
     
     /** Returns the current target sample rate at which rendering is being done.
         Subclasses may need to know this so that they can pitch things correctly.
@@ -170,7 +171,12 @@ protected:
         to have finished, e.g. if it's playing a sample and the sample finishes.
     */
     void clearCurrentNote();
+    
+    void updateDBAPAmplitudes(const std::vector<glm::vec3>& positions);
 
+    std::vector<float> channelAmplitudes;
+    glm::vec3          position;
+    bool               needsDBAPUpdate = true;
 
 private:
     //==============================================================================
@@ -182,8 +188,6 @@ private:
     SpatialSynthSound::Ptr currentlyPlayingSound;
     bool keyIsDown = false;
     
-    std::vector<float> channelAmplitudes;
-
     AudioBuffer<float> tempBuffer;
 
     JUCE_LEAK_DETECTOR (SpatialSynthVoice)

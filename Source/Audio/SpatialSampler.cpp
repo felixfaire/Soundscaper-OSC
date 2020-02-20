@@ -48,6 +48,7 @@ void SpatialSamplerVoice::startNote (int midiNoteNumber, float velocity, const g
         pitchRatio = 1.0;
         position = pos;
         sourceSamplePosition = 0.0;
+        needsDBAPUpdate = true;
 
         adsr.setSampleRate (sound->sourceSampleRate);
         adsr.setParameters (sound->adsrParams);
@@ -79,13 +80,15 @@ void SpatialSamplerVoice::renderNextBlock (AudioBuffer<float>& outputBuffer, int
 {
     if (auto* playingSound = static_cast<SpatialSamplerSound*> (getCurrentlyPlayingSound().get()))
     {
+        // Get sample data
         auto& data = *playingSound->data;
         const float* const inL = data.getReadPointer (0);
         const float* const inR = data.getNumChannels() > 1 ? data.getReadPointer (1) : nullptr;
-
-        float* outL = outputBuffer.getWritePointer (0, startSample);
-        float* outR = outputBuffer.getNumChannels() > 1 ? outputBuffer.getWritePointer (1, startSample) : nullptr;
-
+            
+        const int numChannels = outputBuffer.getNumChannels();
+        
+        int i = 0;
+        
         while (--numSamples >= 0)
         {
             auto pos = (int)sourceSamplePosition;
@@ -94,26 +97,20 @@ void SpatialSamplerVoice::renderNextBlock (AudioBuffer<float>& outputBuffer, int
 
             // just using a very simple linear interpolation here..
             float l = (inL[pos] * invAlpha + inL[pos + 1] * alpha);
-            float r = (inR != nullptr) ? (inR[pos] * invAlpha + inR[pos + 1] * alpha)
-                                       : l;
+            float r = (inR != nullptr) ? (inR[pos] * invAlpha + inR[pos + 1] * alpha) : l;
 
             auto envelopeValue = adsr.getNextSample();
-
-            l *= envelopeValue;
-            r *= envelopeValue;
-
-            if (outR != nullptr)
+            
+            for (int ch = 0; ch < numChannels; ++ch)
             {
-                *outL++ += l;
-                *outR++ += r;
+                float* out = outputBuffer.getWritePointer (ch, startSample);
+            
+                out[i] += (l + r) * 0.5f * envelopeValue * channelAmplitudes[ch];
             }
-            else
-            {
-                *outL++ += (l + r) * 0.5f;
-            }
-
+        
             sourceSamplePosition += pitchRatio;
-
+            i++;
+            
             if (sourceSamplePosition > playingSound->length)
             {
                 stopNote (0.0f, false);
@@ -122,3 +119,51 @@ void SpatialSamplerVoice::renderNextBlock (AudioBuffer<float>& outputBuffer, int
         }
     }
 }
+
+//void SpatialSamplerVoice::renderNextBlock (AudioBuffer<float>& outputBuffer, int startSample, int numSamples)
+//{
+//    if (auto* playingSound = static_cast<SpatialSamplerSound*> (getCurrentlyPlayingSound().get()))
+//    {
+//        auto& data = *playingSound->data;
+//        const float* const inL = data.getReadPointer (0);
+//        const float* const inR = data.getNumChannels() > 1 ? data.getReadPointer (1) : nullptr;
+//
+//        float* outL = outputBuffer.getWritePointer (0, startSample);
+//        float* outR = outputBuffer.getNumChannels() > 1 ? outputBuffer.getWritePointer (1, startSample) : nullptr;
+//
+//        while (--numSamples >= 0)
+//        {
+//            auto pos = (int)sourceSamplePosition;
+//            auto alpha = (float)(sourceSamplePosition - pos);
+//            auto invAlpha = 1.0f - alpha;
+//
+//            // just using a very simple linear interpolation here..
+//            float l = (inL[pos] * invAlpha + inL[pos + 1] * alpha);
+//            float r = (inR != nullptr) ? (inR[pos] * invAlpha + inR[pos + 1] * alpha)
+//                                       : l;
+//
+//            auto envelopeValue = adsr.getNextSample();
+//
+//            l *= envelopeValue;
+//            r *= envelopeValue;
+//
+//            if (outR != nullptr)
+//            {
+//                *outL++ += l;
+//                *outR++ += r;
+//            }
+//            else
+//            {
+//                *outL++ += (l + r) * 0.5f;
+//            }
+//
+//            sourceSamplePosition += pitchRatio;
+//
+//            if (sourceSamplePosition > playingSound->length)
+//            {
+//                stopNote (0.0f, false);
+//                break;
+//            }
+//        }
+//    }
+//}

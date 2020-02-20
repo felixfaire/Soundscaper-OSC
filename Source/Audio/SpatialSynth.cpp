@@ -29,6 +29,7 @@ SpatialSynthVoice* SpatialSynth::addVoice (SpatialSynthVoice* const newVoice)
 {
     const ScopedLock sl (lock);
     newVoice->setCurrentPlaybackSampleRate (sampleRate);
+    newVoice->setNumSpeakerOutputs((int)speakerPositions.size());
     return voices.add (newVoice);
 }
 
@@ -69,7 +70,7 @@ void SpatialSynth::setMinimumRenderingSubdivisionSize (int numSamples, bool shou
 }
 
 //==============================================================================
-void SpatialSynth::setOutputInfo (int numChannels, const double newRate)
+void SpatialSynth::setSampleRate(const double newRate)
 {
     if (sampleRate != newRate)
     {
@@ -78,8 +79,18 @@ void SpatialSynth::setOutputInfo (int numChannels, const double newRate)
         sampleRate = newRate;
 
         for (auto* voice : voices)
-            voice->setOutputInfo(numChannels, newRate);
+            voice->setCurrentPlaybackSampleRate(newRate);
     }
+}
+
+void SpatialSynth::updateSpeakerPositions(std::vector<glm::vec3> &positions)
+{
+    const ScopedLock sl (lock);
+    
+    speakerPositions = positions;
+    
+    for (auto* voice : voices)
+        voice->setNumSpeakerOutputs((int)positions.size());
 }
 
 template <typename floatType>
@@ -92,6 +103,10 @@ void SpatialSynth::processNextBlock (AudioBuffer<floatType>& outputAudio,
     const int targetChannels = outputAudio.getNumChannels();
     
     const ScopedLock sl (lock);
+    
+    for (auto* voice : voices)
+        if (voice->getNeedsDBAPUpdate())
+            voice->updateDBAPAmplitudes(speakerPositions);
     
     if (targetChannels > 0)
         renderVoices (outputAudio, startSample, numSamples);

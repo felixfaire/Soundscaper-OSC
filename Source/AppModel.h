@@ -11,17 +11,13 @@
 #pragma once
 #include "vec3.hpp"
 
-struct SpeakerInfo
-{
-    glm::vec3 position;
-};
 
 struct AppModel
 {
 public:
     AppModel()
     {
-        mCurrentAudioFolder = File::getCurrentWorkingDirectory();//.getChildFile("../../../../assets/samples");
+        mCurrentAudioFolder = File::getCurrentWorkingDirectory();
         File parentSearch = mCurrentAudioFolder;
 
         for (int i = 0; i < 5; ++i)
@@ -36,13 +32,13 @@ public:
         }
         
         // Load default stereo model
-        mSpeakers.add({glm::vec3(-0.5f, 0.0f, 0.0f)});
-        mSpeakers.add({glm::vec3(0.5f, 0.0f, 0.0f)});
+        mSpeakerPositions.push_back(glm::vec3(-0.5f, 0.0f, 0.0f));
+        mSpeakerPositions.push_back(glm::vec3(0.5f, 0.0f, 0.0f));
     }
         
-    Array<File>         mSoundFiles;
-    Array<String>       mOSCAddresses;
-    Array<SpeakerInfo>  mSpeakers;
+    Array<File>               mSoundFiles;
+    std::vector<String>       mOSCAddresses;
+    std::vector<glm::vec3>    mSpeakerPositions;
     
     File                mCurrentAudioFolder;
     

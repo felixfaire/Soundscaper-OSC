@@ -176,7 +176,11 @@ public:
         This value is propagated to the voices so that they can use it to render the correct
         pitches.
     */
-    virtual void setOutputInfo (int numChannels, double sampleRate);
+    virtual void setSampleRate (double sampleRate);
+
+    /** Updates the positions of the speakers to allow DBAP spatialisation
+     */
+    void updateSpeakerPositions(std::vector<glm::vec3>& positions);
 
     /** Creates the next block of audio output.
 
@@ -283,6 +287,7 @@ protected:
 private:
     //==============================================================================
     double sampleRate = 0;
+    std::vector<glm::vec3> speakerPositions;
     uint32 lastNoteOnCounter = 0;
     int minimumSubBlockSize = 32;
     bool subBlockSubdivisionIsStrict = false;

@@ -110,8 +110,6 @@ public:
     void startNote (int midiNoteNumber, float velocity, const glm::vec3& pos, SpatialSynthSound*) override;
     void stopNote (float velocity, bool allowTailOff) override;
 
-    void positionChanged (glm::vec3 newValue) override {}
-
     void renderNextBlock (AudioBuffer<float>&, int startSample, int numSamples) override;
     using SpatialSynthVoice::renderNextBlock;
 
@@ -119,7 +117,6 @@ private:
     //==============================================================================
     double pitchRatio = 0;
     double sourceSamplePosition = 0;
-    glm::vec3 position;
 
     ADSR adsr;
 
