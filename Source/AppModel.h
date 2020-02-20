@@ -42,4 +42,6 @@ public:
     
     File                mCurrentAudioFolder;
     
+    int                 mCurrentNoteID = 0;
+    
 };

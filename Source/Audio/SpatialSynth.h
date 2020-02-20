@@ -119,7 +119,8 @@ public:
 
         The midiChannel parameter is the channel, between 1 and 16 inclusive.
     */
-    virtual void noteOn (int midiNoteNumber,
+    virtual void noteOn (int noteID,
+                         int soundID,
                          float velocity,
                          const glm::vec3& pos);
 

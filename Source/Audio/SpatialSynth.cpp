@@ -141,31 +141,30 @@ void SpatialSynth::renderVoices (AudioBuffer<double>& buffer, int startSample, i
 }
 
 //==============================================================================
-void SpatialSynth::noteOn (const int midiNoteNumber,
+void SpatialSynth::noteOn (const int noteID,
+                           const int soundID,
                            const float velocity,
                            const glm::vec3& pos)
 {
     const ScopedLock sl (lock);
 
-    for (auto* sound : sounds)
-    {
-        if (sound->appliesToNote (midiNoteNumber))
-        {
-            // If hitting a note that's still ringing, stop it first (it could be
-            // still playing because of the sustain or sostenuto pedal).
-            for (auto* voice : voices)
-                if (voice->getCurrentlyPlayingNote() == midiNoteNumber)
-                    stopVoice (voice, 1.0f, true);
+    auto* sound = sounds[soundID].get();
+    
+    // If hitting a note that's still ringing, stop it first (it could be
+    // still playing because of the sustain or sostenuto pedal).
+    for (auto* voice : voices)
+        if (voice->getCurrentNoteID() == noteID)
+            stopVoice (voice, 1.0f, true);
 
-            startVoice (findFreeVoice (sound, midiNoteNumber, shouldStealNotes),
-                        sound, midiNoteNumber, velocity, pos);
-        }
-    }
+    // TODO: remove midi references from these stealing functions
+    startVoice (findFreeVoice (sound, soundID, shouldStealNotes),
+                sound, noteID, velocity, pos);
+
 }
 
 void SpatialSynth::startVoice (SpatialSynthVoice* const voice,
                               SpatialSynthSound* const sound,
-                              const int midiNoteNumber,
+                              const int noteID,
                               const float velocity,
                               const glm::vec3& pos)
 {
@@ -174,12 +173,10 @@ void SpatialSynth::startVoice (SpatialSynthVoice* const voice,
         if (voice->currentlyPlayingSound != nullptr)
             voice->stopNote (0.0f, false);
 
-        voice->currentlyPlayingNote = midiNoteNumber;
         voice->noteOnTime = ++lastNoteOnCounter;
         voice->currentlyPlayingSound = sound;
-        voice->setKeyDown (true);
 
-        voice->startNote (midiNoteNumber, velocity, pos, sound);
+        voice->startNote (noteID, velocity, pos, sound);
     }
 }
 
@@ -190,10 +187,10 @@ void SpatialSynth::stopVoice (SpatialSynthVoice* voice, float velocity, const bo
     voice->stopNote (velocity, allowTailOff);
 
     // the subclass MUST call clearCurrentNote() if it's not tailing off! RTFM for stopNote()!
-    jassert (allowTailOff || (voice->getCurrentlyPlayingNote() < 0 && voice->getCurrentlyPlayingSound() == nullptr));
+    jassert (allowTailOff || (voice->getCurrentNoteID() < 0 && voice->getCurrentlyPlayingSound() == nullptr));
 }
 
-void SpatialSynth::noteOff (const int midiNoteNumber,
+void SpatialSynth::noteOff (const int noteID,
                             const float velocity,
                             const bool allowTailOff)
 {
@@ -201,18 +198,11 @@ void SpatialSynth::noteOff (const int midiNoteNumber,
 
     for (auto* voice : voices)
     {
-        if (voice->getCurrentlyPlayingNote() == midiNoteNumber)
+        if (voice->getCurrentNoteID() == noteID)
         {
             if (auto sound = voice->getCurrentlyPlayingSound())
             {
-                if (sound->appliesToNote (midiNoteNumber))
-                {
-                    jassert (!voice->keyIsDown);
-
-                    voice->setKeyDown (false);
-
-                    stopVoice (voice, velocity, allowTailOff);
-                }
+                stopVoice (voice, velocity, allowTailOff);    
             }
         }
     }
@@ -231,7 +221,7 @@ void SpatialSynth::handlePositionChange (int noteID, glm::vec3 newPosition)
     const ScopedLock sl (lock);
 
     for (auto* voice : voices)
-        if (voice->getCurrentlyPlayingNote() == noteID)
+        if (voice->getCurrentNoteID() == noteID)
             voice->positionChanged (newPosition);
 }
 
@@ -263,10 +253,6 @@ SpatialSynthVoice* SpatialSynth::findVoiceToSteal (SpatialSynthSound* soundToPla
     // apparently you are trying to render audio without having any voices...
     jassert (! voices.isEmpty());
 
-    // These are the voices we want to protect (ie: only steal if unavoidable)
-    SpatialSynthVoice* low = nullptr; // Lowest sounding note, might be sustained, but NOT in release phase
-    SpatialSynthVoice* top = nullptr; // Highest sounding note, might be sustained, but NOT in release phase
-
     // this is a list of voices we can steal, sorted by how long they've been running
     Array<SpatialSynthVoice*> usableVoices;
     usableVoices.ensureStorageAllocated (voices.size());
@@ -287,50 +273,17 @@ SpatialSynthVoice* SpatialSynth::findVoiceToSteal (SpatialSynthSound* soundToPla
             };
 
             std::sort (usableVoices.begin(), usableVoices.end(), Sorter());
-
-            if (! voice->isPlayingButReleased()) // Don't protect released notes
-            {
-                auto note = voice->getCurrentlyPlayingNote();
-
-                if (low == nullptr || note < low->getCurrentlyPlayingNote())
-                    low = voice;
-
-                if (top == nullptr || note > top->getCurrentlyPlayingNote())
-                    top = voice;
-            }
         }
     }
 
-    // Eliminate pathological cases (ie: only 1 note playing): we always give precedence to the lowest note(s)
-    if (top == low)
-        top = nullptr;
-
-    // The oldest note that's playing with the target pitch is ideal..
+    // The oldest note that's playing with the target sound is ideal..
     for (auto* voice : usableVoices)
-        if (voice->getCurrentlyPlayingNote() == midiNoteNumber)
+        if (voice->getCurrentlyPlayingSound() == soundToPlay)
             return voice;
 
-    // Oldest voice that has been released (no finger on it and not held by sustain pedal)
-    for (auto* voice : usableVoices)
-        if (voice != low && voice != top && voice->isPlayingButReleased())
-            return voice;
+    // TODO: add heuristic to preserve sounds with most playtime left?..
 
-    // Oldest voice that doesn't have a finger on it:
-    for (auto* voice : usableVoices)
-        if (voice != low && voice != top && ! voice->isKeyDown())
-            return voice;
+    jassert(usableVoices.size() >= 0);
 
-    // Oldest voice that isn't protected
-    for (auto* voice : usableVoices)
-        if (voice != low && voice != top)
-            return voice;
-
-    // We've only got "protected" voices now: lowest note takes priority
-    jassert (low != nullptr);
-
-    // Duophonic synth: give priority to the bass note:
-    if (top != nullptr)
-        return top;
-
-    return low;
+    return usableVoices[0];
 }

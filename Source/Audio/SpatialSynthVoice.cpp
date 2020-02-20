@@ -27,12 +27,12 @@ void SpatialSynthVoice::setNumSpeakerOutputs (int numSpeakers)
 
 bool SpatialSynthVoice::isVoiceActive() const
 {
-    return getCurrentlyPlayingNote() >= 0;
+    return getCurrentNoteID() >= 0;
 }
 
 void SpatialSynthVoice::clearCurrentNote()
 {
-    currentlyPlayingNote = -1;
+    currentNoteID = -1;
     currentlyPlayingSound = nullptr;
 }
 
@@ -61,8 +61,24 @@ void SpatialSynthVoice::positionChanged (const glm::vec3& newPosition)
 
 void SpatialSynthVoice::updateDBAPAmplitudes(const std::vector<glm::vec3>& positions)
 {
+    const float rolloffDb = 6.0f;
+    const float rolloffPowFactor = std::log(std::pow(10.0f, (rolloffDb / 20.0f)))/std::log(2.0f);
+    float k = 0.0f;   // Scaling coeff
+    float invk2 = 0.0f; // Inverse square of k
+    
     for (int i = 0; i < channelAmplitudes.size(); ++i)
-        channelAmplitudes[i] = std::min(1.0f, 0.1f / glm::distance(positions[i], position));
-        
+    {
+        const float dist = glm::distance(positions[i], position);
+        const float unNormalized = std::pow(dist, 0.5f * rolloffPowFactor);
+        channelAmplitudes[i] = unNormalized;
+        invk2 += 1.0f / (unNormalized * unNormalized);
+    }
+    
+    k = std::sqrt(1.0f / invk2);
+    
+    // normalize amplitudes
+    for (int i = 0; i < channelAmplitudes.size(); ++i)
+        channelAmplitudes[i] = std::min(1.0f, k / channelAmplitudes[i]);
+    
     needsDBAPUpdate = false;
 }

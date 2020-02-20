@@ -39,7 +39,7 @@ bool SpatialSamplerVoice::canPlaySound (SpatialSynthSound* sound)
     return dynamic_cast<const SpatialSamplerSound*> (sound) != nullptr;
 }
 
-void SpatialSamplerVoice::startNote (int midiNoteNumber, float velocity, const glm::vec3& pos, SpatialSynthSound* s)
+void SpatialSamplerVoice::startNote (int noteID, float velocity, const glm::vec3& pos, SpatialSynthSound* s)
 {
     if (auto* sound = dynamic_cast<const SpatialSamplerSound*> (s))
     {
@@ -49,6 +49,7 @@ void SpatialSamplerVoice::startNote (int midiNoteNumber, float velocity, const g
         position = pos;
         sourceSamplePosition = 0.0;
         needsDBAPUpdate = true;
+        currentNoteID = noteID;
 
         adsr.setSampleRate (sound->sourceSampleRate);
         adsr.setParameters (sound->adsrParams);

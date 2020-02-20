@@ -38,7 +38,7 @@ public:
     /** Returns the midi note that this voice is currently playing.
         Returns a value less than 0 if no note is playing.
     */
-    int getCurrentlyPlayingNote() const noexcept                        { return currentlyPlayingNote; }
+    int getCurrentNoteID() const noexcept                        { return currentNoteID; }
 
     /** Returns the sound that this voice is currently playing.
         Returns nullptr if it's not playing.
@@ -59,7 +59,7 @@ public:
     /** Called to start a new note.
         This will be called during the rendering callback, so must be fast and thread-safe.
     */
-    virtual void startNote (int midiNoteNumber,
+    virtual void startNote (int noteID,
                             float velocity,
                             const glm::vec3& pos,
                             SpatialSynthSound* sound) = 0;
@@ -130,29 +130,12 @@ public:
     
     void setNumSpeakerOutputs(int numSpeakers);
     
-    const bool const getNeedsDBAPUpdate() { return needsDBAPUpdate; }
+    bool getNeedsDBAPUpdate() const { return needsDBAPUpdate; }
     
     /** Returns the current target sample rate at which rendering is being done.
         Subclasses may need to know this so that they can pitch things correctly.
     */
     double getSampleRate() const noexcept                       { return currentSampleRate; }
-
-    /** Returns true if the key that triggered this voice is still held down.
-        Note that the voice may still be playing after the key was released (e.g because the
-        sostenuto pedal is down).
-    */
-    bool isKeyDown() const noexcept                             { return keyIsDown; }
-
-    /** Allows you to modify the flag indicating that the key that triggered this voice is still held down.
-        @see isKeyDown
-    */
-    void setKeyDown (bool isNowDown) noexcept                   { keyIsDown = isNowDown; }
-
-    /** Returns true if a voice is sounding in its release phase **/
-    bool isPlayingButReleased() const noexcept
-    {
-        return isVoiceActive() && !isKeyDown();
-    }
 
     /** Returns true if this voice started playing its current note before the other voice did. */
     bool wasStartedBefore (const SpatialSynthVoice& other) const noexcept;
@@ -174,6 +157,8 @@ protected:
     
     void updateDBAPAmplitudes(const std::vector<glm::vec3>& positions);
 
+    int                currentNoteID = -1;
+
     std::vector<float> channelAmplitudes;
     glm::vec3          position;
     bool               needsDBAPUpdate = true;
@@ -183,10 +168,9 @@ private:
     friend class SpatialSynth;
 
     double currentSampleRate = 44100.0;
-    int currentlyPlayingNote = -1;
+
     uint32 noteOnTime = 0;
     SpatialSynthSound::Ptr currentlyPlayingSound;
-    bool keyIsDown = false;
     
     AudioBuffer<float> tempBuffer;
 

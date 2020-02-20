@@ -59,10 +59,10 @@ public:
         }
     }
     
-    void triggerSource(int index, const glm::vec3& pos)
+    void triggerSource(int soundID, const glm::vec3& pos)
     {
-        const int noteNum = index;
-        mAudio.mSynth.noteOn(noteNum, 1.0f, pos);
+        const int noteID = ++mModel.mCurrentNoteID;
+        mAudio.mSynth.noteOn(noteID, soundID, 1.0f, pos);
     }
     
     AudioDeviceManager& getDeviceManager() { return mAudio.getDeviceManager(); }
