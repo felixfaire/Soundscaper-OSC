@@ -15,81 +15,81 @@ SpatialSynth::~SpatialSynth()
 //==============================================================================
 SpatialSynthVoice* SpatialSynth::getVoice (const int index) const
 {
-    const ScopedLock sl (lock);
-    return voices [index];
+    const ScopedLock sl (mLock);
+    return mVoices [index];
 }
 
 void SpatialSynth::clearVoices()
 {
-    const ScopedLock sl (lock);
-    voices.clear();
+    const ScopedLock sl (mLock);
+    mVoices.clear();
 }
 
 SpatialSynthVoice* SpatialSynth::addVoice (SpatialSynthVoice* const newVoice)
 {
-    const ScopedLock sl (lock);
-    newVoice->setCurrentPlaybackSampleRate (sampleRate);
-    newVoice->setNumSpeakerOutputs((int)speakerPositions.size());
-    return voices.add (newVoice);
+    const ScopedLock sl (mLock);
+    newVoice->setCurrentPlaybackSampleRate (mSampleRate);
+    newVoice->setNumSpeakerOutputs((int)mSpeakerPositions.size());
+    return mVoices.add (newVoice);
 }
 
 void SpatialSynth::removeVoice (const int index)
 {
-    const ScopedLock sl (lock);
-    voices.remove (index);
+    const ScopedLock sl (mLock);
+    mVoices.remove (index);
 }
 
 void SpatialSynth::clearSounds()
 {
-    const ScopedLock sl (lock);
-    sounds.clear();
+    const ScopedLock sl (mLock);
+    mSounds.clear();
 }
 
 SpatialSynthSound* SpatialSynth::addSound (const SpatialSynthSound::Ptr& newSound)
 {
-    const ScopedLock sl (lock);
-    return sounds.add (newSound);
+    const ScopedLock sl (mLock);
+    return mSounds.add (newSound);
 }
 
 void SpatialSynth::removeSound (const int index)
 {
-    const ScopedLock sl (lock);
-    sounds.remove (index);
+    const ScopedLock sl (mLock);
+    mSounds.remove (index);
 }
 
 void SpatialSynth::setNoteStealingEnabled (const bool shouldSteal)
 {
-    shouldStealNotes = shouldSteal;
+    mShouldStealNotes = shouldSteal;
 }
 
 void SpatialSynth::setMinimumRenderingSubdivisionSize (int numSamples, bool shouldBeStrict) noexcept
 {
     jassert (numSamples > 0); // it wouldn't make much sense for this to be less than 1
-    minimumSubBlockSize = numSamples;
-    subBlockSubdivisionIsStrict = shouldBeStrict;
+    mMinimumSubBlockSize = numSamples;
+    mSubBlockSubdivisionIsStrict = shouldBeStrict;
 }
 
 //==============================================================================
 void SpatialSynth::setSampleRate(const double newRate)
 {
-    if (sampleRate != newRate)
+    if (mSampleRate != newRate)
     {
-        const ScopedLock sl (lock);
+        const ScopedLock sl (mLock);
         allNotesOff (false);
-        sampleRate = newRate;
+        mSampleRate = newRate;
 
-        for (auto* voice : voices)
+        for (auto* voice : mVoices)
             voice->setCurrentPlaybackSampleRate(newRate);
     }
 }
 
 void SpatialSynth::updateSpeakerPositions(std::vector<glm::vec3> &positions)
 {
-    const ScopedLock sl (lock);
+    const ScopedLock sl (mLock);
     
-    speakerPositions = positions;
+    mSpeakerPositions = positions;
     
-    for (auto* voice : voices)
+    for (auto* voice : mVoices)
         voice->setNumSpeakerOutputs((int)positions.size());
 }
 
@@ -99,14 +99,14 @@ void SpatialSynth::processNextBlock (AudioBuffer<floatType>& outputAudio,
                                     int numSamples)
 {
     // must set the sample rate before using this!
-    jassert (sampleRate != 0);
+    jassert (mSampleRate != 0);
     const int targetChannels = outputAudio.getNumChannels();
     
-    const ScopedLock sl (lock);
+    const ScopedLock sl (mLock);
     
-    for (auto* voice : voices)
+    for (auto* voice : mVoices)
         if (voice->getNeedsDBAPUpdate())
-            voice->updateDBAPAmplitudes(speakerPositions);
+            voice->updateDBAPAmplitudes(mSpeakerPositions);
     
     if (targetChannels > 0)
         renderVoices (outputAudio, startSample, numSamples);
@@ -130,13 +130,13 @@ void SpatialSynth::renderNextBlock (AudioBuffer<double>& outputAudio,
 
 void SpatialSynth::renderVoices (AudioBuffer<float>& buffer, int startSample, int numSamples)
 {
-    for (auto* voice : voices)
+    for (auto* voice : mVoices)
         voice->renderNextBlock (buffer, startSample, numSamples);
 }
 
 void SpatialSynth::renderVoices (AudioBuffer<double>& buffer, int startSample, int numSamples)
 {
-    for (auto* voice : voices)
+    for (auto* voice : mVoices)
         voice->renderNextBlock (buffer, startSample, numSamples);
 }
 
@@ -146,18 +146,18 @@ void SpatialSynth::noteOn (const int noteID,
                            const float velocity,
                            const glm::vec3& pos)
 {
-    const ScopedLock sl (lock);
+    const ScopedLock sl (mLock);
 
-    auto* sound = sounds[soundID].get();
+    auto* sound = mSounds[soundID].get();
     
     // If hitting a note that's still ringing, stop it first (it could be
     // still playing because of the sustain or sostenuto pedal).
-    for (auto* voice : voices)
+    for (auto* voice : mVoices)
         if (voice->getCurrentNoteID() == noteID)
             stopVoice (voice, 1.0f, true);
 
     // TODO: remove midi references from these stealing functions
-    startVoice (findFreeVoice (sound, soundID, shouldStealNotes),
+    startVoice (findFreeVoice (sound, soundID, mShouldStealNotes),
                 sound, noteID, velocity, pos);
 
 }
@@ -170,11 +170,11 @@ void SpatialSynth::startVoice (SpatialSynthVoice* const voice,
 {
     if (voice != nullptr && sound != nullptr)
     {
-        if (voice->currentlyPlayingSound != nullptr)
+        if (voice->mCurrentlyPlayingSound != nullptr)
             voice->stopNote (0.0f, false);
 
-        voice->noteOnTime = ++lastNoteOnCounter;
-        voice->currentlyPlayingSound = sound;
+        voice->mNoteOnTime = ++mLastNoteOnCounter;
+        voice->mCurrentlyPlayingSound = sound;
 
         voice->startNote (noteID, velocity, pos, sound);
     }
@@ -194,15 +194,15 @@ void SpatialSynth::noteOff (const int noteID,
                             const float velocity,
                             const bool allowTailOff)
 {
-    const ScopedLock sl (lock);
+    const ScopedLock sl (mLock);
 
-    for (auto* voice : voices)
+    for (auto* voice : mVoices)
     {
         if (voice->getCurrentNoteID() == noteID)
         {
             if (auto sound = voice->getCurrentlyPlayingSound())
             {
-                stopVoice (voice, velocity, allowTailOff);    
+                stopVoice (voice, velocity, allowTailOff);
             }
         }
     }
@@ -210,17 +210,17 @@ void SpatialSynth::noteOff (const int noteID,
 
 void SpatialSynth::allNotesOff (const bool allowTailOff)
 {
-    const ScopedLock sl (lock);
+    const ScopedLock sl (mLock);
 
-    for (auto* voice : voices)
+    for (auto* voice : mVoices)
         voice->stopNote (1.0f, allowTailOff);
 }
 
 void SpatialSynth::handlePositionChange (int noteID, glm::vec3 newPosition)
 {
-    const ScopedLock sl (lock);
+    const ScopedLock sl (mLock);
 
-    for (auto* voice : voices)
+    for (auto* voice : mVoices)
         if (voice->getCurrentNoteID() == noteID)
             voice->positionChanged (newPosition);
 }
@@ -231,9 +231,9 @@ SpatialSynthVoice* SpatialSynth::findFreeVoice (SpatialSynthSound* soundToPlay,
                                                 int midiNoteNumber,
                                                 const bool stealIfNoneAvailable) const
 {
-    const ScopedLock sl (lock);
+    const ScopedLock sl (mLock);
 
-    for (auto* voice : voices)
+    for (auto* voice : mVoices)
         if ((! voice->isVoiceActive()) && voice->canPlaySound (soundToPlay))
             return voice;
 
@@ -251,13 +251,13 @@ SpatialSynthVoice* SpatialSynth::findVoiceToSteal (SpatialSynthSound* soundToPla
     // - Protect the lowest & topmost notes, even if sustained, but not if they've been released.
 
     // apparently you are trying to render audio without having any voices...
-    jassert (! voices.isEmpty());
+    jassert (! mVoices.isEmpty());
 
     // this is a list of voices we can steal, sorted by how long they've been running
     Array<SpatialSynthVoice*> usableVoices;
-    usableVoices.ensureStorageAllocated (voices.size());
+    usableVoices.ensureStorageAllocated (mVoices.size());
 
-    for (auto* voice : voices)
+    for (auto* voice : mVoices)
     {
         if (voice->canPlaySound (soundToPlay))
         {

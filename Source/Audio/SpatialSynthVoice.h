@@ -38,12 +38,17 @@ public:
     /** Returns the midi note that this voice is currently playing.
         Returns a value less than 0 if no note is playing.
     */
-    int getCurrentNoteID() const noexcept                        { return currentNoteID; }
+    int getCurrentNoteID() const noexcept                        { return mCurrentNoteID; }
+
+    /** Returns the current target sample rate at which rendering is being done.
+        Subclasses may need to know this so that they can pitch things correctly.
+    */
+    double getSampleRate() const noexcept                       { return mCurrentSampleRate; }
 
     /** Returns the sound that this voice is currently playing.
         Returns nullptr if it's not playing.
     */
-    SpatialSynthSound::Ptr getCurrentlyPlayingSound() const noexcept     { return currentlyPlayingSound; }
+    SpatialSynthSound::Ptr getCurrentlyPlayingSound() const noexcept     { return mCurrentlyPlayingSound; }
 
     /** Must return true if this voice object is capable of playing the given sound.
 
@@ -130,12 +135,7 @@ public:
     
     void setNumSpeakerOutputs(int numSpeakers);
     
-    bool getNeedsDBAPUpdate() const { return needsDBAPUpdate; }
-    
-    /** Returns the current target sample rate at which rendering is being done.
-        Subclasses may need to know this so that they can pitch things correctly.
-    */
-    double getSampleRate() const noexcept                       { return currentSampleRate; }
+    bool getNeedsDBAPUpdate() const { return mNeedsDBAPUpdate; }
 
     /** Returns true if this voice started playing its current note before the other voice did. */
     bool wasStartedBefore (const SpatialSynthVoice& other) const noexcept;
@@ -157,22 +157,19 @@ protected:
     
     void updateDBAPAmplitudes(const std::vector<glm::vec3>& positions);
 
-    int                currentNoteID = -1;
-
-    std::vector<float> channelAmplitudes;
-    glm::vec3          position;
-    bool               needsDBAPUpdate = true;
+    int                mCurrentNoteID = -1;
+    std::vector<float> mChannelAmplitudes;
+    glm::vec3          mPosition;
+    bool               mNeedsDBAPUpdate = true;
 
 private:
     //==============================================================================
     friend class SpatialSynth;
 
-    double currentSampleRate = 44100.0;
-
-    uint32 noteOnTime = 0;
-    SpatialSynthSound::Ptr currentlyPlayingSound;
-    
-    AudioBuffer<float> tempBuffer;
+    double                  mCurrentSampleRate = 44100.0;
+    uint32                  mNoteOnTime = 0;
+    SpatialSynthSound::Ptr  mCurrentlyPlayingSound;
+    AudioBuffer<float>      mTempBuffer;
 
     JUCE_LEAK_DETECTOR (SpatialSynthVoice)
 };

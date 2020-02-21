@@ -32,8 +32,11 @@ public:
         }
         
         // Load default stereo model
-        mSpeakerPositions.push_back(glm::vec3(-0.5f, 0.0f, 0.0f));
-        mSpeakerPositions.push_back(glm::vec3(0.5f, 0.0f, 0.0f));
+        const float r = 1.5f;
+        mSpeakerPositions.push_back(glm::vec3(-r, 0.0f, 0.0f));
+        mSpeakerPositions.push_back(glm::vec3( r, 0.0f, 0.0f));
+        mSpeakerPositions.push_back(glm::vec3(0.0f, 0.0f, r));
+        mSpeakerPositions.push_back(glm::vec3(0.0f, 0.0f,-r));
     }
         
     Array<File>               mSoundFiles;

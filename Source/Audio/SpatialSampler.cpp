@@ -46,10 +46,10 @@ void SpatialSamplerVoice::startNote (int noteID, float velocity, const glm::vec3
         /*pitchRatio = std::pow (2.0, (midiNoteNumber - sound->midiRootNote) / 12.0)
                         * sound->sourceSampleRate / getSampleRate();*/
         pitchRatio = 1.0;
-        position = pos;
+        mPosition = pos;
         sourceSamplePosition = 0.0;
-        needsDBAPUpdate = true;
-        currentNoteID = noteID;
+        mNeedsDBAPUpdate = true;
+        mCurrentNoteID = noteID;
 
         adsr.setSampleRate (sound->sourceSampleRate);
         adsr.setParameters (sound->adsrParams);
@@ -106,7 +106,7 @@ void SpatialSamplerVoice::renderNextBlock (AudioBuffer<float>& outputBuffer, int
             {
                 float* out = outputBuffer.getWritePointer (ch, startSample);
             
-                out[i] += (l + r) * 0.5f * envelopeValue * channelAmplitudes[ch];
+                out[i] += (l + r) * 0.5f * envelopeValue * mChannelAmplitudes[ch];
             }
         
             sourceSamplePosition += pitchRatio;

@@ -53,7 +53,7 @@ public:
     void clearVoices();
 
     /** Returns the number of voices that have been added. */
-    int getNumVoices() const noexcept                               { return voices.size(); }
+    int getNumVoices() const noexcept                               { return mVoices.size(); }
 
     /** Returns one of the voices that have been added. */
     SpatialSynthVoice* getVoice (int index) const;
@@ -76,10 +76,10 @@ public:
     void clearSounds();
 
     /** Returns the number of sounds that have been added to the synth. */
-    int getNumSounds() const noexcept                               { return sounds.size(); }
+    int getNumSounds() const noexcept                               { return mSounds.size(); }
 
     /** Returns one of the sounds. */
-    SpatialSynthSound::Ptr getSound (int index) const noexcept       { return sounds[index]; }
+    SpatialSynthSound::Ptr getSound (int index) const noexcept       { return mSounds[index]; }
 
     /** Adds a new sound to the synthesiser.
 
@@ -103,7 +103,7 @@ public:
     /** Returns true if note-stealing is enabled.
         @see setNoteStealingEnabled
     */
-    bool isNoteStealingEnabled() const noexcept                     { return shouldStealNotes; }
+    bool isNoteStealingEnabled() const noexcept                     { return mShouldStealNotes; }
 
     //==============================================================================
     /** Triggers a note-on event.
@@ -206,7 +206,7 @@ public:
     /** Returns the current target sample rate at which rendering is being done.
         Subclasses may need to know this so that they can pitch things correctly.
     */
-    double getSampleRate() const noexcept                       { return sampleRate; }
+    double getSampleRate() const noexcept                       { return mSampleRate; }
 
     /** Sets a minimum limit on the size to which audio sub-blocks will be divided when rendering.
 
@@ -233,10 +233,10 @@ public:
 protected:
     //==============================================================================
     /** This is used to control access to the rendering callback and the note trigger methods. */
-    CriticalSection lock;
+    CriticalSection                          mLock;
 
-    OwnedArray<SpatialSynthVoice> voices;
-    ReferenceCountedArray<SpatialSynthSound> sounds;
+    OwnedArray<SpatialSynthVoice>            mVoices;
+    ReferenceCountedArray<SpatialSynthSound> mSounds;
 
     /** Renders the voices for the given range.
         By default this just calls renderNextBlock() on each voice, but you may need
@@ -287,12 +287,12 @@ protected:
 
 private:
     //==============================================================================
-    double sampleRate = 0;
-    std::vector<glm::vec3> speakerPositions;
-    uint32 lastNoteOnCounter = 0;
-    int minimumSubBlockSize = 32;
-    bool subBlockSubdivisionIsStrict = false;
-    bool shouldStealNotes = true;
+    double                  mSampleRate = 0;
+    std::vector<glm::vec3>  mSpeakerPositions;
+    uint32                  mLastNoteOnCounter = 0;
+    int                     mMinimumSubBlockSize = 32;
+    bool                    mSubBlockSubdivisionIsStrict = false;
+    bool                    mShouldStealNotes = true;
 
     template <typename floatType>
     void processNextBlock (AudioBuffer<floatType>&, int startSample, int numSamples);

@@ -109,8 +109,6 @@ public:
     void drawTabAreaBehindFrontButton (TabbedButtonBar&, Graphics&, int w, int h) override
     {}
     
-    int getTabButtonOverlap (int tabDepth) { return 0; }
-    
     int getTabButtonBestWidth (TabBarButton& b, int tabDepth) override
     {
         const auto& bar = b.getTabbedButtonBar();
