@@ -22,6 +22,10 @@ MainComponent::MainComponent()
         mController.triggerSource(index, p);
     };
     
+    mDemoPlayer->onUpdate = [this](int index, glm::vec3 p){
+        mController.updateSource(index, p);
+    };
+    
     mTabbedContainer.reset(new TabbedComponent(TabbedButtonBar::Orientation::TabsAtTop));
     mTabbedContainer->addTab("IO Settings", Colour(), mIOSettings.get(), false);
     mTabbedContainer->addTab("Audio Files", Colour(), mFileList.get(), false);

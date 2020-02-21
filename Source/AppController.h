@@ -65,6 +65,12 @@ public:
         mAudio.mSynth.noteOn(noteID, soundID, 1.0f, pos);
     }
     
+    void updateSource(int soundID, const glm::vec3& pos)
+    {
+        const int noteID = mModel.mCurrentNoteID;
+        mAudio.mSynth.handlePositionChange(noteID, pos);
+    }
+    
     AudioDeviceManager& getDeviceManager() { return mAudio.getDeviceManager(); }
     
 private:

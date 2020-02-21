@@ -39,10 +39,12 @@ public:
         
         g.setColour(Colour::greyLevel(0.8f));
         
+        const float r = mWindowDiameter * 0.5f;
+        
         for (auto& s : m.mSpeakerPositions)
         {
-            const float x = jmap(s.x, -1.0f, 1.0f, 0.0f, (float)getWidth());
-            const float y = jmap(s.y, -1.0f, 1.0f, 0.0f, (float)getHeight());
+            const float x = jmap(s.x, -r, r, 0.0f, (float)getWidth());
+            const float y = jmap(s.z, -r, r, 0.0f, (float)getHeight());
             
             g.drawEllipse(x, y, 20.0f, 20.0f, 2.0f);
         }
@@ -57,13 +59,23 @@ public:
     void mouseDown(const MouseEvent& event) override
     {
         const int index = (int)mDemoFileBox.getSelectedId() - 1;
-        const glm::vec3 position = glm::vec3(jmap((float)event.getMouseDownX(), 0.0f, (float)getWidth(), -1.0f, 1.0f),
-                                             0.0f,
-                                             jmap((float)event.getMouseDownY(), 0.0f, (float)getHeight(), -1.0f, 1.0f));
+        const auto pos = getWorldPositionFromMouse(event);
+        
         jassert(index < m.mSoundFiles.size());
         
         if (onTrigger != nullptr)
-            onTrigger(index, position);
+            onTrigger(index, pos);
+    }
+    
+    void mouseDrag(const MouseEvent& event) override
+    {
+        const int index = (int)mDemoFileBox.getSelectedId() - 1;
+        const auto pos = getWorldPositionFromMouse(event);
+        
+        jassert(index < m.mSoundFiles.size());
+        
+        if (onUpdate != nullptr)
+            onUpdate(index, pos);
     }
     
     void updateFileList()
@@ -78,12 +90,23 @@ public:
     }
     
     std::function<void(int, glm::vec3)> onTrigger;
+    std::function<void(int, glm::vec3)> onUpdate;
 
 private:
+
+    const glm::vec3 getWorldPositionFromMouse(const MouseEvent& event)
+    {
+        const float r = mWindowDiameter * 0.5f;
+        const glm::vec3 position = glm::vec3(jmap((float)event.getPosition().x, 0.0f, (float)getWidth(), -r, r),
+                                             0.0f,
+                                             jmap((float)event.getPosition().y, 0.0f, (float)getHeight(), -r, r));
+        return position;
+    }
 
     ComboBox  mDemoFileBox;
     int       mBoxHeight = 40;
     AppModel& m;
+    float     mWindowDiameter = 4.0f;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DemoVoicePlayerComponent)
 };
