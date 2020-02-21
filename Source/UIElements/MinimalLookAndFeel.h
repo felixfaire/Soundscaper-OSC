@@ -84,16 +84,16 @@ public:
 
         Colour col (bkg.contrasting().withMultipliedAlpha (alpha));
 
-        if (TabbedButtonBar* bar = button.findParentComponentOfClass<TabbedButtonBar>())
-        {
-            TabbedButtonBar::ColourIds colID = button.isFrontTab() ? TabbedButtonBar::frontTextColourId
-                                                                   : TabbedButtonBar::tabTextColourId;
-
-            if (bar->isColourSpecified (colID))
-                col = bar->findColour (colID);
-            else if (isColourSpecified (colID))
-                col = findColour (colID);
-        }
+//        if (TabbedButtonBar* bar = button.findParentComponentOfClass<TabbedButtonBar>())
+//        {
+//            TabbedButtonBar::ColourIds colID = button.isFrontTab() ? TabbedButtonBar::frontTextColourId
+//                                                                   : TabbedButtonBar::tabTextColourId;
+//
+//            if (bar->isColourSpecified (colID))
+//                col = bar->findColour (colID);
+//            else if (isColourSpecified (colID))
+//                col = findColour (colID);
+//        }
 
         const Rectangle<float> area (button.getTextArea().toFloat());
 
@@ -102,6 +102,14 @@ public:
 
         textLayout.draw (g, area);
     }
+    
+    void drawTabbedButtonBarBackground(TabbedButtonBar&, Graphics&) override
+    {}
+    
+    void drawTabAreaBehindFrontButton (TabbedButtonBar&, Graphics&, int w, int h) override
+    {}
+    
+    int getTabButtonOverlap (int tabDepth) { return 0; }
     
     int getTabButtonBestWidth (TabBarButton& b, int tabDepth) override
     {

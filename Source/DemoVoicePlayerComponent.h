@@ -32,6 +32,7 @@ public:
     {
         auto b = getLocalBounds().reduced(10).toFloat();
         b.removeFromTop(mBoxHeight);
+        b.removeFromTop(10.0f);
         
         g.setColour(Colour::greyLevel(0.1f));
         g.fillRoundedRectangle(b, 4.0f);

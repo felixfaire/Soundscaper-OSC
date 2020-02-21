@@ -20,14 +20,23 @@ class IOSettingsComponent    : public Component
 public:
     IOSettingsComponent(AudioDeviceManager& deviceManager)
     {
-        mDeviceSelector.reset(new AudioDeviceSelectorComponent(deviceManager,
+        mAudioSettingsLabel.reset(new Label("AudioSettingsLabel", "Audio Settings"));
+        mAudioSettingsLabel->setJustificationType(Justification(Justification::Flags::centred));
+        mAudioSettingsLabel->setFont(mAudioSettingsLabel->getFont().withHeight(0.6f * (float)mLabelHeight));
+        
+        mOSCSettingsLabel.reset(new Label("OSCSettingsLabel", "OSC Settings"));
+        mOSCSettingsLabel->setJustificationType(Justification(Justification::Flags::centred));
+        mOSCSettingsLabel->setFont(mOSCSettingsLabel->getFont().withHeight(0.6f * (float)mLabelHeight));
+        
+        mAudioSettings.reset(new AudioDeviceSelectorComponent(deviceManager,
                                                                0, 0,
                                                                1, 10,
                                                                false, false,
                                                                false,
                                                                false));
-                                                               
-        addAndMakeVisible(*mDeviceSelector);
+        addAndMakeVisible(*mAudioSettingsLabel);
+        addAndMakeVisible(*mOSCSettingsLabel);
+        addAndMakeVisible(*mAudioSettings);
     }
 
     ~IOSettingsComponent()
@@ -41,12 +50,23 @@ public:
 
     void resized() override
     {
-        mDeviceSelector->setBounds(getBounds());
+        auto b = getLocalBounds();
+        mAudioSettingsLabel->setBounds(b.removeFromTop(mLabelHeight));
+        
+        int settingsHeight = mAudioSettings->getItemHeight() * 9;
+        mAudioSettings->setBounds(b.removeFromTop(settingsHeight));
+        
+        mOSCSettingsLabel->setBounds(b.removeFromTop(mLabelHeight));
     }
 
 private:
 
-    std::unique_ptr<AudioDeviceSelectorComponent> mDeviceSelector;
+    int                                             mLabelHeight = 50;
+    
+    std::unique_ptr<Label>                          mAudioSettingsLabel;
+    std::unique_ptr<Label>                          mOSCSettingsLabel;
+    
+    std::unique_ptr<AudioDeviceSelectorComponent>   mAudioSettings;
     //std::unique_ptr<OSCSettingsComponent>         mOSCSettingsComponent;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (IOSettingsComponent)

@@ -38,6 +38,7 @@ MainComponent::MainComponent()
     mFileList->getFileComponent().addListener(this);
     mController.loadAudioFiles();
     mDemoPlayer->updateFileList();
+    mFileList->resized();
 }
 
 MainComponent::~MainComponent()
@@ -66,4 +67,5 @@ void MainComponent::filenameComponentChanged(FilenameComponent* component)
     mModel.mCurrentAudioFolder = component->getCurrentFile();
     mController.loadAudioFiles();
     mDemoPlayer->updateFileList();
+    mFileList->resized();
 }
