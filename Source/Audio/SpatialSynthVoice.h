@@ -159,6 +159,8 @@ protected:
 
     int                mCurrentNoteID = -1;
     std::vector<float> mChannelAmplitudes;
+    std::vector<float> mChannelAmplitudeTargets;
+    std::vector<float> mChannelAmplitudeIncrements;
     glm::vec3          mPosition;
     bool               mNeedsDBAPUpdate = true;
 

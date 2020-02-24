@@ -23,6 +23,8 @@ void SpatialSynthVoice::setCurrentPlaybackSampleRate(double newRate)
 void SpatialSynthVoice::setNumSpeakerOutputs (int numSpeakers)
 {
     mChannelAmplitudes.resize(numSpeakers, 1.0f);
+    mChannelAmplitudeTargets.resize(numSpeakers, 1.0f);
+    mChannelAmplitudeIncrements.resize(numSpeakers, 1.0f);
 }
 
 bool SpatialSynthVoice::isVoiceActive() const
@@ -66,11 +68,11 @@ void SpatialSynthVoice::updateDBAPAmplitudes(const std::vector<glm::vec3>& posit
     float k = 0.0f;     // Scaling coeff
     float invk2 = 0.0f; // Inverse square of k
     
-    for (int i = 0; i < mChannelAmplitudes.size(); ++i)
+    for (int i = 0; i < mChannelAmplitudeTargets.size(); ++i)
     {
         const float dist = glm::distance(positions[i], mPosition);
         const float unNormalized = std::pow(dist, 0.5f * rolloffPowFactor);
-        mChannelAmplitudes[i] = unNormalized;
+        mChannelAmplitudeTargets[i] = unNormalized;
         invk2 += 1.0f / (unNormalized * unNormalized);
     }
     
@@ -78,7 +80,7 @@ void SpatialSynthVoice::updateDBAPAmplitudes(const std::vector<glm::vec3>& posit
     
     // normalize amplitudes
     for (int i = 0; i < mChannelAmplitudes.size(); ++i)
-        mChannelAmplitudes[i] = std::min(1.0f, k / mChannelAmplitudes[i]);
+        mChannelAmplitudeTargets[i] = std::min(1.0f, k / mChannelAmplitudeTargets[i]);
     
 //    // test
 //    for (int i = 0; i < mChannelAmplitudes.size(); ++i)

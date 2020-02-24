@@ -113,11 +113,6 @@ public:
         voice to start playing the sound.
 
         Subclasses might want to override this if they need a more complex algorithm.
-
-        This method will be called automatically according to the midi data passed into
-        renderNextBlock(), but may be called explicitly too.
-
-        The midiChannel parameter is the channel, between 1 and 16 inclusive.
     */
     virtual void noteOn (int noteID,
                          int soundID,
@@ -130,45 +125,22 @@ public:
 
         If allowTailOff is true, the voices will be allowed to fade out the notes gracefully
         (if they can do). If this is false, the notes will all be cut off immediately.
-
-        This method will be called automatically according to the midi data passed into
-        renderNextBlock(), but may be called explicitly too.
-
-        The midiChannel parameter is the channel, between 1 and 16 inclusive.
     */
-    virtual void noteOff (int midiNoteNumber,
+    virtual void noteOff (int noteID,
                           float velocity,
                           bool allowTailOff);
 
-    /** Turns off all notes.
-
-        This will turn off any voices that are playing a sound on the given midi channel.
-
-        If midiChannel is 0 or less, then all voices will be turned off, regardless of
-        which channel they're playing. Otherwise it represents a valid midi channel, from
-        1 to 16 inclusive.
+    /** This will turn off any voices that are playing a sound.
 
         If allowTailOff is true, the voices will be allowed to fade out the notes gracefully
         (if they can do). If this is false, the notes will all be cut off immediately.
-
-        This method will be called automatically according to the midi data passed into
-        renderNextBlock(), but may be called explicitly too.
     */
-    virtual void allNotesOff (bool allowTailOff);
+    virtual void allNotesOff(bool allowTailOff);
 
-    /** Sends a pitch-wheel message to any active voices.
-
-        This will send a pitch-wheel message to any voices that are playing sounds on
-        the given midi channel.
-
-        This method will be called automatically according to the midi data passed into
-        renderNextBlock(), but may be called explicitly too.
-
-        @param midiChannel          the midi channel, from 1 to 16 inclusive
-        @param wheelValue           the wheel position, from 0 to 0x3fff, as returned by MidiMessage::getPitchWheelValue()
+    /** Handles the moving of audio sources and causes DBAP update.
     */
-    virtual void handlePositionChange (int noteID,
-                                      glm::vec3 newPosition);
+    virtual void handlePositionChange(int noteID,
+                                       glm::vec3 newPosition);
 
 
     //==============================================================================

@@ -202,7 +202,7 @@ void SpatialSynth::noteOff (const int noteID,
         {
             if (auto sound = voice->getCurrentlyPlayingSound())
             {
-                stopVoice (voice, velocity, allowTailOff);
+                stopVoice(voice, velocity, allowTailOff);
             }
         }
     }
@@ -222,7 +222,7 @@ void SpatialSynth::handlePositionChange (int noteID, glm::vec3 newPosition)
 
     for (auto* voice : mVoices)
         if (voice->getCurrentNoteID() == noteID)
-            voice->positionChanged (newPosition);
+            voice->positionChanged(newPosition);
 }
 
 

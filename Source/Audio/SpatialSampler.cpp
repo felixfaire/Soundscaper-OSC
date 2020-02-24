@@ -87,6 +87,11 @@ void SpatialSamplerVoice::renderNextBlock (AudioBuffer<float>& outputBuffer, int
         const float* const inR = data.getNumChannels() > 1 ? data.getReadPointer (1) : nullptr;
             
         const int numChannels = outputBuffer.getNumChannels();
+        const float invSamples = 1.0f / (float)numSamples;
+        
+        // Calculate increments to smoothly interpolate channel amplitudes
+        for (int i = 0; i < mChannelAmplitudes.size(); ++i)
+            mChannelAmplitudeIncrements[i] = (mChannelAmplitudeTargets[i] - mChannelAmplitudes[i]) * invSamples;
         
         int i = 0;
         
@@ -95,6 +100,9 @@ void SpatialSamplerVoice::renderNextBlock (AudioBuffer<float>& outputBuffer, int
             auto pos = (int)sourceSamplePosition;
             auto alpha = (float)(sourceSamplePosition - pos);
             auto invAlpha = 1.0f - alpha;
+            
+            for (int i = 0; i < mChannelAmplitudes.size(); ++i)
+                mChannelAmplitudes[i] += mChannelAmplitudeIncrements[i];
 
             // just using a very simple linear interpolation here..
             float l = (inL[pos] * invAlpha + inL[pos + 1] * alpha);
@@ -120,51 +128,3 @@ void SpatialSamplerVoice::renderNextBlock (AudioBuffer<float>& outputBuffer, int
         }
     }
 }
-
-//void SpatialSamplerVoice::renderNextBlock (AudioBuffer<float>& outputBuffer, int startSample, int numSamples)
-//{
-//    if (auto* playingSound = static_cast<SpatialSamplerSound*> (getCurrentlyPlayingSound().get()))
-//    {
-//        auto& data = *playingSound->data;
-//        const float* const inL = data.getReadPointer (0);
-//        const float* const inR = data.getNumChannels() > 1 ? data.getReadPointer (1) : nullptr;
-//
-//        float* outL = outputBuffer.getWritePointer (0, startSample);
-//        float* outR = outputBuffer.getNumChannels() > 1 ? outputBuffer.getWritePointer (1, startSample) : nullptr;
-//
-//        while (--numSamples >= 0)
-//        {
-//            auto pos = (int)sourceSamplePosition;
-//            auto alpha = (float)(sourceSamplePosition - pos);
-//            auto invAlpha = 1.0f - alpha;
-//
-//            // just using a very simple linear interpolation here..
-//            float l = (inL[pos] * invAlpha + inL[pos + 1] * alpha);
-//            float r = (inR != nullptr) ? (inR[pos] * invAlpha + inR[pos + 1] * alpha)
-//                                       : l;
-//
-//            auto envelopeValue = adsr.getNextSample();
-//
-//            l *= envelopeValue;
-//            r *= envelopeValue;
-//
-//            if (outR != nullptr)
-//            {
-//                *outL++ += l;
-//                *outR++ += r;
-//            }
-//            else
-//            {
-//                *outL++ += (l + r) * 0.5f;
-//            }
-//
-//            sourceSamplePosition += pitchRatio;
-//
-//            if (sourceSamplePosition > playingSound->length)
-//            {
-//                stopNote (0.0f, false);
-//                break;
-//            }
-//        }
-//    }
-//}

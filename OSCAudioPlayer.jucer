@@ -16,6 +16,8 @@
       <GROUP id="{C86DF6EF-350D-F740-3D04-A826B64EA7EE}" name="Audio">
         <FILE id="nU301z" name="AudioController.h" compile="0" resource="0"
               file="Source/Audio/AudioController.h"/>
+        <FILE id="jh8c5A" name="SoundEventData.h" compile="0" resource="0"
+              file="Source/Audio/SoundEventData.h"/>
         <FILE id="kTYUYi" name="SpatialSampler.cpp" compile="1" resource="0"
               file="Source/Audio/SpatialSampler.cpp"/>
         <FILE id="o7XAQE" name="SpatialSampler.h" compile="0" resource="0"

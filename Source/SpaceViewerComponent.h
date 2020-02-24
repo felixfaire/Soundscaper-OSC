@@ -27,6 +27,7 @@ public:
     void paint(Graphics& g) override
     {
         auto b = getLocalBounds().reduced(2.0f).toFloat();
+        b += Point<float>(mSubPixelDiff.x, mSubPixelDiff.y);
 
         if (isMouseOverOrDragging())
         {
@@ -37,8 +38,21 @@ public:
         g.setColour(Colours::white.withAlpha(0.8f));
         g.drawEllipse(b, 2.0f);
     }
+    
+    void setPosition(float x, float y)
+    {
+        glm::vec2 p(x, y);
+        glm::vec2 pr(roundToInt(x), roundToInt(y));
+        setCentrePosition((int)pr.x, (int)pr.y);
+        mSubPixelDiff = p - pr;
+    }
 
+    
+private:
+    
     int mID = 0;
+    glm::vec2 mPosition;
+    glm::vec2 mSubPixelDiff;
 };
 
 //==============================================================================
@@ -115,7 +129,7 @@ public:
         {
             const auto& s = mModel.mSpeakerPositions[i];
             const auto p = getWorldToRect(glm::vec2(s.x, s.z));
-            mSpeakers[i]->setCentrePosition(p.x, p.y);
+            mSpeakers[i]->setPosition(p.x, p.y);
         }
     }
     

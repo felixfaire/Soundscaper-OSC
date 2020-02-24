@@ -11,12 +11,19 @@
 #pragma once
 
 #include "SpatialSynth.h"
+#include "SoundEventData.h"
 
 class AudioController   : public AudioSource
 {
 public:
     AudioController()
     {
+        mSoundEventData.onProcessEvent = [&](const SoundEvent& e) {
+            if (e.isStartNote())
+                mSynth.noteOn(e.noteID, e.soundID, 1.0f, e.position);
+            else
+                mSynth.handlePositionChange(e.noteID, e.position);
+        };
     }
     
     ~AudioController()
@@ -58,6 +65,7 @@ public:
 
     void getNextAudioBlock (const AudioSourceChannelInfo& bufferToFill) override
     {
+        mSoundEventData.processEventData();
         mSynth.renderNextBlock(*bufferToFill.buffer, bufferToFill.startSample, bufferToFill.numSamples);
     }
 
@@ -66,11 +74,21 @@ public:
         Logger::getCurrentLogger()->writeToLog ("Releasing audio resources");
     }
     
-    SpatialSynth         mSynth;
-    
+    // Manages lockfree message processing with a fifo
+    void addSoundEvent(const SoundEvent& event)
+    {
+        mSoundEventData.addSoundEvent(event);
+    }
+        
     AudioDeviceManager& getDeviceManager() { return mDeviceManager; }
-    
+
+    // All public access to this method on the message thread
+    // will cause locking, so only use on initialisation etc.
+    SpatialSynth       mSynth;
+
 private:
+
+    SoundEventData     mSoundEventData;
 
     AudioDeviceManager mDeviceManager;
     AudioSourcePlayer  mAudioSourcePlayer;

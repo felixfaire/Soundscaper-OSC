@@ -65,14 +65,14 @@ public:
     {
         jassert(soundID < mModel.mSoundFiles.size());
         const int noteID = ++mModel.mCurrentNoteID;
-        mAudio.mSynth.noteOn(noteID, soundID, 1.0f, pos);
+        mAudio.addSoundEvent({noteID, soundID, pos});
     }
     
     void updateSource(int soundID, const glm::vec3& pos)
     {
         jassert(soundID < mModel.mSoundFiles.size());
         const int noteID = mModel.mCurrentNoteID;
-        mAudio.mSynth.handlePositionChange(noteID, pos);
+        mAudio.addSoundEvent({noteID, -1, pos});
     }
     
     AudioDeviceManager& getDeviceManager() { return mAudio.getDeviceManager(); }
