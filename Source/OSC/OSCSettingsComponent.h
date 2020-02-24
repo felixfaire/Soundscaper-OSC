@@ -81,6 +81,7 @@ public:
 
         mPortNumberField.setEditable (true, true, true);
         mPortNumberField.addListener(this);
+        mPortNumberField.setColour(Label::ColourIds::outlineColourId, Colour(0xff8e989b));
         addAndMakeVisible(mPortNumberField);
 
         addAndMakeVisible(mConnectButton);
