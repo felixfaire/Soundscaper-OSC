@@ -24,6 +24,8 @@ public:
     AppController(AppModel& model)
         : mModel(model)
     {
+        auto file = File::getSpecialLocation(File::SpecialLocationType::userDesktopDirectory);
+        
         mFormatManager.registerBasicFormats();
         mAudio.setAudioChannels(0, 2);
         mAudio.mSynth.updateSpeakerPositions(mModel.mSpeakerPositions);

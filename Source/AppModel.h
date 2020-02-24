@@ -32,7 +32,7 @@ public:
         }
         
         // Load default stereo model
-        const float r = 1.5f;
+        const float r = 1.0f;
         mSpeakerPositions.push_back(glm::vec3(-r, 0.0f, 0.0f));
         mSpeakerPositions.push_back(glm::vec3( r, 0.0f, 0.0f));
         mSpeakerPositions.push_back(glm::vec3(0.0f, 0.0f, r));

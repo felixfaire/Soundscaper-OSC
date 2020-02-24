@@ -80,11 +80,12 @@ void SpatialSynthVoice::updateDBAPAmplitudes(const std::vector<glm::vec3>& posit
     for (int i = 0; i < mChannelAmplitudes.size(); ++i)
         mChannelAmplitudes[i] = std::min(1.0f, k / mChannelAmplitudes[i]);
     
-    // test
-    for (int i = 0; i < mChannelAmplitudes.size(); ++i)
-    {
-        const float dist = glm::distance(positions[i], mPosition);
-        mChannelAmplitudes[i] = std::min(1.0f, 0.1f / dist);
-    }
+//    // test
+//    for (int i = 0; i < mChannelAmplitudes.size(); ++i)
+//    {
+//        const float dist = glm::distance(positions[i], mPosition);
+//        mChannelAmplitudes[i] = std::min(1.0f, 0.1f / dist);
+//    }
+    
     mNeedsDBAPUpdate = false;
 }
