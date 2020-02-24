@@ -20,7 +20,7 @@ class MinimalLookAndFeel    : public LookAndFeel_V4
 public:
     MinimalLookAndFeel()
     {
-
+        
     }
 
     ~MinimalLookAndFeel()
@@ -53,22 +53,6 @@ public:
 
         const Colour bkg (button.getTabBackgroundColour());
         const float textAlphaMult = button.getToggleState() ? 1.0f : 0.3f;
-    
-//        if (button.getToggleState())
-//        {
-            g.setColour (bkg);
-//        }
-//        else
-//        {
-//            Point<int> p1, p2;
-//            p1 = activeArea.getTopLeft();
-//            p2 = activeArea.getBottomLeft();
-//
-//            g.setGradientFill (ColourGradient (bkg.brighter (0.2f), p1.toFloat(),
-//                                               bkg.darker (0.1f),   p2.toFloat(), false));
-//        }
-
-        //g.fillRect (activeArea);
 
         g.setColour (button.findColour (TabbedButtonBar::tabOutlineColourId));
 
@@ -114,6 +98,50 @@ public:
         const auto& bar = b.getTabbedButtonBar();
         return bar.getWidth() / bar.getNumTabs();
     }
+
+    // ===== LABEL ==========================================================
+
+    void drawLabel (Graphics& g, Label& label) override
+    {
+        if (label.isEditable() && label.isEnabled())
+        {
+            auto b = label.getLocalBounds().toFloat().reduced (0.5f, 0.5f);
+
+            auto bkColour = getCurrentColourScheme().getUIColour(ColourScheme::UIColour::widgetBackground);
+            
+            if (label.isMouseOver())
+                bkColour = bkColour.contrasting (0.05f);
+            
+            g.setColour(bkColour);
+            g.fillRoundedRectangle(b, 4.0f);
+
+            g.setColour(getCurrentColourScheme().getUIColour(ColourScheme::UIColour::outline));
+            g.drawRoundedRectangle(b, 4.0f, 1.0f);
+        }
+
+        if (!label.isBeingEdited())
+        {
+            auto alpha = label.isEnabled() ? 1.0f : 0.5f;
+            const Font font (getLabelFont (label));
+
+            g.setColour (label.findColour (Label::textColourId).withMultipliedAlpha (alpha));
+            g.setFont (font);
+
+            auto textArea = getLabelBorderSize (label).subtractedFrom (label.getLocalBounds());
+
+            g.drawFittedText (label.getText(), textArea, label.getJustificationType(),
+                jmax (1, (int) (textArea.getHeight() / font.getHeight())),
+                label.getMinimumHorizontalScale());
+
+            g.setColour (label.findColour (Label::outlineColourId).withMultipliedAlpha (alpha));
+        }
+        else if (label.isEnabled())
+        {
+            g.setColour (label.findColour (Label::outlineColourId));
+        }
+    }
+
+    // ===== FONTS ==========================================================
     
     Typeface::Ptr getTypefaceForFont(const Font& f) override
     {

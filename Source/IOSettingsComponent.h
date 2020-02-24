@@ -11,6 +11,7 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include "OSC/OSCSettings.h"
 
 //==============================================================================
 /*
@@ -34,9 +35,13 @@ public:
                                                                false, false,
                                                                false,
                                                                false));
+        
+        mOSCSettingsComponent.reset(new OSCSettingsComponent());
+
         addAndMakeVisible(*mAudioSettingsLabel);
         addAndMakeVisible(*mOSCSettingsLabel);
         addAndMakeVisible(*mAudioSettings);
+        addAndMakeVisible(*mOSCSettingsComponent);
     }
 
     ~IOSettingsComponent()
@@ -53,10 +58,11 @@ public:
         auto b = getLocalBounds();
         mAudioSettingsLabel->setBounds(b.removeFromTop(mLabelHeight));
         
-        int settingsHeight = mAudioSettings->getItemHeight() * 9;
+        int settingsHeight = mAudioSettings->getItemHeight() * 10;
         mAudioSettings->setBounds(b.removeFromTop(settingsHeight));
         
         mOSCSettingsLabel->setBounds(b.removeFromTop(mLabelHeight));
+        mOSCSettingsComponent->setBounds(b);
     }
 
 private:
@@ -67,7 +73,7 @@ private:
     std::unique_ptr<Label>                          mOSCSettingsLabel;
     
     std::unique_ptr<AudioDeviceSelectorComponent>   mAudioSettings;
-    //std::unique_ptr<OSCSettingsComponent>         mOSCSettingsComponent;
+    std::unique_ptr<OSCSettingsComponent>           mOSCSettingsComponent;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (IOSettingsComponent)
 };
