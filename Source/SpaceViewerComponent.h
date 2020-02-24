@@ -73,6 +73,8 @@ public:
             addAndMakeVisible(*c);
             mSpeakers.add(c);
         }
+        
+        updateSpeakerBounds();
     }
 
     ~SpaceViewerComponent()
@@ -107,21 +109,13 @@ public:
             g.drawHorizontalLine(middleY + y, b.getX(), b.getRight());
             g.drawHorizontalLine(middleY - y, b.getX(), b.getRight());
         }
-        
-        // Draw Speaker points
-        /*g.setColour(Colour::greyLevel(0.8f));
-        for (auto& s : mModel.mSpeakerPositions)
-        {
-            const auto p = getWorldToRect(glm::vec2(s.x, s.z));
-            drawCircle(g, p.x, p.y, 10.0f, 2.0f);
-        }*/
     }
 
     void resized() override
     {
         auto b = getLocalBounds().reduced(10);
         mDemoFileBox.setBounds(b.removeFromTop(mBoxHeight));
-        updateSpeakerBounds();
+        //updateSpeakerBounds();
         updateMatrices();
 
         // Position speaker components
@@ -179,6 +173,14 @@ public:
         }
         
         mWindowDiameter *= 2.5f;
+        mMinWindowDiameter = mWindowDiameter;
+    }
+    
+    void mouseMagnify (const MouseEvent& event, float scaleFactor) override
+    {
+        mWindowDiameter = jmin(mMaxWindowDiameter, jmax(mMinWindowDiameter, mWindowDiameter / scaleFactor));
+        resized();
+        repaint();
     }
     
     std::function<void(int, glm::vec3)> onTrigger;
@@ -237,7 +239,10 @@ private:
     ComboBox  mDemoFileBox;
     int       mBoxHeight = 40;
     AppModel& mModel;
+    
     float     mWindowDiameter = 4.0f;
+    float     mMinWindowDiameter = 4.0f;
+    float     mMaxWindowDiameter = 100.0f;
 
     OwnedArray<SpeakerComponent> mSpeakers;
 
