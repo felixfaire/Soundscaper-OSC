@@ -14,7 +14,7 @@ MainComponent::MainComponent()
 {
     MinimalLookAndFeel::setDefaultLookAndFeel(&mLookAndFeel);
     
-    mIOSettings.reset(new IOSettingsComponent(mController.getDeviceManager()));
+    mIOSettings.reset(new IOSettingsComponent(mModel, mController.getDeviceManager()));
     mFileList.reset(new AudioFileListComponent(mModel));
     mDemoPlayer.reset(new DemoVoicePlayerComponent(mModel));
     
@@ -27,9 +27,9 @@ MainComponent::MainComponent()
     };
     
     mTabbedContainer.reset(new TabbedComponent(TabbedButtonBar::Orientation::TabsAtTop));
-    mTabbedContainer->addTab("IO Settings", Colour(), mIOSettings.get(), false);
-    mTabbedContainer->addTab("Audio Files", Colour(), mFileList.get(), false);
-    mTabbedContainer->addTab("Demo Player", Colour(), mDemoPlayer.get(), false);
+    mTabbedContainer->addTab("Space", Colour(), mDemoPlayer.get(), false);
+    mTabbedContainer->addTab("Sounds", Colour(), mFileList.get(), false);
+    mTabbedContainer->addTab("Settings", Colour(), mIOSettings.get(), false);
     mTabbedContainer->setIndent(10);
     mTabbedContainer->setTabBarDepth(50);
     mTabbedContainer->setOutline(0);
@@ -37,7 +37,7 @@ MainComponent::MainComponent()
     
     addAndMakeVisible(*mTabbedContainer);
     
-    setSize (800, 800);
+    setSize (800, 900);
         
     mFileList->getFileComponent().addListener(this);
     mController.loadAudioFiles();

@@ -18,17 +18,17 @@
     handling the passing of messages to trigger sounds and
     manage control data.
 */
-class AppController
+class AppController         : private OSCReceiver::Listener<OSCReceiver::MessageLoopCallback>
 {
 public:
     AppController(AppModel& model)
         : mModel(model)
     {
-        auto file = File::getSpecialLocation(File::SpecialLocationType::userDesktopDirectory);
-        
         mFormatManager.registerBasicFormats();
         mAudio.setAudioChannels(0, 2);
         mAudio.mSynth.updateSpeakerPositions(mModel.mSpeakerPositions);
+
+        mModel.mOSCReciever.addListener(this);
     }
     
     void loadAudioFiles()
@@ -63,12 +63,14 @@ public:
     
     void triggerSource(int soundID, const glm::vec3& pos)
     {
+        jassert(soundID < mModel.mSoundFiles.size());
         const int noteID = ++mModel.mCurrentNoteID;
         mAudio.mSynth.noteOn(noteID, soundID, 1.0f, pos);
     }
     
     void updateSource(int soundID, const glm::vec3& pos)
     {
+        jassert(soundID < mModel.mSoundFiles.size());
         const int noteID = mModel.mCurrentNoteID;
         mAudio.mSynth.handlePositionChange(noteID, pos);
     }
@@ -77,8 +79,28 @@ public:
     
 private:
 
+
+    virtual void oscMessageReceived(const OSCMessage& message)
+    {
+        // TODO: convert this to not use strings
+        if (message.getAddressPattern().toString() == "/sound/position")
+        {
+            if (message[0].isInt32())
+            {
+                const int id = message[0].getInt32();
+                triggerSource(id, glm::vec3(0.0f));
+            }
+            else
+            {
+                DBG("Incorrect message type");
+            }
+        }
+    }
+
     AppModel&           mModel;
     AudioController     mAudio;
+
+    // File loading
     AudioFormatManager  mFormatManager;
     
 };

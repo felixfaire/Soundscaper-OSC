@@ -17,19 +17,19 @@ struct AppModel
 public:
     AppModel()
     {
-        mCurrentAudioFolder = File::getCurrentWorkingDirectory();
-        File parentSearch = mCurrentAudioFolder;
+        // Setup properties file
+        auto settingsOpts = PropertiesFile::Options();
+        settingsOpts.filenameSuffix = ".settings";
+        settingsOpts.applicationName = "SoundscaperOSC";
+        settingsOpts.folderName = "Synaesthete";
+        settingsOpts.osxLibrarySubFolder = "Application Support";
+        settingsOpts.storageFormat = PropertiesFile::StorageFormat::storeAsXML;
+        mSettingsFile.reset(new PropertiesFile(settingsOpts));
 
-        for (int i = 0; i < 5; ++i)
-        {
-            parentSearch = parentSearch.getParentDirectory();
-            
-            if (parentSearch.getFileNameWithoutExtension().toLowerCase() == "oscaudioplayer")
-            {
-                mCurrentAudioFolder = parentSearch.getChildFile("assets/samples");
-                break;
-            }
-        }
+        mSettingsFile->reload();
+
+        if (mSettingsFile->containsKey("audio-files-location"))
+            mCurrentAudioFolder = mSettingsFile->getValue("audio-files-location");
         
         // Load default stereo model
         const float r = 1.0f;
@@ -38,13 +38,23 @@ public:
         mSpeakerPositions.push_back(glm::vec3(0.0f, 0.0f, r));
         mSpeakerPositions.push_back(glm::vec3(0.0f, 0.0f,-r));
     }
+
+    ~AppModel()
+    {
+        mSettingsFile->setValue("audio-files-location", mCurrentAudioFolder.getFullPathName());
+        mSettingsFile->save();
+    }
+
+    std::unique_ptr<PropertiesFile>     mSettingsFile;
         
-    Array<File>               mSoundFiles;
-    std::vector<String>       mOSCAddresses;
-    std::vector<glm::vec3>    mSpeakerPositions;
+    Array<File>                         mSoundFiles;
+    std::vector<glm::vec3>              mSpeakerPositions;
+
+    std::vector<OSCAddressPattern>      mOSCAddresses;
+    OSCReceiver                         mOSCReciever;
     
-    File                mCurrentAudioFolder;
+    File                                mCurrentAudioFolder;
     
-    int                 mCurrentNoteID = 0;
+    int                                 mCurrentNoteID = 0;
     
 };

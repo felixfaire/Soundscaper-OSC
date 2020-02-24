@@ -21,14 +21,17 @@ class OSCSenderDemo   : public Component
 public:
     OSCSenderDemo()
     {
-        slider.setRange (0.0, 1.0);
-        slider.setSliderStyle (Slider::LinearHorizontal);
+        button.setButtonText("Send");
+        addAndMakeVisible(button);
+
+        slider.setRange (0.0, 2.0, 1.0);
+        slider.setSliderStyle(Slider::LinearHorizontal);
         addAndMakeVisible (slider);
 
-        slider.onValueChange = [this]
+        button.onClick = [this]
         {
-            // create and send an OSC message with an address and a float value:
-            if (!sender.send ("/sound/position", (float) slider.getValue()))
+            // create and send an OSC message with  an address and a int value:
+            if (!sender.send ("/sound/position", (int)slider.getValue()))
                 showConnectionErrorMessage ("Error: could not send OSC message.");
         };
 
@@ -41,6 +44,7 @@ public:
     {
         auto b = getLocalBounds();
 
+        button.setBounds(b.removeFromRight(80));
         slider.setBounds(b);
     }
 
@@ -56,6 +60,7 @@ private:
 
     //==============================================================================
     Slider slider;
+    TextButton button;
     OSCSender sender;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (OSCSenderDemo)
@@ -68,7 +73,8 @@ class OSCSettingsComponent   : public Component,
 {
 public:
     //==============================================================================
-    OSCSettingsComponent()
+    OSCSettingsComponent(OSCReceiver& reciever)
+        : mOscReceiver(reciever)
     {
         mPortNumberLabel.setJustificationType(Justification::centredRight);
         addAndMakeVisible(mPortNumberLabel);
@@ -131,9 +137,9 @@ private:
     TextButton      mClearButton   { "Clear" };
     Label           mConnectionStatusLabel;
 
+    OSCReceiver&    mOscReceiver;
     OSCSenderDemo   mDemoSender;
     OSCLogListBox   mOscLogListBox;
-    OSCReceiver     mOscReceiver;
 
     int             mCurrentPortNumber = -1;
 

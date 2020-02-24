@@ -10,7 +10,10 @@
     <GROUP id="{95A5C06C-B4E9-E01E-019B-DDE92792A038}" name="Source">
       <GROUP id="{52B6D902-4F8E-197C-5A61-A1DDF4C02BF5}" name="OSC">
         <FILE id="OBsZIQ" name="OSCListBox.h" compile="0" resource="0" file="Source/OSC/OSCListBox.h"/>
-        <FILE id="WvwtS2" name="OSCSettings.h" compile="0" resource="0" file="Source/OSC/OSCSettings.h"/>
+        <FILE id="X9VXwg" name="OSCMessageHistory.h" compile="0" resource="0"
+              file="Source/OSC/OSCMessageHistory.h"/>
+        <FILE id="WvwtS2" name="OSCSettingsComponent.h" compile="0" resource="0"
+              file="Source/OSC/OSCSettingsComponent.h"/>
       </GROUP>
       <GROUP id="{C86DF6EF-350D-F740-3D04-A826B64EA7EE}" name="Audio">
         <FILE id="nU301z" name="AudioController.h" compile="0" resource="0"

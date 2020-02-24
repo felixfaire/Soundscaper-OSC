@@ -11,7 +11,7 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "OSC/OSCSettings.h"
+#include "OSC/OSCSettingsComponent.h"
 
 //==============================================================================
 /*
@@ -19,7 +19,7 @@
 class IOSettingsComponent    : public Component
 {
 public:
-    IOSettingsComponent(AudioDeviceManager& deviceManager)
+    IOSettingsComponent(AppModel& m, AudioDeviceManager& deviceManager)
     {
         mAudioSettingsLabel.reset(new Label("AudioSettingsLabel", "Audio Settings"));
         mAudioSettingsLabel->setJustificationType(Justification(Justification::Flags::centred));
@@ -36,7 +36,7 @@ public:
                                                                false,
                                                                false));
         
-        mOSCSettingsComponent.reset(new OSCSettingsComponent());
+        mOSCSettingsComponent.reset(new OSCSettingsComponent(m.mOSCReciever));
 
         addAndMakeVisible(*mAudioSettingsLabel);
         addAndMakeVisible(*mOSCSettingsLabel);

@@ -115,7 +115,7 @@ public:
             g.setColour(bkColour);
             g.fillRoundedRectangle(b, 4.0f);
 
-            g.setColour(getCurrentColourScheme().getUIColour(ColourScheme::UIColour::outline));
+            g.setColour(label.findColour(Label::outlineColourId));
             g.drawRoundedRectangle(b, 4.0f, 1.0f);
         }
 
@@ -132,12 +132,6 @@ public:
             g.drawFittedText (label.getText(), textArea, label.getJustificationType(),
                 jmax (1, (int) (textArea.getHeight() / font.getHeight())),
                 label.getMinimumHorizontalScale());
-
-            g.setColour (label.findColour (Label::outlineColourId).withMultipliedAlpha (alpha));
-        }
-        else if (label.isEnabled())
-        {
-            g.setColour (label.findColour (Label::outlineColourId));
         }
     }
 
