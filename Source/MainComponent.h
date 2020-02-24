@@ -14,7 +14,7 @@
 #include "IOSettingsComponent.h"
 #include "AudioFileListComponent.h"
 #include "UIElements/MinimalLookAndFeel.h"
-#include "DemoVoicePlayerComponent.h"
+#include "SpaceViewerComponent.h"
 
 
 //==============================================================================
@@ -45,7 +45,7 @@ private:
     
     std::unique_ptr<IOSettingsComponent>          mIOSettings;
     std::unique_ptr<AudioFileListComponent>       mFileList;
-    std::unique_ptr<DemoVoicePlayerComponent>     mDemoPlayer;
+    std::unique_ptr<SpaceViewerComponent>         mSpaceViewer;
     
     AppModel                                      mModel;
     AppController                                 mController;

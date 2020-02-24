@@ -10,8 +10,6 @@
     <GROUP id="{95A5C06C-B4E9-E01E-019B-DDE92792A038}" name="Source">
       <GROUP id="{52B6D902-4F8E-197C-5A61-A1DDF4C02BF5}" name="OSC">
         <FILE id="OBsZIQ" name="OSCListBox.h" compile="0" resource="0" file="Source/OSC/OSCListBox.h"/>
-        <FILE id="X9VXwg" name="OSCMessageHistory.h" compile="0" resource="0"
-              file="Source/OSC/OSCMessageHistory.h"/>
         <FILE id="WvwtS2" name="OSCSettingsComponent.h" compile="0" resource="0"
               file="Source/OSC/OSCSettingsComponent.h"/>
       </GROUP>
@@ -40,8 +38,8 @@
       </GROUP>
       <FILE id="beLorD" name="AppController.h" compile="0" resource="0" file="Source/AppController.h"/>
       <FILE id="ijLPGz" name="AppModel.h" compile="0" resource="0" file="Source/AppModel.h"/>
-      <FILE id="bCvIXp" name="DemoVoicePlayerComponent.h" compile="0" resource="0"
-            file="Source/DemoVoicePlayerComponent.h"/>
+      <FILE id="bCvIXp" name="SpaceViewerComponent.h" compile="0" resource="0"
+            file="Source/SpaceViewerComponent.h"/>
       <FILE id="xLvmit" name="AudioFileListComponent.h" compile="0" resource="0"
             file="Source/AudioFileListComponent.h"/>
       <FILE id="JLXVLq" name="IOSettingsComponent.h" compile="0" resource="0"

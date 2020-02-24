@@ -16,18 +16,18 @@ MainComponent::MainComponent()
     
     mIOSettings.reset(new IOSettingsComponent(mModel, mController.getDeviceManager()));
     mFileList.reset(new AudioFileListComponent(mModel));
-    mDemoPlayer.reset(new DemoVoicePlayerComponent(mModel));
+    mSpaceViewer.reset(new SpaceViewerComponent(mModel));
     
-    mDemoPlayer->onTrigger = [this](int index, glm::vec3 p){
+    mSpaceViewer->onTrigger = [this](int index, glm::vec3 p){
         mController.triggerSource(index, p);
     };
     
-    mDemoPlayer->onUpdate = [this](int index, glm::vec3 p){
+    mSpaceViewer->onUpdate = [this](int index, glm::vec3 p){
         mController.updateSource(index, p);
     };
     
     mTabbedContainer.reset(new TabbedComponent(TabbedButtonBar::Orientation::TabsAtTop));
-    mTabbedContainer->addTab("Space", Colour(), mDemoPlayer.get(), false);
+    mTabbedContainer->addTab("Space", Colour(), mSpaceViewer.get(), false);
     mTabbedContainer->addTab("Sounds", Colour(), mFileList.get(), false);
     mTabbedContainer->addTab("Settings", Colour(), mIOSettings.get(), false);
     mTabbedContainer->setIndent(10);
@@ -41,7 +41,7 @@ MainComponent::MainComponent()
         
     mFileList->getFileComponent().addListener(this);
     mController.loadAudioFiles();
-    mDemoPlayer->updateFileList();
+    mSpaceViewer->updateFileList();
     mFileList->resized();
 }
 
@@ -70,6 +70,6 @@ void MainComponent::filenameComponentChanged(FilenameComponent* component)
 {
     mModel.mCurrentAudioFolder = component->getCurrentFile();
     mController.loadAudioFiles();
-    mDemoPlayer->updateFileList();
+    mSpaceViewer->updateFileList();
     mFileList->resized();
 }

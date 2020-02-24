@@ -17,6 +17,31 @@ struct AppModel
 public:
     AppModel()
     {
+        loadSettings();
+    }
+
+    ~AppModel()
+    {
+        saveSettings();
+    }
+
+    std::unique_ptr<PropertiesFile>     mSettingsFile;
+        
+    Array<File>                         mSoundFiles;
+    std::vector<glm::vec3>              mSpeakerPositions;
+
+    std::vector<OSCAddressPattern>      mOSCAddresses;
+    OSCReceiver                         mOSCReciever;
+    
+    File                                mCurrentAudioFolder;
+    
+    int                                 mCurrentNoteID = 0;
+
+private:
+
+
+    void loadSettings()
+    {
         // Setup and load properties file
         auto settingsOpts = PropertiesFile::Options();
         settingsOpts.filenameSuffix = ".settings";
@@ -57,7 +82,7 @@ public:
         }
     }
 
-    ~AppModel()
+    void saveSettings()
     {
         mSettingsFile->setValue(mCurrentAudioFolderID, mCurrentAudioFolder.getFullPathName());
 
@@ -72,23 +97,10 @@ public:
 
             speakersProps.addChildElement(speaker);
         }
+
         mSettingsFile->setValue(mSpeakerInfoID, &speakersProps);
         mSettingsFile->save();
     }
-
-    std::unique_ptr<PropertiesFile>     mSettingsFile;
-        
-    Array<File>                         mSoundFiles;
-    std::vector<glm::vec3>              mSpeakerPositions;
-
-    std::vector<OSCAddressPattern>      mOSCAddresses;
-    OSCReceiver                         mOSCReciever;
-    
-    File                                mCurrentAudioFolder;
-    
-    int                                 mCurrentNoteID = 0;
-
-private:
 
     // Settings ID's
     String                              mCurrentAudioFolderID = "audio-files-location";
