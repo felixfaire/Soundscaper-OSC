@@ -14,12 +14,55 @@
 #include "vec2.hpp"
 #include "gtx/matrix_transform_2d.hpp"
 
-
-class SpeakerComponent : public Component
+class SpeakerEditorComponent  : public Component,
+                                public ChangeBroadcaster
 {
 public:
-    SpeakerComponent(int id)
-        : mID(id)
+    SpeakerEditorComponent(const glm::vec3& pos)
+    {
+        for (int i = 0; i < 3; ++i)
+        {
+            mPositionSliders[i].reset(new Slider());
+            mPositionSliders[i]->setRange(-10.0, 10.0);
+            mPositionSliders[i]->setSliderStyle(Slider::LinearHorizontal);
+            mPositionSliders[i]->setValue(pos[i]);
+            mPositionSliders[i]->onValueChange = [this] () {
+                sendChangeMessage();
+            };
+            
+            addAndMakeVisible(mPositionSliders[i].get());
+        }
+    }
+    
+    void resized()
+    {
+        auto b = getLocalBounds();
+        const auto step = b.getHeight() / 3;
+        
+        for (int i = 0; i < 3; ++i)
+            mPositionSliders[i]->setBounds(b.removeFromTop(step).reduced(5));
+    }
+    
+    glm::vec3 getPosition()
+    {
+        return glm::vec3((float)mPositionSliders[0]->getValue(),
+                         (float)mPositionSliders[1]->getValue(),
+                         (float)mPositionSliders[2]->getValue());
+    }
+    
+private:
+
+    std::unique_ptr<Slider> mPositionSliders [3];
+    
+};
+
+class SpeakerComponent : public Component,
+                         public ChangeListener
+{
+public:
+    SpeakerComponent(AppModel& m, int id)
+        : mModel(m),
+          mID(id)
     {
         setRepaintsOnMouseActivity(true);
     }
@@ -29,7 +72,7 @@ public:
         auto b = getLocalBounds().reduced(2.0f).toFloat();
         b += Point<float>(mSubPixelDiff.x, mSubPixelDiff.y);
 
-        if (isMouseOverOrDragging())
+        if (isMouseOver())
         {
             g.setColour(Colours::white.withAlpha(0.2f));
             g.fillEllipse(b);
@@ -39,17 +82,40 @@ public:
         g.drawEllipse(b, 2.0f);
     }
     
+    void mouseUp(const MouseEvent& event) override
+    {
+        auto* speakerEditor = new SpeakerEditorComponent(mModel.mSpeakerPositions[mID]);
+        speakerEditor->addChangeListener(this);
+        speakerEditor->setSize (200, 100);
+
+        CallOutBox::launchAsynchronously(speakerEditor, getScreenBounds(), nullptr);
+        
+        repaint();
+    }
+    
     void setPosition(float x, float y)
     {
         glm::vec2 p(x, y);
         glm::vec2 pr(roundToInt(x), roundToInt(y));
         setCentrePosition((int)pr.x, (int)pr.y);
+        mPosition = p;
         mSubPixelDiff = p - pr;
     }
 
+    const glm::vec2& getPosition() { return mPosition; }
+    
+    std::function<void(int, const glm::vec3&)> onUpdatePosition;
     
 private:
+
+    void changeListenerCallback (ChangeBroadcaster* source) override
+    {
+        if (auto* se = dynamic_cast<SpeakerEditorComponent*>(source))
+            if (onUpdatePosition != nullptr)
+                onUpdatePosition(mID, se->getPosition());
+    }
     
+    AppModel& mModel;
     int mID = 0;
     glm::vec2 mPosition;
     glm::vec2 mSubPixelDiff;
@@ -65,11 +131,17 @@ public:
         : mModel(model)
     {
         addAndMakeVisible(mDemoFileBox);
+        
+        auto onUpdatePosition = [this](int i, const glm::vec3& p) {
+            mModel.mSpeakerPositions[i] = p;
+            resized();
+        };
 
         for (int i = 0; i < mModel.mSpeakerPositions.size(); ++i)
         {
-            SpeakerComponent* c = new SpeakerComponent(i);
-            c->setSize(30, 30);
+            SpeakerComponent* c = new SpeakerComponent(mModel, i);
+            c->onUpdatePosition = onUpdatePosition;
+            c->setSize(20, 20);
             addAndMakeVisible(*c);
             mSpeakers.add(c);
         }
@@ -109,6 +181,22 @@ public:
             g.drawHorizontalLine(middleY + y, b.getX(), b.getRight());
             g.drawHorizontalLine(middleY - y, b.getX(), b.getRight());
         }
+        
+        // Draw convex hull
+//        Path path;
+//
+//        for (int i = 0; i < mSpeakers.size(); ++i)
+//        {
+//            const auto& p = mSpeakers[i]->getPosition();
+//
+//            if (i == 0)
+//                path.startNewSubPath(p.x, p.y);
+//            else
+//                path.lineTo(p.x, p.y);
+//        }
+//
+//        g.setColour(Colours::white.withAlpha(0.3f));
+//        g.strokePath(path, PathStrokeType(2.0f));
     }
 
     void resized() override
@@ -172,7 +260,7 @@ public:
                 mWindowDiameter = l;
         }
         
-        mWindowDiameter *= 2.5f;
+        mWindowDiameter *= 2.2f;
         mMinWindowDiameter = mWindowDiameter;
     }
     

@@ -12,7 +12,7 @@
 #include "vec3.hpp"
 
 
-struct AppModel
+struct AppModel     : public ChangeBroadcaster
 {
 public:
     AppModel()
@@ -24,7 +24,14 @@ public:
     {
         saveSettings();
     }
-
+    
+    void updateSpeakerPosition(int index, const glm::vec3& pos)
+    {
+        jassert(index < mSpeakerPositions.size());
+        mSpeakerPositions[index] = pos;
+        sendChangeMessage();
+    }
+        
     std::unique_ptr<PropertiesFile>     mSettingsFile;
         
     Array<File>                         mSoundFiles;
@@ -74,11 +81,16 @@ private:
         else
         {
             // Load default stereo model
-            const float r = 1.0f;
-            mSpeakerPositions.push_back(glm::vec3(-r, 0.0f, 0.0f));
-            mSpeakerPositions.push_back(glm::vec3( r, 0.0f, 0.0f));
-            mSpeakerPositions.push_back(glm::vec3(0.0f, 0.0f, r));
-            mSpeakerPositions.push_back(glm::vec3(0.0f, 0.0f,-r));
+            const float r = 3.5f;
+            const float rx = 6.0f;
+            mSpeakerPositions.push_back(glm::vec3(0.0f, 0.0f,  -r));
+            mSpeakerPositions.push_back(glm::vec3( rx * 1.1f,   0.0f,  -r));
+            mSpeakerPositions.push_back(glm::vec3( rx,   0.0f, 0.0f));
+            mSpeakerPositions.push_back(glm::vec3( rx,   0.0f,  r));
+            mSpeakerPositions.push_back(glm::vec3(0.0f, 0.0f,  r));
+            mSpeakerPositions.push_back(glm::vec3(  -rx, 0.0f,  r));
+            mSpeakerPositions.push_back(glm::vec3(  -rx, 0.0f, 0.0f));
+            mSpeakerPositions.push_back(glm::vec3(  -rx, 0.0f, -r));
         }
     }
 

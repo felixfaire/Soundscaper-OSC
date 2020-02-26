@@ -18,7 +18,8 @@
     handling the passing of messages to trigger sounds and
     manage control data.
 */
-class AppController         : private OSCReceiver::Listener<OSCReceiver::MessageLoopCallback>
+class AppController         : public ChangeListener,
+                              private OSCReceiver::Listener<OSCReceiver::MessageLoopCallback>
 {
 public:
     AppController(AppModel& model)
@@ -28,7 +29,13 @@ public:
         mAudio.setAudioChannels(0, 2);
         mAudio.mSynth.updateSpeakerPositions(mModel.mSpeakerPositions);
 
+        mModel.addChangeListener(this);
         mModel.mOSCReciever.addListener(this);
+    }
+    
+    ~AppController()
+    {
+        mModel.addChangeListener(this);
     }
     
     void loadAudioFiles()
@@ -48,7 +55,7 @@ public:
             if (reader != nullptr)
             {
                 Logger::getCurrentLogger()->writeToLog("Loading file: " + wavFile.getFileNameWithoutExtension());
-                auto* newSound = new SpatialSamplerSound(wavFile.getFileNameWithoutExtension(), *reader, noteNum, 0.01, 1.0, 5.0);
+                auto* newSound = new SpatialSamplerSound(wavFile.getFileNameWithoutExtension(), *reader, noteNum, 0.01, 0.5, 20.0);
                 mAudio.mSynth.addSound(newSound);
                 mAudio.mSynth.addVoice(new SpatialSamplerVoice());
                 noteNum++;
@@ -75,12 +82,23 @@ public:
         mAudio.addSoundEvent({noteID, -1, pos});
     }
     
+    void allNotesOff()
+    {
+        mAudio.mSynth.allNotesOff(true);
+    }
+    
     AudioDeviceManager& getDeviceManager() { return mAudio.getDeviceManager(); }
     
 private:
 
+    void changeListenerCallback (ChangeBroadcaster* source) override
+    {
+        jassert(dynamic_cast<AppModel*>(source) != nullptr);
+        
+        mAudio.mSynth.updateSpeakerPositions(mModel.mSpeakerPositions);
+    }
 
-    virtual void oscMessageReceived(const OSCMessage& message)
+    virtual void oscMessageReceived(const OSCMessage& message) override
     {
         // TODO: convert this to not use strings
         if (message.getAddressPattern().toString() == "/sound/position")

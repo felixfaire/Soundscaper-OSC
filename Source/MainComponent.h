@@ -34,7 +34,7 @@ public:
     void paint (Graphics& g) override;
     void resized() override;
     
-    void mouseDown(const MouseEvent& event) override;
+    bool keyPressed(const KeyPress& event) override;
 
     void filenameComponentChanged(FilenameComponent* component) override;
 

@@ -105,14 +105,14 @@ public:
         connect();
     }
 
-    void resized()
+    void resized() override
     {
         auto b = getLocalBounds();
         b.removeFromTop(15);
         b.removeFromRight((int)proportionOfWidth(0.05f));
 
         // Demo sender
-        mDemoSender.setBounds(b.removeFromBottom(22));
+        mDemoSender.setBounds(b.removeFromBottom(32).reduced(0, 5));
 
         auto topBar = b.removeFromTop(25);
         b.removeFromTop(5);
@@ -160,7 +160,7 @@ private:
     }
 
     //==============================================================================
-    void labelTextChanged(Label* label)
+    void labelTextChanged(Label* label) override
     {
         if (label == &mPortNumberField)
         {

@@ -37,7 +37,9 @@ MainComponent::MainComponent()
     
     addAndMakeVisible(*mTabbedContainer);
     
-    setSize (800, 900);
+    setWantsKeyboardFocus(true);
+    
+    setSize (800, 800);
         
     mFileList->getFileComponent().addListener(this);
     mController.loadAudioFiles();
@@ -61,9 +63,12 @@ void MainComponent::resized()
     mTabbedContainer->setBounds(bounds);
 }
 
-void MainComponent::mouseDown(const MouseEvent& event)
+bool MainComponent::keyPressed(const KeyPress& key)
 {
-    
+    if (key == KeyPress::escapeKey)
+        mController.allNotesOff();
+        
+    return true;
 }
 
 void MainComponent::filenameComponentChanged(FilenameComponent* component)
