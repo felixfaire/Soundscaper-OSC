@@ -8,6 +8,10 @@
             file="assets/Raleway-Regular.ttf"/>
     </GROUP>
     <GROUP id="{95A5C06C-B4E9-E01E-019B-DDE92792A038}" name="Source">
+      <GROUP id="{996E50E7-A94B-AB37-A5FA-13D50AAE42AC}" name="Utils">
+        <FILE id="zoaBbB" name="ConvexHullPath.h" compile="0" resource="0"
+              file="Source/Utils/ConvexHullPath.h"/>
+      </GROUP>
       <GROUP id="{52B6D902-4F8E-197C-5A61-A1DDF4C02BF5}" name="OSC">
         <FILE id="OBsZIQ" name="OSCListBox.h" compile="0" resource="0" file="Source/OSC/OSCListBox.h"/>
         <FILE id="WvwtS2" name="OSCSettingsComponent.h" compile="0" resource="0"
@@ -37,6 +41,10 @@
       <GROUP id="{78B2BA97-B19B-FFD9-1DD4-16A761947A98}" name="UIElements">
         <FILE id="hg248b" name="MinimalLookAndFeel.h" compile="0" resource="0"
               file="Source/UIElements/MinimalLookAndFeel.h"/>
+        <FILE id="eB4fCP" name="SpeakerHandleComponent.h" compile="0" resource="0"
+              file="Source/UIElements/SpeakerHandleComponent.h"/>
+        <FILE id="PUq3kH" name="SpeakerEditorPopupComponent.h" compile="0"
+              resource="0" file="Source/UIElements/SpeakerEditorPopupComponent.h"/>
       </GROUP>
       <FILE id="beLorD" name="AppController.h" compile="0" resource="0" file="Source/AppController.h"/>
       <FILE id="ijLPGz" name="AppModel.h" compile="0" resource="0" file="Source/AppModel.h"/>

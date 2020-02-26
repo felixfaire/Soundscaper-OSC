@@ -83,14 +83,14 @@ private:
             // Load default stereo model
             const float r = 3.5f;
             const float rx = 6.0f;
-            mSpeakerPositions.push_back(glm::vec3(0.0f, 0.0f,  -r));
-            mSpeakerPositions.push_back(glm::vec3( rx * 1.1f,   0.0f,  -r));
-            mSpeakerPositions.push_back(glm::vec3( rx,   0.0f, 0.0f));
+            mSpeakerPositions.push_back(glm::vec3(0.0f,  0.0f,  r));
             mSpeakerPositions.push_back(glm::vec3( rx,   0.0f,  r));
-            mSpeakerPositions.push_back(glm::vec3(0.0f, 0.0f,  r));
-            mSpeakerPositions.push_back(glm::vec3(  -rx, 0.0f,  r));
-            mSpeakerPositions.push_back(glm::vec3(  -rx, 0.0f, 0.0f));
+            mSpeakerPositions.push_back(glm::vec3( rx,   0.0f, 0.0f));
+            mSpeakerPositions.push_back(glm::vec3( rx,   0.0f, -r));
+            mSpeakerPositions.push_back(glm::vec3(0.0f,  0.0f, -r));
             mSpeakerPositions.push_back(glm::vec3(  -rx, 0.0f, -r));
+            mSpeakerPositions.push_back(glm::vec3(  -rx, 0.0f, 0.0f));
+            mSpeakerPositions.push_back(glm::vec3(  -rx, 0.0f,  r));
         }
     }
 

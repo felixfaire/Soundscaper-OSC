@@ -13,113 +13,9 @@
 #include <JuceHeader.h>
 #include "vec2.hpp"
 #include "gtx/matrix_transform_2d.hpp"
+#include "Utils/ConvexHullPath.h"
+#include "UIElements/SpeakerHandleComponent.h"
 
-class SpeakerEditorComponent  : public Component,
-                                public ChangeBroadcaster
-{
-public:
-    SpeakerEditorComponent(const glm::vec3& pos)
-    {
-        for (int i = 0; i < 3; ++i)
-        {
-            mPositionSliders[i].reset(new Slider());
-            mPositionSliders[i]->setRange(-10.0, 10.0);
-            mPositionSliders[i]->setSliderStyle(Slider::LinearHorizontal);
-            mPositionSliders[i]->setValue(pos[i]);
-            mPositionSliders[i]->onValueChange = [this] () {
-                sendChangeMessage();
-            };
-            
-            addAndMakeVisible(mPositionSliders[i].get());
-        }
-    }
-    
-    void resized()
-    {
-        auto b = getLocalBounds();
-        const auto step = b.getHeight() / 3;
-        
-        for (int i = 0; i < 3; ++i)
-            mPositionSliders[i]->setBounds(b.removeFromTop(step).reduced(5));
-    }
-    
-    glm::vec3 getPosition()
-    {
-        return glm::vec3((float)mPositionSliders[0]->getValue(),
-                         (float)mPositionSliders[1]->getValue(),
-                         (float)mPositionSliders[2]->getValue());
-    }
-    
-private:
-
-    std::unique_ptr<Slider> mPositionSliders [3];
-    
-};
-
-class SpeakerComponent : public Component,
-                         public ChangeListener
-{
-public:
-    SpeakerComponent(AppModel& m, int id)
-        : mModel(m),
-          mID(id)
-    {
-        setRepaintsOnMouseActivity(true);
-    }
-
-    void paint(Graphics& g) override
-    {
-        auto b = getLocalBounds().reduced(2.0f).toFloat();
-        b += Point<float>(mSubPixelDiff.x, mSubPixelDiff.y);
-
-        if (isMouseOver())
-        {
-            g.setColour(Colours::white.withAlpha(0.2f));
-            g.fillEllipse(b);
-        }
-
-        g.setColour(Colours::white.withAlpha(0.8f));
-        g.drawEllipse(b, 2.0f);
-    }
-    
-    void mouseUp(const MouseEvent& event) override
-    {
-        auto* speakerEditor = new SpeakerEditorComponent(mModel.mSpeakerPositions[mID]);
-        speakerEditor->addChangeListener(this);
-        speakerEditor->setSize (200, 100);
-
-        CallOutBox::launchAsynchronously(speakerEditor, getScreenBounds(), nullptr);
-        
-        repaint();
-    }
-    
-    void setPosition(float x, float y)
-    {
-        glm::vec2 p(x, y);
-        glm::vec2 pr(roundToInt(x), roundToInt(y));
-        setCentrePosition((int)pr.x, (int)pr.y);
-        mPosition = p;
-        mSubPixelDiff = p - pr;
-    }
-
-    const glm::vec2& getPosition() { return mPosition; }
-    
-    std::function<void(int, const glm::vec3&)> onUpdatePosition;
-    
-private:
-
-    void changeListenerCallback (ChangeBroadcaster* source) override
-    {
-        if (auto* se = dynamic_cast<SpeakerEditorComponent*>(source))
-            if (onUpdatePosition != nullptr)
-                onUpdatePosition(mID, se->getPosition());
-    }
-    
-    AppModel& mModel;
-    int mID = 0;
-    glm::vec2 mPosition;
-    glm::vec2 mSubPixelDiff;
-};
 
 //==============================================================================
 /*
@@ -134,13 +30,24 @@ public:
         
         auto onUpdatePosition = [this](int i, const glm::vec3& p) {
             mModel.mSpeakerPositions[i] = p;
-            resized();
+            updateSpeakerBounds();
+            updateSpeakerButtonComponents();
+        };
+        
+        auto onHandleDragged = [this](int i, const glm::vec2& drag)
+        {
+            const auto diff = getRectToWorld(drag, false);
+            mModel.mSpeakerPositions[i].x += diff.x;
+            mModel.mSpeakerPositions[i].z += diff.y;
+            updateSpeakerBounds();
+            updateSpeakerButtonComponents();
         };
 
         for (int i = 0; i < mModel.mSpeakerPositions.size(); ++i)
         {
-            SpeakerComponent* c = new SpeakerComponent(mModel, i);
+            SpeakerHandleComponent* c = new SpeakerHandleComponent(mModel, i);
             c->onUpdatePosition = onUpdatePosition;
+            c->onDrag = onHandleDragged;
             c->setSize(20, 20);
             addAndMakeVisible(*c);
             mSpeakers.add(c);
@@ -183,20 +90,8 @@ public:
         }
         
         // Draw convex hull
-//        Path path;
-//
-//        for (int i = 0; i < mSpeakers.size(); ++i)
-//        {
-//            const auto& p = mSpeakers[i]->getPosition();
-//
-//            if (i == 0)
-//                path.startNewSubPath(p.x, p.y);
-//            else
-//                path.lineTo(p.x, p.y);
-//        }
-//
-//        g.setColour(Colours::white.withAlpha(0.3f));
-//        g.strokePath(path, PathStrokeType(2.0f));
+        g.setColour(Colours::white.withAlpha(0.3f));
+        g.strokePath(mHullPath.mPath, PathStrokeType(2.0f));
     }
 
     void resized() override
@@ -205,14 +100,7 @@ public:
         mDemoFileBox.setBounds(b.removeFromTop(mBoxHeight));
         //updateSpeakerBounds();
         updateMatrices();
-
-        // Position speaker components
-        for (int i = 0; i < mSpeakers.size(); ++i)
-        {
-            const auto& s = mModel.mSpeakerPositions[i];
-            const auto p = getWorldToRect(glm::vec2(s.x, s.z));
-            mSpeakers[i]->setPosition(p.x, p.y);
-        }
+        updateSpeakerButtonComponents();
     }
     
     void mouseDown(const MouseEvent& event) override
@@ -276,6 +164,24 @@ public:
 
 private:
 
+    void updateSpeakerButtonComponents()
+    {
+        std::vector<glm::vec2> uiPositions(mSpeakers.size());
+
+        // Position speaker components
+        for (int i = 0; i < mSpeakers.size(); ++i)
+        {
+            const auto& s = mModel.mSpeakerPositions[i];
+            const auto p = getWorldToRect(glm::vec2(s.x, s.z));
+            mSpeakers[i]->setPosition(p.x, p.y);
+            uiPositions[i] = p;
+        }
+        
+        auto center = glm::vec2((float)getWidth(), (float)getHeight()) * 0.5f;
+        mHullPath.updatePoints(uiPositions, center);
+        repaint();
+    }
+
     Rectangle<float> getViewerRect()
     {
         auto b = getLocalBounds().reduced(10).toFloat();
@@ -296,9 +202,9 @@ private:
         g.drawEllipse(x - r, y - r, r * 2.0f, r * 2.0f, thickness);
     }
     
-    glm::vec2 getRectToWorld(const glm::vec2& p)
+    glm::vec2 getRectToWorld(const glm::vec2& p, bool translate = true)
     {
-        const auto pt = mRectToWorld * glm::vec3(p.x, p.y, 1.0f);
+        const auto pt = mRectToWorld * glm::vec3(p.x, p.y, translate ? 1.0f : 0.0f);
         return glm::vec2(pt.x, pt.y);
     }
     
@@ -316,6 +222,7 @@ private:
         glm::mat3 t = glm::mat3(1.0f);
         t = glm::scale(t, glm::vec2(1.0f) * mWindowDiameter);
         t = glm::scale(t, glm::vec2(1.0f / minDim));
+        t = glm::scale(t, glm::vec2(1.0f, -1.0f)); // flip y up for world down for window rect
         t = glm::translate(t, glm::vec2(-b.getCentreX(), -b.getCentreY()));
         
         mRectToWorld = t;
@@ -328,11 +235,13 @@ private:
     int       mBoxHeight = 40;
     AppModel& mModel;
     
+    ConvexHullPath mHullPath;
+    
     float     mWindowDiameter = 4.0f;
     float     mMinWindowDiameter = 4.0f;
     float     mMaxWindowDiameter = 100.0f;
 
-    OwnedArray<SpeakerComponent> mSpeakers;
+    OwnedArray<SpeakerHandleComponent> mSpeakers;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SpaceViewerComponent)
 };
