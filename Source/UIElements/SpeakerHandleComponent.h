@@ -63,9 +63,9 @@ public:
         if (!event.mouseWasClicked())
             return;
             
-        auto* speakerEditor = new SpeakerEditorPopupComponent(mModel.mSpeakerPositions[mID]);
+        auto* speakerEditor = new SpeakerEditorPopupComponent(mID, mModel.mSpeakerPositions[mID]);
         speakerEditor->addChangeListener(this);
-        speakerEditor->setSize (250, 100);
+        speakerEditor->setSize (250, 120);
 
         auto& cb = CallOutBox::launchAsynchronously(speakerEditor, getBounds(), getParentComponent());
         cb.setDismissalMouseClicksAreAlwaysConsumed(true);

@@ -41,8 +41,11 @@ class SpeakerEditorPopupComponent  : public Component,
                                 public ChangeBroadcaster
 {
 public:
-    SpeakerEditorPopupComponent(const glm::vec3& pos)
+    SpeakerEditorPopupComponent(int index, const glm::vec3& pos)
     {
+        mIndexLabel.reset(new Label("chanIndex", "Channel: " + std::to_string(index + 1)));
+        addAndMakeVisible(mIndexLabel.get());
+        
         std::vector<String> names = { "x: ", "y: ", "z: " };
         
         for (int i = 0; i < 3; ++i)
@@ -68,7 +71,9 @@ public:
     void resized()
     {
         auto b = getLocalBounds();
-        const auto step = b.getHeight() / 3;
+        const auto step = b.getHeight() / 4;
+        
+        mIndexLabel->setBounds(b.removeFromTop(step).reduced(5));
         
         for (int i = 0; i < 3; ++i)
             mPositionSliders[i]->setBounds(b.removeFromTop(step).reduced(5));
@@ -83,6 +88,7 @@ public:
     
 private:
 
+    std::unique_ptr<Label>       mIndexLabel;
     std::unique_ptr<LabelSlider> mPositionSliders [3];
     
 };
