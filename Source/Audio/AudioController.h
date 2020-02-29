@@ -13,6 +13,7 @@
 #include "SpatialSynth.h"
 #include "SpatialSampler.h"
 #include "SoundEventData.h"
+#include "AudioFileSource.h"
 
 class AudioController   : public AudioSource
 {
@@ -64,18 +65,24 @@ public:
         Logger::getCurrentLogger()->writeToLog (message);
         
         mSynth.setSampleRate(sampleRate);
+        //mBedSource->prepareToPlay(samplesPerBlockExpected, sampleRate);
     }
 
     void getNextAudioBlock (const AudioSourceChannelInfo& bufferToFill) override
     {
         mSoundEventData.processEventData();
         mSynth.renderNextBlock(*bufferToFill.buffer, bufferToFill.startSample, bufferToFill.numSamples);
+        
+        if (mBedSource != nullptr)
+            mBedSource->getNextAudioBlock(bufferToFill);
     }
     
     void loadAudioFiles(AppModel& model)
     {
         // Load soundbed files
         model.mSoundBedFiles = model.mCurrentSoundBedFolder.findChildFiles(File::TypesOfFileToFind::findFiles, false, "*.wav");
+        std::unique_ptr<AudioFormatReader> bedReader(mFormatManager.createReaderFor(model.mSoundBedFiles[0]));
+        mBedSource.reset(new AudioFileSource("Bed1", *bedReader));
         
         // Load spatial clip files
         mSynth.clearSounds();
@@ -109,6 +116,8 @@ public:
     void releaseResources() override
     {
         Logger::getCurrentLogger()->writeToLog ("Releasing audio resources");
+        mSynth.clearSounds();
+        mSynth.clearVoices();
     }
     
     // Manages lockfree message processing with a fifo
@@ -124,6 +133,8 @@ public:
     SpatialSynth       mSynth;
 
 private:
+
+    std::unique_ptr<AudioFileSource>    mBedSource;
 
     SoundEventData     mSoundEventData;
 

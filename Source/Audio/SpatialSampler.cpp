@@ -77,6 +77,7 @@ void SpatialSamplerVoice::stopNote (float /*velocity*/, bool allowTailOff)
 
 
 //==============================================================================
+// TODO: change the audio files to mono before playback
 void SpatialSamplerVoice::renderNextBlock (AudioBuffer<float>& outputBuffer, int startSample, int numSamples)
 {
     if (auto* playingSound = static_cast<SpatialSamplerSound*> (getCurrentlyPlayingSound().get()))
