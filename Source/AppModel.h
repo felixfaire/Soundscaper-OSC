@@ -34,13 +34,15 @@ public:
         
     std::unique_ptr<PropertiesFile>     mSettingsFile;
         
-    Array<File>                         mSoundFiles;
+    Array<File>                         mSoundClipFiles;
+    Array<File>                         mSoundBedFiles;
     std::vector<glm::vec3>              mSpeakerPositions;
 
     std::vector<OSCAddressPattern>      mOSCAddresses;
     OSCReceiver                         mOSCReciever;
     
-    File                                mCurrentAudioFolder;
+    File                                mCurrentSoundClipFolder;
+    File                                mCurrentSoundBedFolder;
     
     int                                 mCurrentNoteID = 0;
 
@@ -61,8 +63,11 @@ private:
 
         mSettingsFile->reload();
 
-        if (mSettingsFile->containsKey(mCurrentAudioFolderID))
-            mCurrentAudioFolder = mSettingsFile->getValue(mCurrentAudioFolderID);
+        if (mSettingsFile->containsKey(mCurrentSoundClipFolderID))
+            mCurrentSoundClipFolder = mSettingsFile->getValue(mCurrentSoundClipFolderID);
+            
+        if (mSettingsFile->containsKey(mCurrentSoundBedFolderID))
+            mCurrentSoundBedFolder = mSettingsFile->getValue(mCurrentSoundBedFolderID);
 
         if (mSettingsFile->containsKey(mSpeakerInfoID))
         {
@@ -96,7 +101,8 @@ private:
 
     void saveSettings()
     {
-        mSettingsFile->setValue(mCurrentAudioFolderID, mCurrentAudioFolder.getFullPathName());
+        mSettingsFile->setValue(mCurrentSoundClipFolderID, mCurrentSoundClipFolder.getFullPathName());
+        mSettingsFile->setValue(mCurrentSoundBedFolderID, mCurrentSoundBedFolder.getFullPathName());
 
         XmlElement speakersProps(mSpeakerInfoID);
 
@@ -115,7 +121,8 @@ private:
     }
 
     // Settings ID's
-    String                              mCurrentAudioFolderID = "audio-files-location";
+    String                              mCurrentSoundClipFolderID = "audio-clip-files-location";
+    String                              mCurrentSoundBedFolderID = "audio-bed-files-location";
     String                              mSpeakerInfoID = "speaker-info";
     
 };

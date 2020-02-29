@@ -23,8 +23,14 @@ MainComponent::MainComponent()
     MinimalLookAndFeel::setDefaultLookAndFeel(&mLookAndFeel);
     
     mIOSettings.reset(new IOSettingsComponent(mModel, mAudio.getDeviceManager()));
-    mFileList.reset(new AudioFileListComponent(mModel));
+    mFilesListComponent.reset(new AudioFileListComponent(mModel));
     mSpaceViewer.reset(new SpaceViewerComponent(mModel));
+    
+    mFilesListComponent->onAudioFoldersChanged = [this]()
+    {
+        mAudio.loadAudioFiles(mModel);
+        mSpaceViewer->updateFileList(); // TODO: remove if demo not needed
+    };
     
     mSpaceViewer->onTrigger = [this](int index, glm::vec3 p){
         triggerSource(index, p);
@@ -36,7 +42,7 @@ MainComponent::MainComponent()
     
     mTabbedContainer.reset(new TabbedComponent(TabbedButtonBar::Orientation::TabsAtTop));
     mTabbedContainer->addTab("Space", Colour(), mSpaceViewer.get(), false);
-    mTabbedContainer->addTab("Sounds", Colour(), mFileList.get(), false);
+    mTabbedContainer->addTab("Sounds", Colour(), mFilesListComponent.get(), false);
     mTabbedContainer->addTab("Settings", Colour(), mIOSettings.get(), false);
     mTabbedContainer->setIndent(10);
     mTabbedContainer->setTabBarDepth(50);
@@ -46,13 +52,12 @@ MainComponent::MainComponent()
     addAndMakeVisible(*mTabbedContainer);
     
     setWantsKeyboardFocus(true);
-    
-    setSize (800, 800);
-        
-    mFileList->getFileComponent().addListener(this);
+            
     mAudio.loadAudioFiles(mModel);
     mSpaceViewer->updateFileList();
-    mFileList->resized();
+    mFilesListComponent->resized();
+    
+    setSize (800, 800);
 }
 
 MainComponent::~MainComponent()
@@ -64,14 +69,14 @@ MainComponent::~MainComponent()
 
 void MainComponent::triggerSource(int soundID, const glm::vec3& pos)
 {
-    jassert(soundID < mModel.mSoundFiles.size());
+    jassert(soundID < mModel.mSoundClipFiles.size());
     const int noteID = ++mModel.mCurrentNoteID;
     mAudio.addSoundEvent({noteID, soundID, pos});
 }
 
 void MainComponent::updateSource(int soundID, const glm::vec3& pos)
 {
-    jassert(soundID < mModel.mSoundFiles.size());
+    jassert(soundID < mModel.mSoundClipFiles.size());
     const int noteID = mModel.mCurrentNoteID;
     mAudio.addSoundEvent({noteID, -1, pos});
 }
@@ -104,13 +109,7 @@ bool MainComponent::keyPressed(const KeyPress& key)
 
 
 // ===== CALLBACKS =====================================================
-void MainComponent::filenameComponentChanged(FilenameComponent* component)
-{
-    mModel.mCurrentAudioFolder = component->getCurrentFile();
-    mAudio.loadAudioFiles(mModel);
-    mSpaceViewer->updateFileList();
-    mFileList->resized();
-}
+
 
 void MainComponent::changeListenerCallback (ChangeBroadcaster* source)
 {

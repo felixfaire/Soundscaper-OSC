@@ -25,7 +25,6 @@
     your controls and content.
 */
 class MainComponent   : public Component,
-                        public FilenameComponentListener,
                         public ChangeListener,
                         private OSCReceiver::Listener<OSCReceiver::MessageLoopCallback>
 {
@@ -45,7 +44,6 @@ public:
     void allNotesOff();
     
     // Callbacks
-    void filenameComponentChanged(FilenameComponent* component) override;
     void changeListenerCallback (ChangeBroadcaster* source) override;
     void oscMessageReceived(const OSCMessage& message) override;
         
@@ -62,7 +60,7 @@ private:
     std::unique_ptr<TabbedComponent>              mTabbedContainer;
     
     std::unique_ptr<IOSettingsComponent>          mIOSettings;
-    std::unique_ptr<AudioFileListComponent>       mFileList;
+    std::unique_ptr<AudioFileListComponent>       mFilesListComponent;
     std::unique_ptr<SpaceViewerComponent>         mSpaceViewer;
 
     MinimalLookAndFeel                            mLookAndFeel;

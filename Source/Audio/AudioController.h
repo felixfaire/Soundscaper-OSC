@@ -74,15 +74,19 @@ public:
     
     void loadAudioFiles(AppModel& model)
     {
+        // Load soundbed files
+        model.mSoundBedFiles = model.mCurrentSoundBedFolder.findChildFiles(File::TypesOfFileToFind::findFiles, false, "*.wav");
+        
+        // Load spatial clip files
         mSynth.clearSounds();
         mSynth.clearVoices();
         
-        File folder = model.mCurrentAudioFolder;
-        model.mSoundFiles = folder.findChildFiles(File::TypesOfFileToFind::findFiles, false, "*.wav");
+        File folder = model.mCurrentSoundClipFolder;
+        model.mSoundClipFiles = folder.findChildFiles(File::TypesOfFileToFind::findFiles, false, "*.wav");
         
         int noteNum = 0;
         
-        for (auto& wavFile : model.mSoundFiles)
+        for (auto& wavFile : model.mSoundClipFiles)
         {
             std::unique_ptr<AudioFormatReader> reader(mFormatManager.createReaderFor(wavFile));
             
@@ -96,7 +100,7 @@ public:
             }
         }
         
-        if (model.mSoundFiles.size() == 0)
+        if (model.mSoundClipFiles.size() == 0)
         {
             Logger::getCurrentLogger()->writeToLog("Failed to find any .wavs");
         }

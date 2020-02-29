@@ -30,16 +30,16 @@ public:
         
         auto onUpdatePosition = [this](int i, const glm::vec3& p) {
             mModel.mSpeakerPositions[i] = p;
-            updateSpeakerBounds();
+            updateZoomExtents();
             updateSpeakerButtonComponents();
         };
         
         auto onHandleDragged = [this](int i, const glm::vec2& drag)
         {
             const auto diff = getRectToWorld(drag, false);
-            const auto newPos = mModel.mSpeakerPositions[i] + diff;
+            const auto newPos = mModel.mSpeakerPositions[i] + glm::vec3(diff.x, 0.0f, diff.y);
             mModel.setSpeakerPosition(i, newPos);
-            updateSpeakerBounds();
+            updateZoomExtents();
             updateSpeakerButtonComponents();
         };
         
@@ -48,7 +48,7 @@ public:
             auto p = mModel.mSpeakerPositions[i];
             p = glm::round(p);
             mModel.setSpeakerPosition(i, p);
-            updateSpeakerBounds();
+            updateZoomExtents();
             updateSpeakerButtonComponents();
         };
 
@@ -63,7 +63,7 @@ public:
             mSpeakers.add(c);
         }
         
-        updateSpeakerBounds();
+        updateZoomExtents();
     }
 
     ~SpaceViewerComponent()
@@ -107,7 +107,7 @@ public:
     void resized() override
     {
         auto b = getLocalBounds().reduced(10);
-        mDemoFileBox.setBounds(b.removeFromTop(mBoxHeight));
+//        mDemoFileBox.setBounds(b.removeFromTop(mBoxHeight));
         //updateSpeakerBounds();
         updateMatrices();
         updateSpeakerButtonComponents();
@@ -116,10 +116,10 @@ public:
     void mouseDown(const MouseEvent& event) override
     {
 //        const int index = (int)mDemoFileBox.getSelectedId() - 1;
-        const int index = (int)(Random::getSystemRandom().nextFloat() * mModel.mSoundFiles.size());
+        const int index = (int)(Random::getSystemRandom().nextFloat() * mModel.mSoundClipFiles.size());
         const auto pos = getWorldPositionFromMouse(event);
         
-        jassert(index < mModel.mSoundFiles.size());
+        jassert(index < mModel.mSoundClipFiles.size());
         
         if (onTrigger != nullptr)
             onTrigger(index, pos);
@@ -130,7 +130,7 @@ public:
         const int index = (int)mDemoFileBox.getSelectedId() - 1;
         const auto pos = getWorldPositionFromMouse(event);
         
-        jassert(index < mModel.mSoundFiles.size());
+        jassert(index < mModel.mSoundClipFiles.size());
         
         if (onUpdate != nullptr)
             onUpdate(index, pos);
@@ -140,14 +140,26 @@ public:
     {
         mDemoFileBox.clear();
         
-        for (int i = 0; i < mModel.mSoundFiles.size(); ++i)
-            mDemoFileBox.addItem(mModel.mSoundFiles[i].getFileNameWithoutExtension(), i + 1);
+        for (int i = 0; i < mModel.mSoundClipFiles.size(); ++i)
+            mDemoFileBox.addItem(mModel.mSoundClipFiles[i].getFileNameWithoutExtension(), i + 1);
         
-        if (mModel.mSoundFiles.size() > 0)
+        if (mModel.mSoundClipFiles.size() > 0)
             mDemoFileBox.setSelectedId(1);
     }
+        
+//    void mouseMagnify (const MouseEvent& event, float scaleFactor) override
+//    {
+//        mWindowDiameter = jmin(mMaxWindowDiameter, jmax(mMinWindowDiameter, mWindowDiameter / scaleFactor));
+//        resized();
+//        repaint();
+//    }
     
-    void updateSpeakerBounds()
+    std::function<void(int, glm::vec3)> onTrigger;
+    std::function<void(int, glm::vec3)> onUpdate;
+
+private:
+
+    void updateZoomExtents()
     {
         mWindowDiameter = 1.0f;
         
@@ -161,19 +173,8 @@ public:
         
         mWindowDiameter *= 2.2f;
         mMinWindowDiameter = mWindowDiameter;
+        updateMatrices();
     }
-    
-    void mouseMagnify (const MouseEvent& event, float scaleFactor) override
-    {
-        mWindowDiameter = jmin(mMaxWindowDiameter, jmax(mMinWindowDiameter, mWindowDiameter / scaleFactor));
-        resized();
-        repaint();
-    }
-    
-    std::function<void(int, glm::vec3)> onTrigger;
-    std::function<void(int, glm::vec3)> onUpdate;
-
-private:
 
     void updateSpeakerButtonComponents()
     {
@@ -190,6 +191,9 @@ private:
         
         auto center = glm::vec2((float)getWidth(), (float)getHeight()) * 0.5f;
         mHullPath.updatePoints(uiPositions, center);
+        
+        updateZoomExtents();
+        
         repaint();
     }
 
@@ -213,10 +217,10 @@ private:
         g.drawEllipse(x - r, y - r, r * 2.0f, r * 2.0f, thickness);
     }
     
-    glm::vec3 getRectToWorld(const glm::vec2& p, bool translate = true)
+    glm::vec2 getRectToWorld(const glm::vec2& p, bool translate = true)
     {
         const auto pt = mRectToWorld * glm::vec3(p.x, p.y, translate ? 1.0f : 0.0f);
-        return glm::vec3(pt.x, pt.y, 0.0f);
+        return glm::vec2(pt.x, pt.y);
     }
     
     glm::vec2 getWorldToRect(const glm::vec2& p)
