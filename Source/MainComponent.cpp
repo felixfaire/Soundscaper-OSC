@@ -12,6 +12,9 @@
 MainComponent::MainComponent()
     : mController(mModel)
 {
+    // Init Audio
+    // TODO: put controller stuff in here so the controller can take over the ui?
+    
     MinimalLookAndFeel::setDefaultLookAndFeel(&mLookAndFeel);
     
     mIOSettings.reset(new IOSettingsComponent(mModel, mController.getDeviceManager()));

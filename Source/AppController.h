@@ -12,7 +12,7 @@
 
 #include "AppModel.h"
 #include "Audio/AudioController.h"
-#include "Audio/SpatialSampler.h"
+
 
 /** This class contains the core functionality of the app.
     handling the passing of messages to trigger sounds and
@@ -25,7 +25,6 @@ public:
     AppController(AppModel& model)
         : mModel(model)
     {
-        mFormatManager.registerBasicFormats();
         mAudio.setAudioChannels(0, 2);
         mAudio.mSynth.updateSpeakerPositions(mModel.mSpeakerPositions);
 
@@ -40,32 +39,7 @@ public:
     
     void loadAudioFiles()
     {
-        mAudio.mSynth.clearSounds();
-        mAudio.mSynth.clearVoices();
-        
-        File folder = mModel.mCurrentAudioFolder;
-        mModel.mSoundFiles = folder.findChildFiles(File::TypesOfFileToFind::findFiles, false, "*.wav");
-        
-        int noteNum = 0;
-        
-        for (auto& wavFile : mModel.mSoundFiles)
-        {
-            std::unique_ptr<AudioFormatReader> reader(mFormatManager.createReaderFor(wavFile));
-            
-            if (reader != nullptr)
-            {
-                Logger::getCurrentLogger()->writeToLog("Loading file: " + wavFile.getFileNameWithoutExtension());
-                auto* newSound = new SpatialSamplerSound(wavFile.getFileNameWithoutExtension(), *reader, noteNum, 0.01, 0.5, 20.0);
-                mAudio.mSynth.addSound(newSound);
-                mAudio.mSynth.addVoice(new SpatialSamplerVoice());
-                noteNum++;
-            }
-        }
-        
-        if (mModel.mSoundFiles.size() == 0)
-        {
-            Logger::getCurrentLogger()->writeToLog("Failed to find any .wavs");
-        }
+        mAudio.loadAudioFiles(mModel);
     }
     
     void triggerSource(int soundID, const glm::vec3& pos)
@@ -117,8 +91,5 @@ private:
 
     AppModel&           mModel;
     AudioController     mAudio;
-
-    // File loading
-    AudioFormatManager  mFormatManager;
     
 };

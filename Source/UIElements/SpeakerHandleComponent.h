@@ -58,8 +58,13 @@ public:
         mLastDrag = p;
     }
     
+
+    
     void mouseUp(const MouseEvent& event) override
     {
+        if (onHandleReleased != nullptr && event.mouseWasDraggedSinceMouseDown())
+            onHandleReleased(mID);
+        
         if (!event.mouseWasClicked())
             return;
             
@@ -84,6 +89,7 @@ public:
     
     std::function<void(int, const glm::vec3&)> onUpdatePosition;
     std::function<void(int, const glm::vec2&)> onDrag;
+    std::function<void(int)>                   onHandleReleased;
     
 private:
 

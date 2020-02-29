@@ -37,8 +37,17 @@ public:
         auto onHandleDragged = [this](int i, const glm::vec2& drag)
         {
             const auto diff = getRectToWorld(drag, false);
-            mModel.mSpeakerPositions[i].x += diff.x;
-            mModel.mSpeakerPositions[i].z += diff.y;
+            const auto newPos = mModel.mSpeakerPositions[i] + diff;
+            mModel.setSpeakerPosition(i, newPos);
+            updateSpeakerBounds();
+            updateSpeakerButtonComponents();
+        };
+        
+        auto onHandleReleased = [this](int i)
+        {
+            auto p = mModel.mSpeakerPositions[i];
+            p = glm::round(p);
+            mModel.setSpeakerPosition(i, p);
             updateSpeakerBounds();
             updateSpeakerButtonComponents();
         };
@@ -48,6 +57,7 @@ public:
             SpeakerHandleComponent* c = new SpeakerHandleComponent(mModel, i);
             c->onUpdatePosition = onUpdatePosition;
             c->onDrag = onHandleDragged;
+            c->onHandleReleased = onHandleReleased;
             c->setSize(20, 20);
             addAndMakeVisible(*c);
             mSpeakers.add(c);
@@ -105,7 +115,8 @@ public:
     
     void mouseDown(const MouseEvent& event) override
     {
-        const int index = (int)mDemoFileBox.getSelectedId() - 1;
+//        const int index = (int)mDemoFileBox.getSelectedId() - 1;
+        const int index = (int)(Random::getSystemRandom().nextFloat() * mModel.mSoundFiles.size());
         const auto pos = getWorldPositionFromMouse(event);
         
         jassert(index < mModel.mSoundFiles.size());
@@ -202,10 +213,10 @@ private:
         g.drawEllipse(x - r, y - r, r * 2.0f, r * 2.0f, thickness);
     }
     
-    glm::vec2 getRectToWorld(const glm::vec2& p, bool translate = true)
+    glm::vec3 getRectToWorld(const glm::vec2& p, bool translate = true)
     {
         const auto pt = mRectToWorld * glm::vec3(p.x, p.y, translate ? 1.0f : 0.0f);
-        return glm::vec2(pt.x, pt.y);
+        return glm::vec3(pt.x, pt.y, 0.0f);
     }
     
     glm::vec2 getWorldToRect(const glm::vec2& p)

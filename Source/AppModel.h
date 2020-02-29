@@ -25,7 +25,7 @@ public:
         saveSettings();
     }
     
-    void updateSpeakerPosition(int index, const glm::vec3& pos)
+    void setSpeakerPosition(int index, const glm::vec3& pos)
     {
         jassert(index < mSpeakerPositions.size());
         mSpeakerPositions[index] = pos;
