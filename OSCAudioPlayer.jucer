@@ -46,7 +46,6 @@
         <FILE id="PUq3kH" name="SpeakerEditorPopupComponent.h" compile="0"
               resource="0" file="Source/UIElements/SpeakerEditorPopupComponent.h"/>
       </GROUP>
-      <FILE id="beLorD" name="AppController.h" compile="0" resource="0" file="Source/AppController.h"/>
       <FILE id="ijLPGz" name="AppModel.h" compile="0" resource="0" file="Source/AppModel.h"/>
       <FILE id="bCvIXp" name="SpaceViewerComponent.h" compile="0" resource="0"
             file="Source/SpaceViewerComponent.h"/>

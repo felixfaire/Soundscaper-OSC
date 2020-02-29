@@ -10,23 +10,28 @@
 
 //==============================================================================
 MainComponent::MainComponent()
-    : mController(mModel)
 {
     // Init Audio
-    // TODO: put controller stuff in here so the controller can take over the ui?
+    mAudio.setAudioChannels(0, 2);
+    mAudio.mSynth.updateSpeakerPositions(mModel.mSpeakerPositions);
+
+    mModel.addChangeListener(this);
+    mModel.mOSCReciever.addListener(this);
     
+    
+    // Init UI
     MinimalLookAndFeel::setDefaultLookAndFeel(&mLookAndFeel);
     
-    mIOSettings.reset(new IOSettingsComponent(mModel, mController.getDeviceManager()));
+    mIOSettings.reset(new IOSettingsComponent(mModel, mAudio.getDeviceManager()));
     mFileList.reset(new AudioFileListComponent(mModel));
     mSpaceViewer.reset(new SpaceViewerComponent(mModel));
     
     mSpaceViewer->onTrigger = [this](int index, glm::vec3 p){
-        mController.triggerSource(index, p);
+        triggerSource(index, p);
     };
     
     mSpaceViewer->onUpdate = [this](int index, glm::vec3 p){
-        mController.updateSource(index, p);
+        updateSource(index, p);
     };
     
     mTabbedContainer.reset(new TabbedComponent(TabbedButtonBar::Orientation::TabsAtTop));
@@ -45,16 +50,39 @@ MainComponent::MainComponent()
     setSize (800, 800);
         
     mFileList->getFileComponent().addListener(this);
-    mController.loadAudioFiles();
+    mAudio.loadAudioFiles(mModel);
     mSpaceViewer->updateFileList();
     mFileList->resized();
 }
 
 MainComponent::~MainComponent()
 {
+    mModel.addChangeListener(this);
 }
 
-//==============================================================================
+// ===== CONTROLLER ====================================================
+
+void MainComponent::triggerSource(int soundID, const glm::vec3& pos)
+{
+    jassert(soundID < mModel.mSoundFiles.size());
+    const int noteID = ++mModel.mCurrentNoteID;
+    mAudio.addSoundEvent({noteID, soundID, pos});
+}
+
+void MainComponent::updateSource(int soundID, const glm::vec3& pos)
+{
+    jassert(soundID < mModel.mSoundFiles.size());
+    const int noteID = mModel.mCurrentNoteID;
+    mAudio.addSoundEvent({noteID, -1, pos});
+}
+
+void MainComponent::allNotesOff()
+{
+    mAudio.mSynth.allNotesOff(true);
+}
+
+
+//===== COMPONENT =============================================================
 void MainComponent::paint (Graphics& g)
 {
     g.fillAll (Colour(10, 20, 30));
@@ -69,15 +97,41 @@ void MainComponent::resized()
 bool MainComponent::keyPressed(const KeyPress& key)
 {
     if (key == KeyPress::escapeKey)
-        mController.allNotesOff();
+        allNotesOff();
         
     return true;
 }
 
+
+// ===== CALLBACKS =====================================================
 void MainComponent::filenameComponentChanged(FilenameComponent* component)
 {
     mModel.mCurrentAudioFolder = component->getCurrentFile();
-    mController.loadAudioFiles();
+    mAudio.loadAudioFiles(mModel);
     mSpaceViewer->updateFileList();
     mFileList->resized();
+}
+
+void MainComponent::changeListenerCallback (ChangeBroadcaster* source)
+{
+    jassert(dynamic_cast<AppModel*>(source) != nullptr);
+    
+    mAudio.mSynth.updateSpeakerPositions(mModel.mSpeakerPositions);
+}
+
+void MainComponent::oscMessageReceived(const OSCMessage& message)
+{
+    // TODO: convert this to not use strings
+    if (message.getAddressPattern().toString() == "/sound/position")
+    {
+        if (message[0].isInt32())
+        {
+            const int id = message[0].getInt32();
+            triggerSource(id, glm::vec3(0.0f));
+        }
+        else
+        {
+            DBG("Incorrect message type");
+        }
+    }
 }
