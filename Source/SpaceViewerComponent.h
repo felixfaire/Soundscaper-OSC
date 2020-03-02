@@ -26,42 +26,21 @@ public:
     SpaceViewerComponent(AppModel& model)
         : mModel(model)
     {
+        mAddButton.reset(new TextButton("Add"));
+        mRemoveButton.reset(new TextButton("Remove"));
+        
+        mAddButton->onClick = [this] () {
+            auto& r = Random::getSystemRandom();
+            mModel.addSpeaker(glm::vec3(r.nextFloat(), r.nextFloat(), r.nextFloat()) * 2.0f - 1.0f);
+        };
+        
+        mRemoveButton->onClick = [this] () {
+            mModel.removeSpeaker();
+        };
+        
         addAndMakeVisible(mDemoFileBox);
-        
-        auto onUpdatePosition = [this](int i, const glm::vec3& p) {
-            mModel.mSpeakerPositions[i] = p;
-            updateZoomExtents();
-            updateSpeakerButtonComponents();
-        };
-        
-        auto onHandleDragged = [this](int i, const glm::vec2& drag)
-        {
-            const auto diff = getRectToWorld(drag, false);
-            const auto newPos = mModel.mSpeakerPositions[i] + glm::vec3(diff.x, 0.0f, diff.y);
-            mModel.setSpeakerPosition(i, newPos);
-            updateZoomExtents();
-            updateSpeakerButtonComponents();
-        };
-        
-        auto onHandleReleased = [this](int i)
-        {
-            auto p = mModel.mSpeakerPositions[i];
-            p = glm::round(p);
-            mModel.setSpeakerPosition(i, p);
-            updateZoomExtents();
-            updateSpeakerButtonComponents();
-        };
-
-        for (int i = 0; i < mModel.mSpeakerPositions.size(); ++i)
-        {
-            SpeakerHandleComponent* c = new SpeakerHandleComponent(mModel, i);
-            c->onUpdatePosition = onUpdatePosition;
-            c->onDrag = onHandleDragged;
-            c->onHandleReleased = onHandleReleased;
-            c->setSize(20, 20);
-            addAndMakeVisible(*c);
-            mSpeakers.add(c);
-        }
+        addAndMakeVisible(*mAddButton);
+        addAndMakeVisible(*mRemoveButton);
         
         updateZoomExtents();
     }
@@ -74,8 +53,11 @@ public:
     {
         auto b = getViewerRect();
         
-        g.setColour(Colour::greyLevel(0.1f));
+        g.setColour(Colour::greyLevel(0.05f));
         g.fillRoundedRectangle(b, 4.0f);
+        
+        g.setColour(Colour::greyLevel(0.2f));
+        g.drawRoundedRectangle(b, 4.0f, 1.0f);
         
         const float minSize = jmin(b.getWidth(), b.getHeight());
         const float meter = minSize / mWindowDiameter;
@@ -107,8 +89,12 @@ public:
     void resized() override
     {
         auto b = getLocalBounds().reduced(10);
+        b = b.removeFromBottom(50).reduced(10);
+        mRemoveButton->setBounds(b.removeFromRight(mRemoveButton->getBestWidthForHeight(b.getHeight())));
+        b.removeFromRight(10);
+        mAddButton->setBounds(b.removeFromRight(mAddButton->getBestWidthForHeight(b.getHeight())));
+        
 //        mDemoFileBox.setBounds(b.removeFromTop(mBoxHeight));
-        //updateSpeakerBounds();
         updateMatrices();
         updateSpeakerButtonComponents();
     }
@@ -116,10 +102,10 @@ public:
     void mouseDown(const MouseEvent& event) override
     {
 //        const int index = (int)mDemoFileBox.getSelectedId() - 1;
-        const int index = (int)(Random::getSystemRandom().nextFloat() * mModel.mSoundClipFiles.size());
+        const int index = (int)(Random::getSystemRandom().nextFloat() * mModel.mSoundClipData.size());
         const auto pos = getWorldPositionFromMouse(event);
         
-        jassert(index < mModel.mSoundClipFiles.size());
+        jassert(index < mModel.mSoundClipData.size());
         
         if (onTrigger != nullptr)
             onTrigger(index, pos);
@@ -130,7 +116,7 @@ public:
         const int index = (int)mDemoFileBox.getSelectedId() - 1;
         const auto pos = getWorldPositionFromMouse(event);
         
-        jassert(index < mModel.mSoundClipFiles.size());
+        jassert(index < mModel.mSoundClipData.size());
         
         if (onUpdate != nullptr)
             onUpdate(index, pos);
@@ -140,30 +126,66 @@ public:
     {
         mDemoFileBox.clear();
         
-        for (int i = 0; i < mModel.mSoundClipFiles.size(); ++i)
-            mDemoFileBox.addItem(mModel.mSoundClipFiles[i].getFileNameWithoutExtension(), i + 1);
+        for (int i = 0; i < mModel.mSoundClipData.size(); ++i)
+            mDemoFileBox.addItem(mModel.mSoundClipData[i].mName, i + 1);
         
-        if (mModel.mSoundClipFiles.size() > 0)
+        if (mModel.mSoundClipData.size() > 0)
             mDemoFileBox.setSelectedId(1);
     }
+    
+    void updateComponentPositions()
+    {
+        if (mModel.getSpeakerPositions().size() != mSpeakers.size())
+            createSpeakerComponents();
         
-//    void mouseMagnify (const MouseEvent& event, float scaleFactor) override
-//    {
-//        mWindowDiameter = jmin(mMaxWindowDiameter, jmax(mMinWindowDiameter, mWindowDiameter / scaleFactor));
-//        resized();
-//        repaint();
-//    }
+        updateZoomExtents();
+        updateSpeakerButtonComponents();
+    }
     
     std::function<void(int, glm::vec3)> onTrigger;
     std::function<void(int, glm::vec3)> onUpdate;
 
 private:
 
+    void createSpeakerComponents()
+    {
+        mSpeakers.clear();
+        
+        auto onUpdatePosition = [this](int i, const glm::vec3& p) {
+            mModel.setSpeakerPosition(i, p);
+        };
+        
+        auto onHandleDragged = [this](int i, const glm::vec2& drag)
+        {
+            const auto diff = getRectToWorld(drag, false);
+            const auto newPos = mModel.getSpeakerPosition(i) + glm::vec3(diff.x, 0.0f, diff.y);
+            mModel.setSpeakerPosition(i, newPos);
+        };
+        
+        auto onHandleReleased = [this](int i)
+        {
+            auto p = mModel.getSpeakerPosition(i);
+            p = glm::round(p);
+            mModel.setSpeakerPosition(i, p);
+        };
+
+        for (int i = 0; i < mModel.getSpeakerPositions().size(); ++i)
+        {
+            SpeakerHandleComponent* c = new SpeakerHandleComponent(mModel, i);
+            c->onUpdatePosition = onUpdatePosition;
+            c->onDrag = onHandleDragged;
+            c->onHandleReleased = onHandleReleased;
+            c->setSize(20, 20);
+            addAndMakeVisible(*c);
+            mSpeakers.add(c);
+        }
+    }
+
     void updateZoomExtents()
     {
         mWindowDiameter = 1.0f;
         
-        for (const auto& p : mModel.mSpeakerPositions)
+        for (const auto& p : mModel.getSpeakerPositions())
         {
             const float l = glm::length(glm::vec2(p.x, p.z));
             
@@ -178,12 +200,15 @@ private:
 
     void updateSpeakerButtonComponents()
     {
+        if (mSpeakers.size() == 0)
+            return;
+            
         std::vector<glm::vec2> uiPositions(mSpeakers.size());
 
         // Position speaker components
         for (int i = 0; i < mSpeakers.size(); ++i)
         {
-            const auto& s = mModel.mSpeakerPositions[i];
+            const auto& s = mModel.getSpeakerPosition(i);
             const auto p = getWorldToRect(glm::vec2(s.x, s.z));
             mSpeakers[i]->setPosition(p.x, p.y);
             uiPositions[i] = p;
@@ -200,8 +225,8 @@ private:
     Rectangle<float> getViewerRect()
     {
         auto b = getLocalBounds().reduced(10).toFloat();
-        b.removeFromTop(mBoxHeight);
-        b.removeFromTop(10.0f);
+//        b.removeFromTop(mBoxHeight);
+//        b.removeFromTop(10.0f);
         return b;
     }
 
@@ -257,6 +282,9 @@ private:
     float     mMaxWindowDiameter = 100.0f;
 
     OwnedArray<SpeakerHandleComponent> mSpeakers;
+    
+    std::unique_ptr<TextButton> mAddButton;
+    std::unique_ptr<TextButton> mRemoveButton;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SpaceViewerComponent)
 };

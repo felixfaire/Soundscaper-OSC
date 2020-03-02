@@ -1,14 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="gowFme" name="OSCAudioPlayer" projectType="guiapp" jucerVersion="5.4.7"
+<JUCERPROJECT id="gowFme" name="Soundscaper" projectType="guiapp" jucerVersion="5.4.7"
               headerPath="../../../../glm/glm/" companyName="Synaesthete Ltd">
-  <MAINGROUP id="FyPVfO" name="OSCAudioPlayer">
+  <MAINGROUP id="FyPVfO" name="Soundscaper">
     <GROUP id="{C0A6F8B8-450C-163F-77B6-E0380DEB11BE}" name="Assets">
       <FILE id="rZZaOC" name="Raleway-Regular.ttf" compile="0" resource="1"
             file="assets/Raleway-Regular.ttf"/>
     </GROUP>
     <GROUP id="{95A5C06C-B4E9-E01E-019B-DDE92792A038}" name="Source">
       <GROUP id="{996E50E7-A94B-AB37-A5FA-13D50AAE42AC}" name="Utils">
+        <FILE id="QdkWSG" name="AppModelLoader.cpp" compile="1" resource="0"
+              file="Source/Utils/AppModelLoader.cpp"/>
+        <FILE id="x9Cpa5" name="AppModelLoader.h" compile="0" resource="0"
+              file="Source/Utils/AppModelLoader.h"/>
         <FILE id="zoaBbB" name="ConvexHullPath.h" compile="0" resource="0"
               file="Source/Utils/ConvexHullPath.h"/>
       </GROUP>
@@ -41,6 +45,8 @@
               file="Source/Audio/SpatialSynthVoice.h"/>
       </GROUP>
       <GROUP id="{78B2BA97-B19B-FFD9-1DD4-16A761947A98}" name="UIElements">
+        <FILE id="qpTJDR" name="AudioFileComponent.h" compile="0" resource="0"
+              file="Source/UIElements/AudioFileComponent.h"/>
         <FILE id="hg248b" name="MinimalLookAndFeel.h" compile="0" resource="0"
               file="Source/UIElements/MinimalLookAndFeel.h"/>
         <FILE id="eB4fCP" name="SpeakerHandleComponent.h" compile="0" resource="0"
@@ -129,5 +135,5 @@
     <WINDOWS buildEnabled="0"/>
     <OSX/>
   </LIVE_SETTINGS>
-  <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1"/>
+  <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1" JUCE_USE_MP3AUDIOFORMAT="1"/>
 </JUCERPROJECT>

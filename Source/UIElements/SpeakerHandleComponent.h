@@ -58,8 +58,6 @@ public:
         mLastDrag = p;
     }
     
-
-    
     void mouseUp(const MouseEvent& event) override
     {
         if (onHandleReleased != nullptr && event.mouseWasDraggedSinceMouseDown())
@@ -68,7 +66,7 @@ public:
         if (!event.mouseWasClicked())
             return;
             
-        auto* speakerEditor = new SpeakerEditorPopupComponent(mID, mModel.mSpeakerPositions[mID]);
+        auto* speakerEditor = new SpeakerEditorPopupComponent(mID, mModel.getSpeakerPosition(mID));
         speakerEditor->addChangeListener(this);
         speakerEditor->setSize (250, 120);
 

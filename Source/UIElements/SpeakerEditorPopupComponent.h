@@ -38,7 +38,7 @@ public:
 };
 
 class SpeakerEditorPopupComponent  : public Component,
-                                public ChangeBroadcaster
+                                     public ChangeBroadcaster
 {
 public:
     SpeakerEditorPopupComponent(int index, const glm::vec3& pos)

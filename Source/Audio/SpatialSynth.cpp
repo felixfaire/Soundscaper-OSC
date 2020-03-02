@@ -83,7 +83,7 @@ void SpatialSynth::setSampleRate(const double newRate)
     }
 }
 
-void SpatialSynth::updateSpeakerPositions(std::vector<glm::vec3> &positions)
+void SpatialSynth::updateSpeakerPositions(const std::vector<glm::vec3> &positions)
 {
     const ScopedLock sl (mLock);
     

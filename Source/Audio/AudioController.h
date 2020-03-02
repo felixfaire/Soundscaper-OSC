@@ -18,7 +18,8 @@
 class AudioController   : public AudioSource
 {
 public:
-    AudioController()
+    AudioController(AudioDeviceManager& deviceManager)
+        : mDeviceManager(deviceManager)
     {
         mFormatManager.registerBasicFormats();
         
@@ -38,20 +39,16 @@ public:
     
     // ===== Config ===============================
     
-    void setAudioChannels (int numInputChannels, int numOutputChannels, const XmlElement* const storedSettings = nullptr)
+    void initialise()
     {
-        String audioError = mDeviceManager.initialise (numInputChannels, numOutputChannels, storedSettings, true);
-
-        jassert (audioError.isEmpty());
-
-        mDeviceManager.addAudioCallback (&mAudioSourcePlayer);
-        mAudioSourcePlayer.setSource (this);
+        mDeviceManager.addAudioCallback(&mAudioSourcePlayer);
+        mAudioSourcePlayer.setSource(this);
     }
 
     void shutdownAudio()
     {
-        mAudioSourcePlayer.setSource (nullptr);
-        mDeviceManager.removeAudioCallback (&mAudioSourcePlayer);
+        mAudioSourcePlayer.setSource(nullptr);
+        mDeviceManager.removeAudioCallback(&mAudioSourcePlayer);
     }
     
     // ===== Processing ===============================
@@ -73,41 +70,59 @@ public:
         mSoundEventData.processEventData();
         mSynth.renderNextBlock(*bufferToFill.buffer, bufferToFill.startSample, bufferToFill.numSamples);
         
-        if (mBedSource != nullptr)
-            mBedSource->getNextAudioBlock(bufferToFill);
+        for (auto& bed : mBedSources)
+            bed->getNextAudioBlock(bufferToFill);
     }
     
     void loadAudioFiles(AppModel& model)
     {
         // Load soundbed files
-        model.mSoundBedFiles = model.mCurrentSoundBedFolder.findChildFiles(File::TypesOfFileToFind::findFiles, false, "*.wav");
-        std::unique_ptr<AudioFormatReader> bedReader(mFormatManager.createReaderFor(model.mSoundBedFiles[0]));
-        mBedSource.reset(new AudioFileSource("Bed1", *bedReader));
+        auto bedFiles = model.mCurrentSoundBedFolder.findChildFiles(File::TypesOfFileToFind::findFiles, false, "*.wav");
+        model.mSoundClipData.clear();
+        mBedSources.clear();
+        
+        for (auto& bedFile : bedFiles)
+        {
+            std::unique_ptr<AudioFormatReader> bedReader(mFormatManager.createReaderFor(bedFile));
+            
+            if (bedReader != nullptr)
+            {
+                const auto name = bedFile.getFileNameWithoutExtension();
+                auto* newSound = new AudioFileSource(name, *bedReader);
+                model.mSoundBedData.emplace_back(name, newSound->getAudioData());
+                mBedSources.emplace_back(newSound);
+            }
+        }
         
         // Load spatial clip files
+        model.mSoundClipData.clear();
+        
         mSynth.clearSounds();
         mSynth.clearVoices();
         
         File folder = model.mCurrentSoundClipFolder;
-        model.mSoundClipFiles = folder.findChildFiles(File::TypesOfFileToFind::findFiles, false, "*.wav");
+        auto clipFiles = folder.findChildFiles(File::TypesOfFileToFind::findFiles, false, "*.wav");
         
-        int noteNum = 0;
+        int noteID = 0;
         
-        for (auto& wavFile : model.mSoundClipFiles)
+        for (auto& wavFile : clipFiles)
         {
             std::unique_ptr<AudioFormatReader> reader(mFormatManager.createReaderFor(wavFile));
             
             if (reader != nullptr)
             {
-                Logger::getCurrentLogger()->writeToLog("Loading file: " + wavFile.getFileNameWithoutExtension());
-                auto* newSound = new SpatialSamplerSound(wavFile.getFileNameWithoutExtension(), *reader, noteNum, 0.01, 0.5, 20.0);
+                const auto name = wavFile.getFileNameWithoutExtension();
+                auto* newSound = new SpatialSamplerSound(wavFile.getFileNameWithoutExtension(), *reader, noteID, 0.01, 0.5, 20.0);
+                
+                model.mSoundClipData.emplace_back(newSound->getName(), newSound->getAudioData());
+                
                 mSynth.addSound(newSound);
                 mSynth.addVoice(new SpatialSamplerVoice());
-                noteNum++;
+                noteID++;
             }
         }
         
-        if (model.mSoundClipFiles.size() == 0)
+        if (clipFiles.size() == 0)
         {
             Logger::getCurrentLogger()->writeToLog("Failed to find any .wavs");
         }
@@ -116,14 +131,20 @@ public:
     void releaseResources() override
     {
         Logger::getCurrentLogger()->writeToLog ("Releasing audio resources");
-        mSynth.clearSounds();
-        mSynth.clearVoices();
     }
     
     // Manages lockfree message processing with a fifo
     void addSoundEvent(const SoundEvent& event)
     {
         mSoundEventData.addSoundEvent(event);
+    }
+    
+    void setSoundBedAmplitudes(const std::vector<float>& amps)
+    {
+        jassert(amps.size() == mBedSources.size());
+        
+        for (int i = 0; i < amps.size(); ++i)
+            mBedSources[i]->setAmplitude(amps[i]);
     }
         
     AudioDeviceManager& getDeviceManager() { return mDeviceManager; }
@@ -134,11 +155,11 @@ public:
 
 private:
 
-    std::unique_ptr<AudioFileSource>    mBedSource;
+    std::vector<std::unique_ptr<AudioFileSource>>    mBedSources;
 
     SoundEventData     mSoundEventData;
 
-    AudioDeviceManager mDeviceManager;
+    AudioDeviceManager& mDeviceManager;
     AudioSourcePlayer  mAudioSourcePlayer;
     
     // File loading

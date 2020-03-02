@@ -23,13 +23,19 @@ public:
     // Performs gift wrapping algorithm on points to create convex hull
     void updatePoints(const std::vector<glm::vec2>& points, const glm::vec2& centerPos)
     {
+        mConvexHullPoints.clear();
+        mPath.clear();
+        
+        if (points.size() <= 1)
+            return;
+        
         int leftestIndex = 0;
         
         for (int i = 1; i < points.size(); i++)
             if (points[i].x < points[leftestIndex].x)
                 leftestIndex = i;
                   
-        mConvexHullPoints.clear();
+        
 
         // Start from leftmost point, keep moving counterclockwise
         // until reach the start point again.  This loop runs O(h)
@@ -65,8 +71,6 @@ public:
         
         jassert(mConvexHullPoints.size() > 1);
         
-        mPath.clear();
-        
         const int sz = (int)mConvexHullPoints.size();
 
         for (int i = 0; i < sz; ++i)
@@ -74,16 +78,25 @@ public:
             auto p = mConvexHullPoints[i];
             const auto& prevp = mConvexHullPoints[(i - 1 + sz) % sz];
             const auto& nextp = mConvexHullPoints[(i + 1) % sz];
-            auto prevT = p - prevp;
-            auto nextT = nextp - p;
-            prevT = glm::normalize(glm::vec2(-prevT.y, prevT.x));
-            nextT = glm::normalize(glm::vec2(-nextT.y, nextT.x));
-            p += (prevT + nextT) * mOffset * (1.0f - 0.5f * glm::dot(prevT, nextT));
+            const auto prevT = glm::normalize(p - prevp);
+            const auto nextT = glm::normalize(nextp - p);
+            const auto prevPerp = glm::vec2(-prevT.y, prevT.x);
+            const auto nextPerp = glm::vec2(-nextT.y, nextT.x);
+            
+            const auto alignment = (0.5f + 0.5f * glm::dot(prevT, -nextT));
+            const auto p1 = p + (prevPerp + alignment * prevT) * mOffset;
+            const auto p2 = p + (nextPerp + alignment * -nextT) * mOffset;
             
             if (i == 0)
-                mPath.startNewSubPath(p.x, p.y);
+            {
+                mPath.startNewSubPath(p1.x, p1.y);
+                mPath.lineTo(p2.x, p2.y);
+            }
             else
-                mPath.lineTo(p.x, p.y);
+            {
+                mPath.lineTo(p1.x, p1.y);
+                mPath.lineTo(p2.x, p2.y);
+            }
         }
         
         mPath.closeSubPath();

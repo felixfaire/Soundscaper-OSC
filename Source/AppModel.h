@@ -10,119 +10,105 @@
 
 #pragma once
 #include "vec3.hpp"
+#include "Audio/SpatialSampler.h"
 
+struct SoundFileData
+{
+    SoundFileData(const String& name, const AudioBuffer<float>* data)
+        : mName(name),
+          mAudioData(data)
+    {
+        // TODO: make a proper address
+        mOSCAddress = mName.replace(" ", "_") + "/";
+    }
+    
+    String                              mName;
+    String                              mOSCAddress;
+    const AudioBuffer<float>*           mAudioData;
+};
 
-struct AppModel     : public ChangeBroadcaster
+struct VoiceData
+{
+    double mStartTime;
+    String mFileName;
+    int    mID;
+};
+
+struct AppModel
 {
 public:
     AppModel()
     {
-        loadSettings();
     }
 
     ~AppModel()
     {
-        saveSettings();
+    }
+    
+    void addSpeaker(const glm::vec3& pos)
+    {
+        mSpeakerPositions.push_back(pos);
+        mSpeakerPositionsChanges.sendChangeMessage();
+    }
+    
+    void removeSpeaker()
+    {
+        mSpeakerPositions.pop_back();
+        mSpeakerPositionsChanges.sendChangeMessage();
     }
     
     void setSpeakerPosition(int index, const glm::vec3& pos)
     {
         jassert(index < mSpeakerPositions.size());
         mSpeakerPositions[index] = pos;
-        sendChangeMessage();
+        mSpeakerPositionsChanges.sendChangeMessage();
     }
-        
+    
+    const std::vector<glm::vec3>& getSpeakerPositions() const { return mSpeakerPositions; }
+    const glm::vec3& getSpeakerPosition(int i) const          { return mSpeakerPositions[i]; }
+    
+    void setSoundbedAmplitude(int index, float newAmplitude)
+    {
+        jassert(mSoundBedAmplitudes.size() == mSoundBedData.size());
+        jassert(index < mSoundBedAmplitudes.size());
+        mSoundBedAmplitudes[index] = newAmplitude;
+        mSoundBedAmplitudesChanges.sendChangeMessage();
+    }
+    
+    const std::vector<float>& getSoundBedAmpitudes() const { return mSoundBedAmplitudes; }
+    float getSoundBedAmpitude(int i) const                 { return mSoundBedAmplitudes[i]; }
+    
+    
+    
+    
     std::unique_ptr<PropertiesFile>     mSettingsFile;
         
-    Array<File>                         mSoundClipFiles;
-    Array<File>                         mSoundBedFiles;
-    std::vector<glm::vec3>              mSpeakerPositions;
+        
+    ChangeBroadcaster                   mSoundBedAmplitudesChanges;
+    ChangeBroadcaster                   mSpeakerPositionsChanges;
 
-    std::vector<OSCAddressPattern>      mOSCAddresses;
-    OSCReceiver                         mOSCReciever;
+    
+    File                                mCurrentSoundBedFolder;
+    std::vector<SoundFileData>          mSoundBedData;
     
     File                                mCurrentSoundClipFolder;
-    File                                mCurrentSoundBedFolder;
+    std::vector<SoundFileData>          mSoundClipData;
+    
+    std::vector<VoiceData>              mPlayingVoiceData;
     
     int                                 mCurrentNoteID = 0;
+    
+    
+    // IO Devices
+    OSCReceiver                         mOSCReciever;
+    AudioDeviceManager                  mDeviceManager;
 
 private:
 
-
-    void loadSettings()
-    {
-        // Setup and load properties file
-        auto settingsOpts = PropertiesFile::Options();
-        settingsOpts.filenameSuffix = ".settings";
-        settingsOpts.applicationName = "SoundscaperOSC";
-        settingsOpts.folderName = "Synaesthete";
-        settingsOpts.osxLibrarySubFolder = "Application Support";
-        settingsOpts.storageFormat = PropertiesFile::StorageFormat::storeAsXML;
-        settingsOpts.commonToAllUsers = false;
-        mSettingsFile.reset(new PropertiesFile(settingsOpts));
-
-        mSettingsFile->reload();
-
-        if (mSettingsFile->containsKey(mCurrentSoundClipFolderID))
-            mCurrentSoundClipFolder = mSettingsFile->getValue(mCurrentSoundClipFolderID);
-            
-        if (mSettingsFile->containsKey(mCurrentSoundBedFolderID))
-            mCurrentSoundBedFolder = mSettingsFile->getValue(mCurrentSoundBedFolderID);
-
-        if (mSettingsFile->containsKey(mSpeakerInfoID))
-        {
-            auto speakersInfo = mSettingsFile->getXmlValue(mSpeakerInfoID);
-
-            forEachXmlChildElement(*speakersInfo, s)
-            {
-                glm::vec3 pos;
-                pos.x = (float)s->getDoubleAttribute("x", 0.0);
-                pos.y = (float)s->getDoubleAttribute("y", 0.0);
-                pos.z = (float)s->getDoubleAttribute("z", 0.0);
-
-                mSpeakerPositions.push_back(pos);
-            }
-        }
-        else
-        {
-            // Load default stereo model
-            const float r = 3.5f;
-            const float rx = 6.0f;
-            mSpeakerPositions.push_back(glm::vec3(0.0f,  0.0f,  r));
-            mSpeakerPositions.push_back(glm::vec3( rx,   0.0f,  r));
-            mSpeakerPositions.push_back(glm::vec3( rx,   0.0f, 0.0f));
-            mSpeakerPositions.push_back(glm::vec3( rx,   0.0f, -r));
-            mSpeakerPositions.push_back(glm::vec3(0.0f,  0.0f, -r));
-            mSpeakerPositions.push_back(glm::vec3(  -rx, 0.0f, -r));
-            mSpeakerPositions.push_back(glm::vec3(  -rx, 0.0f, 0.0f));
-            mSpeakerPositions.push_back(glm::vec3(  -rx, 0.0f,  r));
-        }
-    }
-
-    void saveSettings()
-    {
-        mSettingsFile->setValue(mCurrentSoundClipFolderID, mCurrentSoundClipFolder.getFullPathName());
-        mSettingsFile->setValue(mCurrentSoundBedFolderID, mCurrentSoundBedFolder.getFullPathName());
-
-        XmlElement speakersProps(mSpeakerInfoID);
-
-        for (const auto& s : mSpeakerPositions)
-        {
-            XmlElement* speaker = new XmlElement("speaker");
-            speaker->setAttribute("x", s.x);
-            speaker->setAttribute("y", s.y);
-            speaker->setAttribute("z", s.z);
-
-            speakersProps.addChildElement(speaker);
-        }
-
-        mSettingsFile->setValue(mSpeakerInfoID, &speakersProps);
-        mSettingsFile->save();
-    }
-
-    // Settings ID's
-    String                              mCurrentSoundClipFolderID = "audio-clip-files-location";
-    String                              mCurrentSoundBedFolderID = "audio-bed-files-location";
-    String                              mSpeakerInfoID = "speaker-info";
+    // These must be changed via get / set to ensure all change messages are propogated correctly
+    std::vector<float>                  mSoundBedAmplitudes;
+    std::vector<glm::vec3>              mSpeakerPositions;
+    
+    friend class AppModelLoader;
     
 };

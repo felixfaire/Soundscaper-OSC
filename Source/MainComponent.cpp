@@ -7,17 +7,22 @@
  */
 
 #include "MainComponent.h"
+#include "Utils/AppModelLoader.h"
 
 //==============================================================================
 MainComponent::MainComponent()
+    : mAudio(mModel.mDeviceManager)
 {
-    // Init Audio
-    mAudio.setAudioChannels(0, 2);
-    mAudio.mSynth.updateSpeakerPositions(mModel.mSpeakerPositions);
-
-    mModel.addChangeListener(this);
+    // Init model
+    mModel.mSpeakerPositionsChanges.addChangeListener(this);
     mModel.mOSCReciever.addListener(this);
+    AppModelLoader::loadSettings(mModel);
+
+    // Init Audio
+    mAudio.initialise();
+    mAudio.mSynth.updateSpeakerPositions(mModel.getSpeakerPositions());
     
+    mAudio.loadAudioFiles(mModel);
     
     // Init UI
     MinimalLookAndFeel::setDefaultLookAndFeel(&mLookAndFeel);
@@ -53,7 +58,6 @@ MainComponent::MainComponent()
     
     setWantsKeyboardFocus(true);
             
-    mAudio.loadAudioFiles(mModel);
     mSpaceViewer->updateFileList();
     mFilesListComponent->resized();
     
@@ -62,21 +66,21 @@ MainComponent::MainComponent()
 
 MainComponent::~MainComponent()
 {
-    mModel.addChangeListener(this);
+    AppModelLoader::saveSettings(mModel);
 }
 
 // ===== CONTROLLER ====================================================
 
 void MainComponent::triggerSource(int soundID, const glm::vec3& pos)
 {
-    jassert(soundID < mModel.mSoundClipFiles.size());
+    jassert(soundID < mModel.mSoundClipData.size());
     const int noteID = ++mModel.mCurrentNoteID;
     mAudio.addSoundEvent({noteID, soundID, pos});
 }
 
 void MainComponent::updateSource(int soundID, const glm::vec3& pos)
 {
-    jassert(soundID < mModel.mSoundClipFiles.size());
+    jassert(soundID < mModel.mSoundClipData.size());
     const int noteID = mModel.mCurrentNoteID;
     mAudio.addSoundEvent({noteID, -1, pos});
 }
@@ -113,9 +117,15 @@ bool MainComponent::keyPressed(const KeyPress& key)
 
 void MainComponent::changeListenerCallback (ChangeBroadcaster* source)
 {
-    jassert(dynamic_cast<AppModel*>(source) != nullptr);
-    
-    mAudio.mSynth.updateSpeakerPositions(mModel.mSpeakerPositions);
+    if (source == &mModel.mSpeakerPositionsChanges)
+    {
+        mSpaceViewer->updateComponentPositions();
+        mAudio.mSynth.updateSpeakerPositions(mModel.getSpeakerPositions());
+    }
+    else if (source == &mModel.mSoundBedAmplitudesChanges)
+    {
+        mAudio.setSoundBedAmplitudes(mModel.getSoundBedAmpitudes());
+    }
 }
 
 void MainComponent::oscMessageReceived(const OSCMessage& message)

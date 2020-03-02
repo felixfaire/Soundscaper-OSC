@@ -153,7 +153,7 @@ public:
 
     /** Updates the positions of the speakers to allow DBAP spatialisation
      */
-    void updateSpeakerPositions(std::vector<glm::vec3>& positions);
+    void updateSpeakerPositions(const std::vector<glm::vec3>& positions);
 
     /** Creates the next block of audio output.
 

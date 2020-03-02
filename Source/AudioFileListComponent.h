@@ -11,18 +11,40 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include "UIElements/AudioFileComponent.h"
 
-class FileListBoxModel : public ListBoxModel
+class AudioFileListBoxModel : public ListBoxModel
 {
 public:
-    FileListBoxModel(const Array<File>& files)
-        : mFiles(files)
+    AudioFileListBoxModel(const std::vector<SoundFileData>& fileData)
+        : mFileData(fileData)
     {
     }
     
     int getNumRows() override
     {
-        return mFiles.size();
+        return (int)mFileData.size();
+    }
+    
+    Component* refreshComponentForRow (int rowNumber, bool isRowSelected, Component* existingComponentToUpdate) override
+    {
+        if (rowNumber >= mFileData.size())
+            return existingComponentToUpdate;
+        
+        const auto& data = mFileData[rowNumber];
+        
+        auto* c = static_cast<AudioFileComponent*>(existingComponentToUpdate);
+        
+        if (c == nullptr)
+        {
+            c = new AudioFileComponent(data);
+        }
+        else
+        {
+            c->setData(&data);
+        }
+        
+        return c;
     }
     
     void paintListBoxItem(int rowNumber,
@@ -30,33 +52,18 @@ public:
                           int width, int height,
                           bool rowIsSelected) override
     {
-        auto b = Rectangle<int>(0, 0, width, height);
-        b.reduce(5, 5);
-        
-        g.setColour(Colour::greyLevel(0.2f));
-        g.fillRoundedRectangle(b.toFloat(), 5.0f);
-        
-        const int margin = 10;
-        b.removeFromLeft(margin);
-        
-        g.setColour(Colour::greyLevel(0.8f));
-        
-        const String name = mFiles[rowNumber].getFileNameWithoutExtension();
-        g.drawText(name, b.removeFromLeft(width),
-                   Justification(Justification::Flags::centredLeft), true);
     }
     
-    const Array<File>& mFiles;
+    const std::vector<SoundFileData>& mFileData;
 };
 
 
 class FilesListComponent : public Component
 {
 public:
-    FilesListComponent(File& filesLocation, const Array<File>& files)
+    FilesListComponent(File& filesLocation, const std::vector<SoundFileData>& fileData)
         : mFilesLocation(filesLocation),
-          mFiles(files),
-          mListBoxModel(files)
+          mListBoxModel(fileData)
     {
         mFolderChooser.reset(new FilenameComponent("Samples Folder",
                                                     mFilesLocation,
@@ -91,7 +98,7 @@ public:
     
     int getIdealHeight()
     {
-        return (1 + mListBoxModel.getNumRows()) * mRowHeight;
+        return (2 + mListBoxModel.getNumRows()) * mRowHeight;
     }
     
     FilenameComponent* getFilenameComponent() { return mFolderChooser.get(); }
@@ -100,10 +107,9 @@ private:
 
     // Data
     File&                     mFilesLocation;
-    const Array<File>&        mFiles;
     
     // UI
-    FileListBoxModel                    mListBoxModel;
+    AudioFileListBoxModel               mListBoxModel;
     std::unique_ptr<ListBox>            mListBox;
     std::unique_ptr<FilenameComponent>  mFolderChooser;
     const int                           mRowHeight = 50;
@@ -119,8 +125,8 @@ class AudioFileListComponent    : public Component,
 public:
     AudioFileListComponent(AppModel& model)
         : m(model),
-          mSoundBeds(model.mCurrentSoundBedFolder, model.mSoundBedFiles),
-          mSoundClips(model.mCurrentSoundClipFolder, model.mSoundClipFiles)
+          mSoundBeds(model.mCurrentSoundBedFolder, model.mSoundBedData),
+          mSoundClips(model.mCurrentSoundClipFolder, model.mSoundClipData)
     {
         mSoundBeds.addListener(this);
         mSoundClips.addListener(this);

@@ -46,13 +46,16 @@ public:
     void getNextAudioBlock (const AudioSourceChannelInfo& bufferToFill) override
     {
         // Get sample data
-        auto& data = *mData;
+        const auto& data = *mData;
         AudioBuffer<float>& outputBuffer = *bufferToFill.buffer;
-        int startSample = bufferToFill.startSample;
+        const int startSample = bufferToFill.startSample;
         int numSamples = bufferToFill.numSamples;
             
         const int fileChannels = data.getNumChannels();
         const int outChannels = outputBuffer.getNumChannels();
+        
+        // Basic amplitude smoothing
+        mAmplitude += (mTargetAmplitude - mAmplitude) * 0.1f;
     
         int i = 0;
         
@@ -65,12 +68,10 @@ public:
             for (int ch = 0; ch < outChannels; ++ch)
             {
                 const float* const inCh = data.getReadPointer(ch % fileChannels);
-                // just using a very simple linear interpolation here..
                 const float interp = (inCh[pos] * invAlpha + inCh[pos + 1] * alpha);
                 
                 float* out = outputBuffer.getWritePointer(ch, startSample);
-            
-                out[i] += interp;
+                out[i] += interp * mAmplitude;
             }
         
             mSourceSamplePosition += 1.0;
@@ -81,6 +82,16 @@ public:
         }
     }
     
+    void setAmplitude(float newAmp)
+    {
+        mTargetAmplitude = newAmp;
+    }
+    
+    const AudioBuffer<float>* getAudioData() { return mData.get(); }
+    
+private:
+    float   mAmplitude = 1.0f;
+    float   mTargetAmplitude = 1.0f;
     String  mName;
     std::unique_ptr<AudioBuffer<float>> mData;
     double  mSourceSampleRate;
