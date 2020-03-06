@@ -29,24 +29,16 @@ MainComponent::MainComponent()
     
     mIOSettings.reset(new IOSettingsComponent(mModel, mAudio.getDeviceManager()));
     mFilesListComponent.reset(new AudioFileListComponent(mModel));
-    mSpaceViewer.reset(new SpaceViewerComponent(mModel));
+    mSpaceComponent.reset(new SpaceConfigComponent(mModel));
     
     mFilesListComponent->onAudioFoldersChanged = [this]()
     {
         mAudio.loadAudioFiles(mModel);
-        mSpaceViewer->updateFileList(); // TODO: remove if demo not needed
-    };
-    
-    mSpaceViewer->onTrigger = [this](int index, glm::vec3 p){
-        triggerSource(index, p);
-    };
-    
-    mSpaceViewer->onUpdate = [this](int index, glm::vec3 p){
-        updateSource(index, p);
+        mSpaceComponent->updateFileList(); // TODO: remove if demo not needed
     };
     
     mTabbedContainer.reset(new TabbedComponent(TabbedButtonBar::Orientation::TabsAtTop));
-    mTabbedContainer->addTab("Space", Colour(), mSpaceViewer.get(), false);
+    mTabbedContainer->addTab("Space", Colour(), mSpaceComponent.get(), false);
     mTabbedContainer->addTab("Sounds", Colour(), mFilesListComponent.get(), false);
     mTabbedContainer->addTab("Settings", Colour(), mIOSettings.get(), false);
     mTabbedContainer->setIndent(10);
@@ -58,10 +50,12 @@ MainComponent::MainComponent()
     
     setWantsKeyboardFocus(true);
             
-    mSpaceViewer->updateFileList();
+    mSpaceComponent->updateFileList();
     mFilesListComponent->resized();
     
-    setSize (800, 800);
+    mModel.setSoundbedAmplitude(0, 0.1f);
+    
+    setSize (700, 800);
 }
 
 MainComponent::~MainComponent()
@@ -71,17 +65,14 @@ MainComponent::~MainComponent()
 
 // ===== CONTROLLER ====================================================
 
-void MainComponent::triggerSource(int soundID, const glm::vec3& pos)
+void MainComponent::triggerSource(int noteID, int soundID, const glm::vec3& pos)
 {
     jassert(soundID < mModel.mSoundClipData.size());
-    const int noteID = ++mModel.mCurrentNoteID;
     mAudio.addSoundEvent({noteID, soundID, pos});
 }
 
-void MainComponent::updateSource(int soundID, const glm::vec3& pos)
+void MainComponent::updateSource(int noteID, const glm::vec3& pos)
 {
-    jassert(soundID < mModel.mSoundClipData.size());
-    const int noteID = mModel.mCurrentNoteID;
     mAudio.addSoundEvent({noteID, -1, pos});
 }
 
@@ -119,7 +110,6 @@ void MainComponent::changeListenerCallback (ChangeBroadcaster* source)
 {
     if (source == &mModel.mSpeakerPositionsChanges)
     {
-        mSpaceViewer->updateComponentPositions();
         mAudio.mSynth.updateSpeakerPositions(mModel.getSpeakerPositions());
     }
     else if (source == &mModel.mSoundBedAmplitudesChanges)
@@ -131,12 +121,35 @@ void MainComponent::changeListenerCallback (ChangeBroadcaster* source)
 void MainComponent::oscMessageReceived(const OSCMessage& message)
 {
     // TODO: convert this to not use strings
-    if (message.getAddressPattern().toString() == "/sound/position")
+    if (message.getAddressPattern().toString() == "/start")
+    {
+        if (message[0].isInt32()
+         && message[1].isInt32()
+         && message[2].isFloat32()
+         && message[3].isFloat32()
+         && message[4].isFloat32())
+        {
+            const int noteID = message[0].getInt32();
+            const int soundID = message[1].getInt32();
+            const float x = message[2].getFloat32();
+            const float y = message[3].getFloat32();
+            const float z = message[4].getFloat32();
+            triggerSource(noteID, soundID, glm::vec3(x, y, z));
+        }
+        else
+        {
+            DBG("Incorrect message type");
+        }
+    }
+    else if (message.getAddressPattern().toString() == "/update")
     {
         if (message[0].isInt32())
         {
-            const int id = message[0].getInt32();
-            triggerSource(id, glm::vec3(0.0f));
+            const int noteID = message[0].getInt32();
+            const float x = message[1].getFloat32();
+            const float y = message[2].getFloat32();
+            const float z = message[3].getFloat32();
+            updateSource(noteID, glm::vec3(x, y, z));
         }
         else
         {

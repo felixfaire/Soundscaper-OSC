@@ -103,7 +103,7 @@ public:
         mPath = mPath.createPathWithRoundedCorners(mOffset);
     }
     
-    float                   mOffset = 15.0f;
+    float                   mOffset = 17.0f;
     std::vector<glm::vec2>  mConvexHullPoints;
     Path                    mPath;
     

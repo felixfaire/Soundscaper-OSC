@@ -21,22 +21,22 @@ class OSCSenderDemo   : public Component
 public:
     OSCSenderDemo()
     {
-        button.setButtonText("Send");
-        addAndMakeVisible(button);
+        mButton.setButtonText("Send");
+        addAndMakeVisible(mButton);
 
-        slider.setRange (0.0, 2.0, 1.0);
-        slider.setSliderStyle(Slider::LinearHorizontal);
-        addAndMakeVisible (slider);
+        mSlider.setRange (0.0, 2.0, 1.0);
+        mSlider.setSliderStyle(Slider::LinearHorizontal);
+        addAndMakeVisible (mSlider);
 
-        button.onClick = [this]
+        mButton.onClick = [this]
         {
             // create and send an OSC message with  an address and a int value:
-            if (!sender.send ("/sound/position", (int)slider.getValue()))
+            if (!mSender.send ("/sound/position", (int)mSlider.getValue()))
                 showConnectionErrorMessage ("Error: could not send OSC message.");
         };
 
         // specify here where to send OSC messages to: host URL and UDP port number
-        if (!sender.connect ("127.0.0.1", 9001))
+        if (!mSender.connect ("127.0.0.1", 9001))
             showConnectionErrorMessage ("Error: could not connect to UDP port 9001.");
     }
 
@@ -44,8 +44,8 @@ public:
     {
         auto b = getLocalBounds();
 
-        button.setBounds(b.removeFromRight(80));
-        slider.setBounds(b);
+        mButton.setBounds(b.removeFromRight(80));
+        mSlider.setBounds(b);
     }
 
 private:
@@ -59,9 +59,9 @@ private:
     }
 
     //==============================================================================
-    Slider slider;
-    TextButton button;
-    OSCSender sender;
+    Slider      mSlider;
+    TextButton  mButton;
+    OSCSender   mSender;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (OSCSenderDemo)
 };

@@ -115,7 +115,7 @@ void SpatialSamplerVoice::renderNextBlock (AudioBuffer<float>& outputBuffer, int
             {
                 float* out = outputBuffer.getWritePointer (ch, startSample);
             
-                out[i] += (l + r) * 0.5f * envelopeValue * mChannelAmplitudes[ch];
+                out[i] += (l + r) * 0.35f * envelopeValue * mChannelAmplitudes[ch];
             }
         
             sourceSamplePosition += pitchRatio;

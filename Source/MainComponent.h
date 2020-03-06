@@ -16,7 +16,7 @@
 #include "IOSettingsComponent.h"
 #include "AudioFileListComponent.h"
 #include "UIElements/MinimalLookAndFeel.h"
-#include "SpaceViewerComponent.h"
+#include "SpaceConfigComponent.h"
 
 
 //==============================================================================
@@ -39,8 +39,8 @@ public:
     bool keyPressed(const KeyPress& event) override;
 
     // Controller
-    void triggerSource(int soundID, const glm::vec3& pos);
-    void updateSource(int soundID, const glm::vec3& pos);
+    void triggerSource(int noteID, int soundID, const glm::vec3& pos);
+    void updateSource(int noteID, const glm::vec3& pos);
     void allNotesOff();
     
     // Callbacks
@@ -61,7 +61,7 @@ private:
     
     std::unique_ptr<IOSettingsComponent>          mIOSettings;
     std::unique_ptr<AudioFileListComponent>       mFilesListComponent;
-    std::unique_ptr<SpaceViewerComponent>         mSpaceViewer;
+    std::unique_ptr<SpaceConfigComponent>         mSpaceComponent;
 
     MinimalLookAndFeel                            mLookAndFeel;
 

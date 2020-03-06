@@ -38,7 +38,6 @@ public:
             mModel.removeSpeaker();
         };
         
-        addAndMakeVisible(mDemoFileBox);
         addAndMakeVisible(*mAddButton);
         addAndMakeVisible(*mRemoveButton);
         
@@ -51,7 +50,7 @@ public:
 
     void paint (Graphics& g) override
     {
-        auto b = getViewerRect();
+        auto b = getLocalBounds().toFloat();
         
         g.setColour(Colour::greyLevel(0.05f));
         g.fillRoundedRectangle(b, 4.0f);
@@ -94,45 +93,26 @@ public:
         b.removeFromRight(10);
         mAddButton->setBounds(b.removeFromRight(mAddButton->getBestWidthForHeight(b.getHeight())));
         
-//        mDemoFileBox.setBounds(b.removeFromTop(mBoxHeight));
         updateMatrices();
         updateSpeakerButtonComponents();
     }
     
     void mouseDown(const MouseEvent& event) override
     {
-//        const int index = (int)mDemoFileBox.getSelectedId() - 1;
-        const int index = (int)(Random::getSystemRandom().nextFloat() * mModel.mSoundClipData.size());
         const auto pos = getWorldPositionFromMouse(event);
         
-        jassert(index < mModel.mSoundClipData.size());
-        
         if (onTrigger != nullptr)
-            onTrigger(index, pos);
+            onTrigger(pos);
     }
     
     void mouseDrag(const MouseEvent& event) override
     {
-        const int index = (int)mDemoFileBox.getSelectedId() - 1;
         const auto pos = getWorldPositionFromMouse(event);
-        
-        jassert(index < mModel.mSoundClipData.size());
-        
+
         if (onUpdate != nullptr)
-            onUpdate(index, pos);
+            onUpdate(pos);
     }
-    
-    void updateFileList()
-    {
-        mDemoFileBox.clear();
         
-        for (int i = 0; i < mModel.mSoundClipData.size(); ++i)
-            mDemoFileBox.addItem(mModel.mSoundClipData[i].mName, i + 1);
-        
-        if (mModel.mSoundClipData.size() > 0)
-            mDemoFileBox.setSelectedId(1);
-    }
-    
     void updateComponentPositions()
     {
         if (mModel.getSpeakerPositions().size() != mSpeakers.size())
@@ -142,8 +122,8 @@ public:
         updateSpeakerButtonComponents();
     }
     
-    std::function<void(int, glm::vec3)> onTrigger;
-    std::function<void(int, glm::vec3)> onUpdate;
+    std::function<void(glm::vec3)> onTrigger;
+    std::function<void(glm::vec3)> onUpdate;
 
 private:
 
@@ -175,7 +155,7 @@ private:
             c->onUpdatePosition = onUpdatePosition;
             c->onDrag = onHandleDragged;
             c->onHandleReleased = onHandleReleased;
-            c->setSize(20, 20);
+            c->setSize(25, 25);
             addAndMakeVisible(*c);
             mSpeakers.add(c);
         }
@@ -222,14 +202,6 @@ private:
         repaint();
     }
 
-    Rectangle<float> getViewerRect()
-    {
-        auto b = getLocalBounds().reduced(10).toFloat();
-//        b.removeFromTop(mBoxHeight);
-//        b.removeFromTop(10.0f);
-        return b;
-    }
-
     const glm::vec3 getWorldPositionFromMouse(const MouseEvent& event)
     {
         const auto mp = event.getPosition();
@@ -256,7 +228,7 @@ private:
     
     void updateMatrices()
     {
-        auto b = getViewerRect();
+        auto b = getLocalBounds();
         const float minDim = jmin(b.getWidth(), b.getHeight());
         
         glm::mat3 t = glm::mat3(1.0f);
@@ -271,8 +243,7 @@ private:
 
     glm::mat3 mRectToWorld;
     glm::mat3 mWorldToRect;
-    ComboBox  mDemoFileBox;
-    int       mBoxHeight = 40;
+
     AppModel& mModel;
     
     ConvexHullPath mHullPath;

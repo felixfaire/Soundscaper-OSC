@@ -8,6 +8,8 @@
             file="assets/Raleway-Regular.ttf"/>
     </GROUP>
     <GROUP id="{95A5C06C-B4E9-E01E-019B-DDE92792A038}" name="Source">
+      <FILE id="gh021x" name="SpaceConfigComponent.h" compile="0" resource="0"
+            file="Source/SpaceConfigComponent.h"/>
       <GROUP id="{996E50E7-A94B-AB37-A5FA-13D50AAE42AC}" name="Utils">
         <FILE id="QdkWSG" name="AppModelLoader.cpp" compile="1" resource="0"
               file="Source/Utils/AppModelLoader.cpp"/>
@@ -45,6 +47,8 @@
               file="Source/Audio/SpatialSynthVoice.h"/>
       </GROUP>
       <GROUP id="{78B2BA97-B19B-FFD9-1DD4-16A761947A98}" name="UIElements">
+        <FILE id="O2rB5Y" name="ChannelInfoComponent.h" compile="0" resource="0"
+              file="Source/UIElements/ChannelInfoComponent.h"/>
         <FILE id="qpTJDR" name="AudioFileComponent.h" compile="0" resource="0"
               file="Source/UIElements/AudioFileComponent.h"/>
         <FILE id="hg248b" name="MinimalLookAndFeel.h" compile="0" resource="0"
@@ -61,8 +65,6 @@
             file="Source/AudioFileListComponent.h"/>
       <FILE id="JLXVLq" name="IOSettingsComponent.h" compile="0" resource="0"
             file="Source/IOSettingsComponent.h"/>
-      <FILE id="SjdrY9" name="SoundEnvironmentComponent.h" compile="0" resource="0"
-            file="Source/SoundEnvironmentComponent.h"/>
       <FILE id="cM4RsR" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>
       <FILE id="IWDRtt" name="MainComponent.cpp" compile="1" resource="0"
             file="Source/MainComponent.cpp"/>

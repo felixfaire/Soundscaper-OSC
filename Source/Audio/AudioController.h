@@ -78,7 +78,7 @@ public:
     {
         // Load soundbed files
         auto bedFiles = model.mCurrentSoundBedFolder.findChildFiles(File::TypesOfFileToFind::findFiles, false, "*.wav");
-        model.mSoundClipData.clear();
+        model.mSoundBedData.clear();
         mBedSources.clear();
         
         for (auto& bedFile : bedFiles)
@@ -89,7 +89,7 @@ public:
             {
                 const auto name = bedFile.getFileNameWithoutExtension();
                 auto* newSound = new AudioFileSource(name, *bedReader);
-                model.mSoundBedData.emplace_back(name, newSound->getAudioData());
+                model.addSoundBedData(name, newSound->getAudioData());
                 mBedSources.emplace_back(newSound);
             }
         }
@@ -114,7 +114,7 @@ public:
                 const auto name = wavFile.getFileNameWithoutExtension();
                 auto* newSound = new SpatialSamplerSound(wavFile.getFileNameWithoutExtension(), *reader, noteID, 0.01, 0.5, 20.0);
                 
-                model.mSoundClipData.emplace_back(newSound->getName(), newSound->getAudioData());
+                model.addSoundClipData(newSound->getName(), newSound->getAudioData());
                 
                 mSynth.addSound(newSound);
                 mSynth.addVoice(new SpatialSamplerVoice());

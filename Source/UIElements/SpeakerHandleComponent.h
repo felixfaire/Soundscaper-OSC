@@ -40,6 +40,8 @@ public:
 
         g.setColour(Colours::white.withAlpha(0.8f));
         g.drawEllipse(b, 2.0f);
+        
+        g.drawText(std::to_string(mID + 1), b, Justification(Justification::Flags::centred), true);
     }
     
     void mouseDown(const MouseEvent& event) override

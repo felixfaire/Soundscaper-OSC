@@ -71,6 +71,10 @@ public:
     {
         jassert(mSoundBedAmplitudes.size() == mSoundBedData.size());
         jassert(index < mSoundBedAmplitudes.size());
+        
+        if (index >= mSoundBedAmplitudes.size())
+            return;
+        
         mSoundBedAmplitudes[index] = newAmplitude;
         mSoundBedAmplitudesChanges.sendChangeMessage();
     }
@@ -78,7 +82,16 @@ public:
     const std::vector<float>& getSoundBedAmpitudes() const { return mSoundBedAmplitudes; }
     float getSoundBedAmpitude(int i) const                 { return mSoundBedAmplitudes[i]; }
     
+    void addSoundBedData(const String& name, const AudioBuffer<float>* data)
+    {
+        mSoundBedData.emplace_back(name, data);
+        mSoundBedAmplitudes.push_back(1.0f);
+    }
     
+    void addSoundClipData(const String& name, const AudioBuffer<float>* data)
+    {
+        mSoundClipData.emplace_back(name, data);
+    }
     
     
     std::unique_ptr<PropertiesFile>     mSettingsFile;
