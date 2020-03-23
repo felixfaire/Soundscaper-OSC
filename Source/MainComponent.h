@@ -26,7 +26,8 @@
 */
 class MainComponent   : public Component,
                         public ChangeListener,
-                        private OSCReceiver::Listener<OSCReceiver::MessageLoopCallback>
+                        private OSCReceiver::Listener<OSCReceiver::MessageLoopCallback>,
+                        private Timer
 {
 public:
     //==============================================================================
@@ -49,6 +50,8 @@ public:
         
 private:
     //==============================================================================
+
+    void timerCallback() override;
 
     // Model
     AppModel                                      mModel;

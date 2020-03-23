@@ -8,8 +8,6 @@
             file="assets/Raleway-Regular.ttf"/>
     </GROUP>
     <GROUP id="{95A5C06C-B4E9-E01E-019B-DDE92792A038}" name="Source">
-      <FILE id="gh021x" name="SpaceConfigComponent.h" compile="0" resource="0"
-            file="Source/SpaceConfigComponent.h"/>
       <GROUP id="{996E50E7-A94B-AB37-A5FA-13D50AAE42AC}" name="Utils">
         <FILE id="QdkWSG" name="AppModelLoader.cpp" compile="1" resource="0"
               file="Source/Utils/AppModelLoader.cpp"/>
@@ -28,6 +26,8 @@
               file="Source/Audio/AudioController.h"/>
         <FILE id="w79IeN" name="AudioFileSource.h" compile="0" resource="0"
               file="Source/Audio/AudioFileSource.h"/>
+        <FILE id="daGE3u" name="AudioMonitorSource.h" compile="0" resource="0"
+              file="Source/Audio/AudioMonitorSource.h"/>
         <FILE id="jh8c5A" name="SoundEventData.h" compile="0" resource="0"
               file="Source/Audio/SoundEventData.h"/>
         <FILE id="kTYUYi" name="SpatialSampler.cpp" compile="1" resource="0"
@@ -61,6 +61,8 @@
       <FILE id="ijLPGz" name="AppModel.h" compile="0" resource="0" file="Source/AppModel.h"/>
       <FILE id="bCvIXp" name="SpaceViewerComponent.h" compile="0" resource="0"
             file="Source/SpaceViewerComponent.h"/>
+      <FILE id="gh021x" name="SpaceConfigComponent.h" compile="0" resource="0"
+            file="Source/SpaceConfigComponent.h"/>
       <FILE id="xLvmit" name="AudioFileListComponent.h" compile="0" resource="0"
             file="Source/AudioFileListComponent.h"/>
       <FILE id="JLXVLq" name="IOSettingsComponent.h" compile="0" resource="0"

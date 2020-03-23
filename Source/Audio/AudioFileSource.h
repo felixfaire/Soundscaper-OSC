@@ -46,10 +46,10 @@ public:
     void getNextAudioBlock (const AudioSourceChannelInfo& bufferToFill) override
     {
         // Get sample data
-        const auto& data = *mData;
+        const auto&         data = *mData;
         AudioBuffer<float>& outputBuffer = *bufferToFill.buffer;
-        const int startSample = bufferToFill.startSample;
-        int numSamples = bufferToFill.numSamples;
+        const int           startSample = bufferToFill.startSample;
+        int                 numSamples = bufferToFill.numSamples;
             
         const int fileChannels = data.getNumChannels();
         const int outChannels = outputBuffer.getNumChannels();

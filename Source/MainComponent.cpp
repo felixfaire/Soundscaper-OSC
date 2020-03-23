@@ -15,6 +15,7 @@ MainComponent::MainComponent()
 {
     // Init model
     mModel.mSpeakerPositionsChanges.addChangeListener(this);
+    mModel.mSoundBedAmplitudesChanges.addChangeListener(this);
     mModel.mOSCReciever.addListener(this);
     AppModelLoader::loadSettings(mModel);
 
@@ -53,9 +54,11 @@ MainComponent::MainComponent()
     mSpaceComponent->updateFileList();
     mFilesListComponent->resized();
     
-    mModel.setSoundbedAmplitude(0, 0.1f);
+    mModel.setSoundbedAmplitude(0, 0.0f);
     
-    setSize (700, 800);
+    startTimer(15);
+    
+    setSize (500, 800);
 }
 
 MainComponent::~MainComponent()
@@ -156,4 +159,11 @@ void MainComponent::oscMessageReceived(const OSCMessage& message)
             DBG("Incorrect message type");
         }
     }
+}
+
+// Update model audio levels on a timer
+void MainComponent::timerCallback()
+{
+    std::vector<float> levels = mAudio.getAudioLevels();
+    mModel.setAudioLevels(levels);
 }

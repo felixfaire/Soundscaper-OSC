@@ -94,7 +94,7 @@ public:
         addAndMakeVisible(mConnectionStatusLabel);
 
         addAndMakeVisible(mOscLogListBox);
-        addAndMakeVisible(mDemoSender);
+//        addAndMakeVisible(mDemoSender);
 
         mOscReceiver.addListener (this);
         mOscReceiver.registerFormatErrorHandler ([this] (const char* data, int dataSize)
@@ -112,20 +112,24 @@ public:
         b.removeFromRight((int)proportionOfWidth(0.05f));
 
         // Demo sender
-        mDemoSender.setBounds(b.removeFromBottom(32).reduced(0, 5));
+//        mDemoSender.setBounds(b.removeFromBottom(32).reduced(0, 5));
 
-        auto topBar = b.removeFromTop(25);
+        auto topBar = b.removeFromTop(50);
+        
         b.removeFromTop(5);
-
         const float leftLabelWidth = proportionOfWidth(0.35f); // Same as AudioDeviceSelector
-        b.removeFromLeft((int)leftLabelWidth);
-
+        
+        auto statusBox = topBar.removeFromTop(25);
+        statusBox.removeFromLeft(leftLabelWidth);
+        
+        mConnectionStatusLabel.setBounds(statusBox);
         mPortNumberLabel.setBounds(topBar.removeFromLeft(leftLabelWidth));
         mPortNumberField.setBounds(topBar.removeFromLeft(80));
         mClearButton.setBounds(topBar.removeFromRight(60));
         topBar.removeFromRight(5);
         mConnectButton.setBounds(topBar.removeFromRight(110).reduced(5, 0));
-        mConnectionStatusLabel.setBounds(topBar);
+        
+        b.removeFromLeft((int)leftLabelWidth);
         mOscLogListBox.setBounds(b);
 
     }
@@ -270,12 +274,12 @@ private:
         else
             text += "Disconnected";
 
-        auto textColour = isConnected() ? Colours::green : Colours::red;
+        auto textColour = Colour::greyLevel(0.8f);//isConnected() ? Colours::green : Colours::red;
 
         mConnectionStatusLabel.setText (text, dontSendNotification);
         mConnectionStatusLabel.setFont (Font (15.00f, Font::bold));
         mConnectionStatusLabel.setColour (Label::textColourId, textColour);
-        mConnectionStatusLabel.setJustificationType (Justification::centredRight);
+        mConnectionStatusLabel.setJustificationType (Justification::centredLeft);
     }
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (OSCSettingsComponent)

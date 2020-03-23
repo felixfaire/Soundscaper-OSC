@@ -14,6 +14,7 @@
 #include "SpatialSampler.h"
 #include "SoundEventData.h"
 #include "AudioFileSource.h"
+#include "AudioMonitorSource.h"
 
 class AudioController   : public AudioSource
 {
@@ -29,6 +30,8 @@ public:
             else
                 mSynth.handlePositionChange(e.noteID, e.position);
         };
+        
+        mMonitor.reset(new AudioMonitorSource());
     }
     
     ~AudioController()
@@ -62,7 +65,9 @@ public:
         Logger::getCurrentLogger()->writeToLog (message);
         
         mSynth.setSampleRate(sampleRate);
-        //mBedSource->prepareToPlay(samplesPerBlockExpected, sampleRate);
+        
+        for (auto& src : mBedSources)
+            src->prepareToPlay(samplesPerBlockExpected, sampleRate);
     }
 
     void getNextAudioBlock (const AudioSourceChannelInfo& bufferToFill) override
@@ -72,7 +77,17 @@ public:
         
         for (auto& bed : mBedSources)
             bed->getNextAudioBlock(bufferToFill);
+            
+        mMonitor->getNextAudioBlock(bufferToFill);
     }
+    
+    void releaseResources() override
+    {
+        Logger::getCurrentLogger()->writeToLog ("Releasing audio resources");
+    }
+    
+    
+    // ===== Events ===========================
     
     void loadAudioFiles(AppModel& model)
     {
@@ -127,11 +142,6 @@ public:
             Logger::getCurrentLogger()->writeToLog("Failed to find any .wavs");
         }
     }
-
-    void releaseResources() override
-    {
-        Logger::getCurrentLogger()->writeToLog ("Releasing audio resources");
-    }
     
     // Manages lockfree message processing with a fifo
     void addSoundEvent(const SoundEvent& event)
@@ -146,6 +156,12 @@ public:
         for (int i = 0; i < amps.size(); ++i)
             mBedSources[i]->setAmplitude(amps[i]);
     }
+    
+    std::vector<float>& getAudioLevels()
+    {
+        // NOT THREAD SAFE YET
+        return mMonitor->mLevels;
+    }
         
     AudioDeviceManager& getDeviceManager() { return mDeviceManager; }
 
@@ -156,11 +172,12 @@ public:
 private:
 
     std::vector<std::unique_ptr<AudioFileSource>>    mBedSources;
+    std::unique_ptr<AudioMonitorSource> mMonitor;
 
     SoundEventData     mSoundEventData;
 
     AudioDeviceManager& mDeviceManager;
-    AudioSourcePlayer  mAudioSourcePlayer;
+    AudioSourcePlayer   mAudioSourcePlayer;
     
     // File loading
     AudioFormatManager  mFormatManager;

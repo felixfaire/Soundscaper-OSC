@@ -82,7 +82,7 @@ void SpatialSynthVoice::updateDBAPAmplitudes(const std::vector<glm::vec3>& posit
     for (int i = 0; i < mChannelAmplitudes.size(); ++i)
         mChannelAmplitudeTargets[i] = std::min(1.0f, k / mChannelAmplitudeTargets[i]);
     
-//    // test
+//    // Distance attenuation test
 //    for (int i = 0; i < mChannelAmplitudes.size(); ++i)
 //    {
 //        const float dist = glm::distance(positions[i], mPosition);
