@@ -78,6 +78,10 @@ public:
             auto p = mConvexHullPoints[i];
             const auto& prevp = mConvexHullPoints[(i - 1 + sz) % sz];
             const auto& nextp = mConvexHullPoints[(i + 1) % sz];
+
+            if (p == prevp || p == nextp)
+                continue;
+
             const auto prevT = glm::normalize(p - prevp);
             const auto nextT = glm::normalize(nextp - p);
             const auto prevPerp = glm::vec2(-prevT.y, prevT.x);

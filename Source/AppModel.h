@@ -79,8 +79,8 @@ public:
         mSoundBedAmplitudesChanges.sendChangeMessage();
     }
     
-    const std::vector<float>& getSoundBedAmpitudes() const { return mSoundBedAmplitudes; }
-    float getSoundBedAmpitude(int i) const                 { return mSoundBedAmplitudes[i]; }
+    const std::vector<float>&   getSoundBedAmpitudes() const { return mSoundBedAmplitudes; }
+    float                       getSoundBedAmpitude(int i) const                 { return mSoundBedAmplitudes[i]; }
     
     void addSoundBedData(const String& name, const AudioBuffer<float>* data)
     {

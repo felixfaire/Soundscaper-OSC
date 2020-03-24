@@ -115,6 +115,9 @@ private:
             const auto& setup = mModel.mDeviceManager.getAudioDeviceSetup();
             const auto& channels = setup.outputChannels;
             
+
+            // TODO: sort out amplitudes getting sent to the right channel indices
+
 //            std::vector<int> indices;
             int index = 0;
             
@@ -153,7 +156,7 @@ private:
 //            if (setup.useDefaultInputChannels)
 //                channelEnabled = true;
             
-            mChannelComponents[i]->setEnabled(channelEnabled);
+            mChannelComponents[i]->setActive(channelEnabled);
         }
     }
 

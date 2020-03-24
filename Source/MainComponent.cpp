@@ -71,6 +71,10 @@ MainComponent::~MainComponent()
 void MainComponent::triggerSource(int noteID, int soundID, const glm::vec3& pos)
 {
     jassert(soundID < mModel.mSoundClipData.size());
+
+    if (soundID >= mModel.mSoundClipData.size())
+        return;
+
     mAudio.addSoundEvent({noteID, soundID, pos});
 }
 
