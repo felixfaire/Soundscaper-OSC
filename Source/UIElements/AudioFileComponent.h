@@ -25,7 +25,7 @@ public:
         jassert(mData != nullptr);
         
         auto b = getLocalBounds();
-        b.reduce(5, 5);
+        b.reduce(1, 5);
         
         g.setColour(Colour::greyLevel(0.2f));
         g.drawRoundedRectangle(b.toFloat(), 5.0f, 1.0f);

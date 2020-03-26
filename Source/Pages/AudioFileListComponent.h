@@ -61,10 +61,15 @@ public:
 class FilesListComponent : public Component
 {
 public:
-    FilesListComponent(File& filesLocation, const std::vector<SoundFileData>& fileData)
-        : mFilesLocation(filesLocation),
+    FilesListComponent(const String& title, File& filesLocation, const std::vector<SoundFileData>& fileData)
+        : mTitle(title),
+          mFilesLocation(filesLocation),
           mListBoxModel(fileData)
     {
+        
+        mTitleLabel.reset(new Label("FilesList", mTitle));
+        mTitleLabel->setFont(mTitleLabel->getFont().withHeight(20.0f));
+
         mFolderChooser.reset(new FilenameComponent("Samples Folder",
                                                     mFilesLocation,
                                                     true, true, false, "", "",
@@ -74,6 +79,7 @@ public:
         mListBox->setRowHeight((int)mRowHeight);
         mListBox->setColour(ListBox::ColourIds::backgroundColourId, Colours::transparentBlack);
     
+        addAndMakeVisible(*mTitleLabel);
         addAndMakeVisible(*mFolderChooser);
         addAndMakeVisible(*mListBox);
     }
@@ -81,8 +87,9 @@ public:
     void resized() override
     {
         auto b = getLocalBounds();
-        mFolderChooser->setBounds(b.removeFromTop(50).reduced(10));
-        mListBox->setBounds(b.reduced(5));
+        mTitleLabel->setBounds(b.removeFromTop(50));
+        mFolderChooser->setBounds(b.removeFromTop(30));
+        mListBox->setBounds(b.reduced(0, 5));
         mListBox->updateContent();
     }
     
@@ -107,9 +114,11 @@ private:
 
     // Data
     File&                     mFilesLocation;
+    String                    mTitle;
     
     // UI
     AudioFileListBoxModel               mListBoxModel;
+    std::unique_ptr<Label>              mTitleLabel;
     std::unique_ptr<ListBox>            mListBox;
     std::unique_ptr<FilenameComponent>  mFolderChooser;
     const int                           mRowHeight = 50;
@@ -125,13 +134,13 @@ class AudioFileListComponent    : public Component,
 public:
     AudioFileListComponent(AppModel& model)
         : m(model),
-          mSoundBeds(model.mCurrentSoundBedFolder, model.mSoundBedData),
-          mSoundClips(model.mCurrentSoundClipFolder, model.mSoundClipData)
+          mSoundAtmospheres("Atmospheres", model.mCurrentSoundBedFolder, model.mSoundAtmosphereData),
+          mSoundClips("Clips", model.mCurrentSoundClipFolder, model.mSoundClipData)
     {
-        mSoundBeds.addListener(this);
+        mSoundAtmospheres.addListener(this);
         mSoundClips.addListener(this);
         
-        addAndMakeVisible(mSoundBeds);
+        addAndMakeVisible(mSoundAtmospheres);
         addAndMakeVisible(mSoundClips);
     }
 
@@ -147,7 +156,7 @@ public:
     {
         auto b = getLocalBounds();
         
-        mSoundBeds.setBounds(b.removeFromTop(mSoundBeds.getIdealHeight()));
+        mSoundAtmospheres.setBounds(b.removeFromTop(mSoundAtmospheres.getIdealHeight()));
         b.removeFromTop(20);
         mSoundClips.setBounds(b);
     }
@@ -158,7 +167,7 @@ private:
 
     void filenameComponentChanged(FilenameComponent* component) override
     {
-        if (component == mSoundBeds.getFilenameComponent())
+        if (component == mSoundAtmospheres.getFilenameComponent())
         {
             m.mCurrentSoundBedFolder = component->getCurrentFile();
         }
@@ -172,12 +181,12 @@ private:
         onAudioFoldersChanged();
         
         mSoundClips.updateContent();
-        mSoundBeds.updateContent();
+        mSoundAtmospheres.updateContent();
     }
 
     AppModel&           m;
     
-    FilesListComponent  mSoundBeds;
+    FilesListComponent  mSoundAtmospheres;
     FilesListComponent  mSoundClips;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioFileListComponent)

@@ -93,7 +93,7 @@ public:
     {
         // Load soundbed files
         auto bedFiles = model.mCurrentSoundBedFolder.findChildFiles(File::TypesOfFileToFind::findFiles, false, "*.wav");
-        model.mSoundBedData.clear();
+        model.mSoundAtmosphereData.clear();
         mBedSources.clear();
         
         for (auto& bedFile : bedFiles)

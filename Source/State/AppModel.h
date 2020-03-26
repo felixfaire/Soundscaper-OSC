@@ -69,23 +69,23 @@ public:
     
     void setSoundbedAmplitude(int index, float newAmplitude)
     {
-        jassert(mSoundBedAmplitudes.size() == mSoundBedData.size());
-        jassert(index < mSoundBedAmplitudes.size());
+        jassert(mSoundAtmosphereAmplitudes.size() == mSoundAtmosphereData.size());
+        jassert(index < mSoundAtmosphereAmplitudes.size());
         
-        if (index >= mSoundBedAmplitudes.size())
+        if (index >= mSoundAtmosphereAmplitudes.size())
             return;
         
-        mSoundBedAmplitudes[index] = newAmplitude;
+        mSoundAtmosphereAmplitudes[index] = newAmplitude;
         mSoundBedAmplitudesChanges.sendChangeMessage();
     }
     
-    const std::vector<float>&   getSoundBedAmpitudes() const { return mSoundBedAmplitudes; }
-    float                       getSoundBedAmpitude(int i) const                 { return mSoundBedAmplitudes[i]; }
+    const std::vector<float>&   getSoundBedAmpitudes() const { return mSoundAtmosphereAmplitudes; }
+    float                       getSoundBedAmpitude(int i) const                 { return mSoundAtmosphereAmplitudes[i]; }
     
     void addSoundBedData(const String& name, const AudioBuffer<float>* data)
     {
-        mSoundBedData.emplace_back(name, data);
-        mSoundBedAmplitudes.push_back(1.0f);
+        mSoundAtmosphereData.emplace_back(name, data);
+        mSoundAtmosphereAmplitudes.push_back(1.0f);
     }
     
     void addSoundClipData(const String& name, const AudioBuffer<float>* data)
@@ -119,7 +119,7 @@ public:
 
     
     File                                mCurrentSoundBedFolder;
-    std::vector<SoundFileData>          mSoundBedData;
+    std::vector<SoundFileData>          mSoundAtmosphereData;
     
     File                                mCurrentSoundClipFolder;
     std::vector<SoundFileData>          mSoundClipData;
@@ -137,7 +137,7 @@ public:
 private:
 
     // These must be changed via get / set to ensure all change messages are propogated correctly
-    std::vector<float>                  mSoundBedAmplitudes;
+    std::vector<float>                  mSoundAtmosphereAmplitudes;
     std::vector<glm::vec3>              mSpeakerPositions;
     
     friend class AppModelLoader;
