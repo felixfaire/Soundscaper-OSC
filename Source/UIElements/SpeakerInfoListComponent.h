@@ -46,10 +46,14 @@ public:
 
     void setValue(float newValue)
     {
+        if (newValue != mValue)
+            sendChangeMessage();
+
         mValue = glm::clamp(newValue, mMin, mMax);
         mValueLabel.setText(String(mValue, 2), NotificationType::dontSendNotification);
-        sendChangeMessage();
     }
+
+    float getValue() const { return mValue; }
 
     void resized()
     {
@@ -71,7 +75,7 @@ public:
 /** A collection of 3 FloatInputComponents arranged horizontally for x, y, z
 */
 class PositionInputComponent : public Component,
-                               public ChangeBroadcaster
+                               public ChangeListener
 {
 public:
     PositionInputComponent(const glm::vec3& initialPos)
@@ -81,7 +85,10 @@ public:
         mPositionLabels[2].reset(new FloatInputComponent("z", initialPos.z));
         
         for (auto& l : mPositionLabels)
+        {
+            l->addChangeListener(this);
             addAndMakeVisible(l.get());
+        }
     }
 
     void resized() override
@@ -91,6 +98,26 @@ public:
 
         for (auto& l : mPositionLabels)
             l->setBounds(b.removeFromLeft(width));
+    }
+
+    void setPosition(const glm::vec3& pos)
+    {
+        for (int i = 0; i < 3; ++i)
+            mPositionLabels[i]->setValue(pos[i]);
+    }
+
+    std::function<void(glm::vec3)> onPositionChanged;
+
+private:
+
+    void changeListenerCallback(ChangeBroadcaster* source) override
+    {
+        glm::vec3 pos = glm::vec3(mPositionLabels[0]->getValue(),
+                                  mPositionLabels[1]->getValue(),
+                                  mPositionLabels[2]->getValue());
+
+        if (onPositionChanged != nullptr)
+            onPositionChanged(pos);
     }
 
     std::unique_ptr<FloatInputComponent> mPositionLabels [3];
@@ -108,6 +135,10 @@ public:
           mPositionInput(m.getSpeakerPosition(index))
     {
         setIndex(index);
+
+        mPositionInput.onPositionChanged = [this](glm::vec3 pos) {
+            mModel.setSpeakerPosition(mIndex, pos);
+        };
 
         addAndMakeVisible(mIndexLabel);
         addAndMakeVisible(mPositionInput);
@@ -134,6 +165,7 @@ public:
     { 
         mIndex = newIndex; 
         mIndexLabel.setText("Channel: " + String(mIndex + 1), NotificationType::dontSendNotification);
+        mPositionInput.setPosition(mModel.getSpeakerPosition(mIndex));
     }
 
 private:
@@ -167,8 +199,6 @@ public:
         if (rowNumber >= mModel.getSpeakerPositions().size())
             return existingComponentToUpdate;
 
-        const auto& position = mModel.getSpeakerPositions()[rowNumber];
-
         auto* c = static_cast<SpeakerPostionComponent*>(existingComponentToUpdate);
 
         if (c == nullptr)
@@ -193,17 +223,26 @@ public:
 
 /** A component containing the list view of the speaker positions.
 */
-class SpeakerInfoListComponent : public Component
+class SpeakerInfoListComponent : public Component,
+                                 public ChangeListener
 {
 public:
     SpeakerInfoListComponent(AppModel& m)
-        : mListBoxModel(m)
+        : mModel(m),
+          mListBoxModel(m)
     {
         mListBox.reset(new ListBox("SpeakerList", &mListBoxModel));
         mListBox->setRowHeight((int)mRowHeight);
         mListBox->setColour(ListBox::ColourIds::backgroundColourId, Colours::transparentBlack);
 
+        mModel.mSpeakerPositionsChanges.addChangeListener(this);
+
         addAndMakeVisible(*mListBox);
+    }
+
+    ~SpeakerInfoListComponent()
+    {
+        mModel.mSpeakerPositionsChanges.removeChangeListener(this);
     }
 
     void resized() override
@@ -220,6 +259,13 @@ public:
     }
 
 private:
+
+    void changeListenerCallback(ChangeBroadcaster* source)
+    {
+        mListBox->updateContent();
+    }
+
+    AppModel&                           mModel;
 
     // UI
     SpeakerInfoListBoxModel             mListBoxModel;

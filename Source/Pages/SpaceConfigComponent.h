@@ -14,55 +14,57 @@
 #include "UIElements/SpaceViewerComponent.h"
 #include "UIElements/ChannelInfoComponent.h"
 #include "UIElements/SpeakerInfoListComponent.h"
+#include "UIElements/ComponentContainer.h"
 
-class ComponentContainer : public Component
-{
-public:
-    ComponentContainer()
-        : mContent(nullptr)
-    {
-    }
 
-    void resized() override
-    {
-        if (mContent != nullptr)
-        {
-            mContent->setBounds(getLocalBounds());
-        }
-    }
-
-    void setContent(Component* content) 
-    { 
-        jassert(content != nullptr);
-
-        removeAllChildren();
-
-        mContent = content;
-        addAndMakeVisible(*mContent);
-        mContent->setBounds(getLocalBounds());
-    }
-
-private:
-
-    Component* mContent;
-};
 
 class SpaceConfigComponent : public Component,
                              public ChangeListener
 {
 public:
     SpaceConfigComponent(AppModel& model)
-        : mModel(model),
-          mListViewToggleButton("Enable List View")
+        : mModel(model)
     {
         mModel.mSpeakerPositionsChanges.addChangeListener(this);
         mModel.mAudioLevelChanges.addChangeListener(this);
         mModel.mDeviceManager.addChangeListener(this);
-        
+
+
         if (!mSender.connect ("127.0.0.1", 9001))
             showConnectionErrorMessage ("Error: could not connect to UDP port 9001.");
 
+        // Buttons
+        mAddButton.reset(new TextButton("Add"));
+        mRemoveButton.reset(new TextButton("Remove"));
+        mListViewToggleButton.reset(new ToggleButton("Show List View"));
+
+        addAndMakeVisible(*mAddButton);
+        addAndMakeVisible(*mRemoveButton);
+        addAndMakeVisible(*mListViewToggleButton);
+
+        mAddButton->onClick = [this] () {
+            auto& r = Random::getSystemRandom();
+            mModel.addSpeaker(glm::vec3(r.nextFloat(), r.nextFloat(), r.nextFloat()) * 2.0f - 1.0f);
+        };
+
+        mRemoveButton->onClick = [this] () {
+            mModel.removeSpeaker();
+        };
+
+        mListViewToggleButton->onClick = [this]() {
+
+            if (mListViewToggleButton->getToggleState())
+                mViewContainer.setContent(mSpeakerListView.get());
+            else
+                mViewContainer.setContent(mSpace.get());
+
+            this->resized();
+        };
+
+        // Views
         mSpace.reset(new SpaceViewerComponent(mModel));
+        mSpeakerListView.reset(new SpeakerInfoListComponent(mModel));
+        mViewContainer.setContent(mSpace.get());
         
         mSpace->onTrigger = [this](glm::vec3 p) {
             
@@ -77,22 +79,9 @@ public:
             mSender.send("/update", mModel.mCurrentNoteID,
                                     p.x, p.y, p.z);
         };
-
-        mListViewToggleButton.onClick = [this]() {
-
-            if (mListViewToggleButton.getToggleState())
-                mViewContainer.setContent(mSpeakerListView.get());
-            else
-                mViewContainer.setContent(mSpace.get());
-
-            this->resized();
-        };
-
-        mSpeakerListView.reset(new SpeakerInfoListComponent(mModel));
-        mViewContainer.setContent(mSpace.get());
         
         addAndMakeVisible(mViewContainer);
-        addAndMakeVisible(mListViewToggleButton);
+        
     }
     
     void resized() override
@@ -101,7 +90,9 @@ public:
         
         auto topBar = b.removeFromTop(40);
 
-        mListViewToggleButton.setBounds(topBar);
+        mAddButton->setBounds(topBar.removeFromLeft(mAddButton->getBestWidthForHeight(topBar.getHeight())).reduced(0, 5));
+        mRemoveButton->setBounds(topBar.removeFromLeft(mRemoveButton->getBestWidthForHeight(topBar.getHeight())).reduced(10, 5));
+        mListViewToggleButton->setBounds(topBar);
 
         b.removeFromTop(5);
         auto cb = b.removeFromBottom(20).toFloat();
@@ -201,12 +192,15 @@ private:
 
     AppModel& mModel;
 
+    // Buttons
+    std::unique_ptr<ToggleButton>   mListViewToggleButton;
+    std::unique_ptr<TextButton>     mAddButton;
+    std::unique_ptr<TextButton>     mRemoveButton;
+    
+    // View
+    ComponentContainer mViewContainer;
     std::unique_ptr<SpaceViewerComponent>      mSpace;
     std::unique_ptr<SpeakerInfoListComponent>  mSpeakerListView;
-
-    ToggleButton    mListViewToggleButton;
-
-    ComponentContainer mViewContainer;
 
     std::vector<std::unique_ptr<ChannelInfoComponent>> mChannelComponents;
     

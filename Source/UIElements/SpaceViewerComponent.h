@@ -26,21 +26,6 @@ public:
     SpaceViewerComponent(AppModel& model)
         : mModel(model)
     {
-        mAddButton.reset(new TextButton("Add"));
-        mRemoveButton.reset(new TextButton("Remove"));
-        
-        mAddButton->onClick = [this] () {
-            auto& r = Random::getSystemRandom();
-            mModel.addSpeaker(glm::vec3(r.nextFloat(), r.nextFloat(), r.nextFloat()) * 2.0f - 1.0f);
-        };
-        
-        mRemoveButton->onClick = [this] () {
-            mModel.removeSpeaker();
-        };
-        
-        addAndMakeVisible(*mAddButton);
-        addAndMakeVisible(*mRemoveButton);
-        
         updateZoomExtents();
     }
 
@@ -86,13 +71,7 @@ public:
     }
 
     void resized() override
-    {
-        auto b = getLocalBounds().reduced(10);
-        b = b.removeFromBottom(50).reduced(10);
-        mRemoveButton->setBounds(b.removeFromRight(mRemoveButton->getBestWidthForHeight(b.getHeight())));
-        b.removeFromRight(10);
-        mAddButton->setBounds(b.removeFromRight(mAddButton->getBestWidthForHeight(b.getHeight())));
-        
+    {        
         updateMatrices();
         updateSpeakerButtonComponents();
     }
@@ -145,7 +124,7 @@ private:
         auto onHandleReleased = [this](int i)
         {
             auto p = mModel.getSpeakerPosition(i);
-            p = glm::round(p);
+            p = glm::round(p * 10.0f) * 0.1f;
             mModel.setSpeakerPosition(i, p);
         };
 
@@ -180,7 +159,7 @@ private:
 
     void updateSpeakerButtonComponents()
     {
-        if (mSpeakers.size() == 0 || getWidth() == 0 || getHeight() == 0)
+        if (mSpeakers.size() == 0)
             return;
             
         std::vector<glm::vec2> uiPositions(mSpeakers.size());
@@ -193,9 +172,8 @@ private:
             mSpeakers[i]->setPosition(p.x, p.y);
             uiPositions[i] = p;
         }
-        
-        auto center = glm::vec2((float)getWidth(), (float)getHeight()) * 0.5f;
-        mHullPath.updatePoints(uiPositions, center);
+
+        mHullPath.updatePoints(uiPositions);
         
         updateZoomExtents();
         
@@ -253,9 +231,7 @@ private:
     float     mMaxWindowDiameter = 100.0f;
 
     OwnedArray<SpeakerHandleComponent> mSpeakers;
-    
-    std::unique_ptr<TextButton> mAddButton;
-    std::unique_ptr<TextButton> mRemoveButton;
+
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SpaceViewerComponent)
 };

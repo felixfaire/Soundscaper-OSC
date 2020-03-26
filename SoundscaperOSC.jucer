@@ -58,6 +58,8 @@
               file="Source/Audio/SpatialSynthVoice.h"/>
       </GROUP>
       <GROUP id="{78B2BA97-B19B-FFD9-1DD4-16A761947A98}" name="UIElements">
+        <FILE id="rpwb4P" name="ComponentContainer.h" compile="0" resource="0"
+              file="Source/UIElements/ComponentContainer.h"/>
         <FILE id="EL58i4" name="SpaceViewerComponent.h" compile="0" resource="0"
               file="Source/UIElements/SpaceViewerComponent.h"/>
         <FILE id="RWNp4m" name="SpeakerInfoListComponent.h" compile="0" resource="0"

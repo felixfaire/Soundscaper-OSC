@@ -111,7 +111,7 @@ bool MainComponent::keyPressed(const KeyPress& key)
 // ===== CALLBACKS =====================================================
 
 
-void MainComponent::changeListenerCallback (ChangeBroadcaster* source)
+void MainComponent::changeListenerCallback(ChangeBroadcaster* source)
 {
     if (source == &mModel.mSpeakerPositionsChanges)
     {
