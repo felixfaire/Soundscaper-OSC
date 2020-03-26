@@ -10,13 +10,14 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 
-#include "AppModel.h"
+#include "State/AppModel.h"
 #include "Audio/AudioController.h"
 
-#include "IOSettingsComponent.h"
-#include "AudioFileListComponent.h"
+#include "Pages/IOSettingsComponent.h"
+#include "Pages/AudioFileListComponent.h"
+#include "Pages/SpaceConfigComponent.h"
+
 #include "UIElements/MinimalLookAndFeel.h"
-#include "SpaceConfigComponent.h"
 
 
 //==============================================================================

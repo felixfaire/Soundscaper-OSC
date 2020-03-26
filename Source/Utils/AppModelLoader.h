@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "../AppModel.h"
+#include "../State/AppModel.h"
 
 class AppModelLoader
 {

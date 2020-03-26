@@ -35,7 +35,6 @@ MainComponent::MainComponent()
     mFilesListComponent->onAudioFoldersChanged = [this]()
     {
         mAudio.loadAudioFiles(mModel);
-        mSpaceComponent->updateFileList(); // TODO: remove if demo not needed
     };
     
     mTabbedContainer.reset(new TabbedComponent(TabbedButtonBar::Orientation::TabsAtTop));
@@ -50,8 +49,7 @@ MainComponent::MainComponent()
     addAndMakeVisible(*mTabbedContainer);
     
     setWantsKeyboardFocus(true);
-            
-    mSpaceComponent->updateFileList();
+
     mFilesListComponent->resized();
     
     mModel.setSoundbedAmplitude(0, 0.0f);

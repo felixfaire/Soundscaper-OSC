@@ -180,7 +180,7 @@ private:
 
     void updateSpeakerButtonComponents()
     {
-        if (mSpeakers.size() == 0)
+        if (mSpeakers.size() == 0 || getWidth() == 0 || getHeight() == 0)
             return;
             
         std::vector<glm::vec2> uiPositions(mSpeakers.size());
