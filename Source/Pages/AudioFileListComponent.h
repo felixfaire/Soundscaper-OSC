@@ -11,7 +11,7 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "UIElements/AudioFileComponent.h"
+#include "../UIElements/AudioFileComponent.h"
 
 class AudioFileListBoxModel : public ListBoxModel
 {
@@ -75,7 +75,7 @@ public:
                                                     true, true, false, "", "",
                                                     "Select Samples Folder"));
         
-        mListBox.reset(new ListBox("BedsList", &mListBoxModel));
+        mListBox.reset(new ListBox("AtmospheresList", &mListBoxModel));
         mListBox->setRowHeight((int)mRowHeight);
         mListBox->setColour(ListBox::ColourIds::backgroundColourId, Colours::transparentBlack);
     
@@ -134,7 +134,7 @@ class AudioFileListComponent    : public Component,
 public:
     AudioFileListComponent(AppModel& model)
         : m(model),
-          mSoundAtmospheres("Atmospheres", model.mCurrentSoundBedFolder, model.mSoundAtmosphereData),
+          mSoundAtmospheres("Atmospheres", model.mCurrentSoundAtmosphereFolder, model.mSoundAtmosphereData),
           mSoundClips("Clips", model.mCurrentSoundClipFolder, model.mSoundClipData)
     {
         mSoundAtmospheres.addListener(this);
@@ -169,7 +169,7 @@ private:
     {
         if (component == mSoundAtmospheres.getFilenameComponent())
         {
-            m.mCurrentSoundBedFolder = component->getCurrentFile();
+            m.mCurrentSoundAtmosphereFolder = component->getCurrentFile();
         }
         
         if (component == mSoundClips.getFilenameComponent())
@@ -182,6 +182,7 @@ private:
         
         mSoundClips.updateContent();
         mSoundAtmospheres.updateContent();
+        resized();
     }
 
     AppModel&           m;

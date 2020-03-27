@@ -13,8 +13,8 @@
 #include <JuceHeader.h>
 #include "vec2.hpp"
 #include "gtx/matrix_transform_2d.hpp"
-#include "Utils/ConvexHullPath.h"
-#include "UIElements/SpeakerHandleComponent.h"
+#include "../Utils/ConvexHullPath.h"
+#include "SpeakerHandleComponent.h"
 
 
 //==============================================================================

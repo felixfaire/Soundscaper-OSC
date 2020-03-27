@@ -66,7 +66,7 @@ public:
         
         mSynth.setSampleRate(sampleRate);
         
-        for (auto& src : mBedSources)
+        for (auto& src : mAtmosphereSources)
             src->prepareToPlay(samplesPerBlockExpected, sampleRate);
     }
 
@@ -75,8 +75,8 @@ public:
         mSoundEventData.processEventData();
         mSynth.renderNextBlock(*bufferToFill.buffer, bufferToFill.startSample, bufferToFill.numSamples);
         
-        for (auto& bed : mBedSources)
-            bed->getNextAudioBlock(bufferToFill);
+        for (auto& atmosphere : mAtmosphereSources)
+            atmosphere->getNextAudioBlock(bufferToFill);
             
         mMonitor->getNextAudioBlock(bufferToFill);
     }
@@ -91,21 +91,21 @@ public:
     
     void loadAudioFiles(AppModel& model)
     {
-        // Load soundbed files
-        auto bedFiles = model.mCurrentSoundBedFolder.findChildFiles(File::TypesOfFileToFind::findFiles, false, "*.wav");
+        // Load soundatmosphere files
+        auto atmosphereFiles = model.mCurrentSoundAtmosphereFolder.findChildFiles(File::TypesOfFileToFind::findFiles, false, "*.wav");
         model.mSoundAtmosphereData.clear();
-        mBedSources.clear();
+        mAtmosphereSources.clear();
         
-        for (auto& bedFile : bedFiles)
+        for (auto& atmosphereFile : atmosphereFiles)
         {
-            std::unique_ptr<AudioFormatReader> bedReader(mFormatManager.createReaderFor(bedFile));
+            std::unique_ptr<AudioFormatReader> atmosphereReader(mFormatManager.createReaderFor(atmosphereFile));
             
-            if (bedReader != nullptr)
+            if (atmosphereReader != nullptr)
             {
-                const auto name = bedFile.getFileNameWithoutExtension();
-                auto* newSound = new AudioFileSource(name, *bedReader);
-                model.addSoundBedData(name, newSound->getAudioData());
-                mBedSources.emplace_back(newSound);
+                const auto name = atmosphereFile.getFileNameWithoutExtension();
+                auto* newSound = new AudioFileSource(name, *atmosphereReader);
+                model.addSoundAtmosphereData(name, newSound->getAudioData());
+                mAtmosphereSources.emplace_back(newSound);
             }
         }
         
@@ -149,17 +149,17 @@ public:
         mSoundEventData.addSoundEvent(event);
     }
     
-    void setSoundBedAmplitudes(const std::vector<float>& amps)
+    void setSoundAtmosphereAmplitudes(const std::vector<float>& amps)
     {
-        jassert(amps.size() == mBedSources.size());
+        jassert(amps.size() == mAtmosphereSources.size());
         
         for (int i = 0; i < amps.size(); ++i)
-            mBedSources[i]->setAmplitude(amps[i]);
+            mAtmosphereSources[i]->setAmplitude(amps[i]);
     }
     
     std::vector<float>& getAudioLevels()
     {
-        // NOT THREAD SAFE YET
+        // TODO: NOT THREAD SAFE YET
         return mMonitor->mLevels;
     }
         
@@ -171,7 +171,7 @@ public:
 
 private:
 
-    std::vector<std::unique_ptr<AudioFileSource>>    mBedSources;
+    std::vector<std::unique_ptr<AudioFileSource>>    mAtmosphereSources;
     std::unique_ptr<AudioMonitorSource> mMonitor;
 
     SoundEventData     mSoundEventData;

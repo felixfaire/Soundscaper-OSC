@@ -20,7 +20,7 @@ public:
     
     // Settings ID's
     static const String   mCurrentSoundClipFolderID;
-    static const String   mCurrentSoundBedFolderID;
+    static const String   mCurrentSoundAtmosphereFolderID;
     static const String   mSpeakerInfoID;
     static const String   mAudioDeviceInfoID;
 

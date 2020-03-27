@@ -67,7 +67,7 @@ public:
     const std::vector<glm::vec3>& getSpeakerPositions() const { return mSpeakerPositions; }
     const glm::vec3& getSpeakerPosition(int i) const          { return mSpeakerPositions[i]; }
     
-    void setSoundbedAmplitude(int index, float newAmplitude)
+    void setSoundAtmosphereAmplitude(int index, float newAmplitude)
     {
         jassert(mSoundAtmosphereAmplitudes.size() == mSoundAtmosphereData.size());
         jassert(index < mSoundAtmosphereAmplitudes.size());
@@ -76,13 +76,13 @@ public:
             return;
         
         mSoundAtmosphereAmplitudes[index] = newAmplitude;
-        mSoundBedAmplitudesChanges.sendChangeMessage();
+        mSoundAtmosphereAmplitudesChanges.sendChangeMessage();
     }
     
-    const std::vector<float>&   getSoundBedAmpitudes() const { return mSoundAtmosphereAmplitudes; }
-    float                       getSoundBedAmpitude(int i) const                 { return mSoundAtmosphereAmplitudes[i]; }
+    const std::vector<float>&   getSoundAtmosphereAmpitudes() const { return mSoundAtmosphereAmplitudes; }
+    float                       getSoundAtmosphereAmpitude(int i) const                 { return mSoundAtmosphereAmplitudes[i]; }
     
-    void addSoundBedData(const String& name, const AudioBuffer<float>* data)
+    void addSoundAtmosphereData(const String& name, const AudioBuffer<float>* data)
     {
         mSoundAtmosphereData.emplace_back(name, data);
         mSoundAtmosphereAmplitudes.push_back(1.0f);
@@ -113,12 +113,12 @@ public:
     std::unique_ptr<PropertiesFile>     mSettingsFile;
         
         
-    ChangeBroadcaster                   mSoundBedAmplitudesChanges;
+    ChangeBroadcaster                   mSoundAtmosphereAmplitudesChanges;
     ChangeBroadcaster                   mSpeakerPositionsChanges;
     ChangeBroadcaster                   mAudioLevelChanges;
 
     
-    File                                mCurrentSoundBedFolder;
+    File                                mCurrentSoundAtmosphereFolder;
     std::vector<SoundFileData>          mSoundAtmosphereData;
     
     File                                mCurrentSoundClipFolder;

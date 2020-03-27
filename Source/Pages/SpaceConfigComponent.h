@@ -11,10 +11,10 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "UIElements/SpaceViewerComponent.h"
-#include "UIElements/ChannelInfoComponent.h"
-#include "UIElements/SpeakerInfoListComponent.h"
-#include "UIElements/ComponentContainer.h"
+#include "../UIElements/SpaceViewerComponent.h"
+#include "../UIElements/ChannelInfoComponent.h"
+#include "../UIElements/SpeakerInfoListComponent.h"
+#include "../UIElements/ComponentContainer.h"
 
 
 
@@ -54,9 +54,9 @@ public:
         mListViewToggleButton->onClick = [this]() {
 
             if (mListViewToggleButton->getToggleState())
-                mViewContainer.setContent(mSpeakerListView.get());
+                mViewContainer->setContent(mSpeakerListView.get());
             else
-                mViewContainer.setContent(mSpace.get());
+                mViewContainer->setContent(mSpace.get());
 
             this->resized();
         };
@@ -64,7 +64,9 @@ public:
         // Views
         mSpace.reset(new SpaceViewerComponent(mModel));
         mSpeakerListView.reset(new SpeakerInfoListComponent(mModel));
-        mViewContainer.setContent(mSpace.get());
+        mViewContainer.reset(new ComponentContainer());
+        mViewContainer->setContent(mSpace.get());
+        mChannelBar.reset(new ChannelInfoComponentBar());
         
         mSpace->onTrigger = [this](glm::vec3 p) {
             
@@ -80,7 +82,8 @@ public:
                                     p.x, p.y, p.z);
         };
         
-        addAndMakeVisible(mViewContainer);
+        addAndMakeVisible(*mViewContainer);
+        addAndMakeVisible(*mChannelBar);
         
     }
     
@@ -95,15 +98,11 @@ public:
         mListViewToggleButton->setBounds(topBar);
 
         b.removeFromTop(5);
-        auto cb = b.removeFromBottom(20).toFloat();
+        auto cb = b.removeFromBottom(20);
         b.removeFromBottom(5);
         
-        mViewContainer.setBounds(b);
-        
-        const float step = cb.getWidth() / (float)mChannelComponents.size();
-        
-        for (auto& c : mChannelComponents)
-            c->setBounds(cb.removeFromLeft(step).toNearestInt().reduced(2));
+        mViewContainer->setBounds(b);
+        mChannelBar->setBounds(cb);
     }
     
 
@@ -123,74 +122,23 @@ private:
         if (source == &mModel.mSpeakerPositionsChanges)
         {
             mSpace->updateComponentPositions();
-        
-            if (mChannelComponents.size() != mModel.getSpeakerPositions().size())
-            {
-                mChannelComponents.clear();
-                
-                for (int i = 0; i < mModel.getSpeakerPositions().size(); ++i)
-                {
-                    mChannelComponents.emplace_back(new ChannelInfoComponent(i));
-                    addAndMakeVisible(*mChannelComponents.back());
-                }
-                
-                updateActivatedChannels();
-                resized();
-            }
+            mChannelBar->updateNumOutputChannels(mModel);
         }
         else if (source == &mModel.mAudioLevelChanges)
         {
-            jassert(mModel.mAudioLevels.size() <= mChannelComponents.size());
-            
-            const auto& setup = mModel.mDeviceManager.getAudioDeviceSetup();
-            const auto& channels = setup.outputChannels;
-            
-
-            // TODO: sort out amplitudes getting sent to the right channel indices
-
-//            std::vector<int> indices;
-            int index = 0;
-            
-//            while(true)
-//            {
-//                index = channels.findNextSetBit(index);
-//
-//                if (index != -1)
-//                    indices.push_back(index);
-//                else
-//                    return;
-//            }
-            
-            for (const auto& l : mModel.mAudioLevels)
-            {
-//                index = channels.findNextSetBit(index);
-                mChannelComponents[index]->setLevel(l);
-                index++;
-            }
+            mChannelBar->updateAudioLevels(mModel);
         }
         else if (source == &mModel.mDeviceManager)
         {
-            updateActivatedChannels();
+            const auto& setup = mModel.mDeviceManager.getAudioDeviceSetup();
+            mChannelBar->updateActivatedChannels(setup);
         }
     }
     
-    void updateActivatedChannels()
-    {
-        const auto& setup = mModel.mDeviceManager.getAudioDeviceSetup();
-        const auto& channels = setup.outputChannels;
-        
-        for (int i = 0; i < mChannelComponents.size(); ++i)
-        {
-            bool channelEnabled = channels[i];
-            
-//            if (setup.useDefaultInputChannels)
-//                channelEnabled = true;
-            
-            mChannelComponents[i]->setEnabled(channelEnabled);
-        }
-    }
+    
 
     AppModel& mModel;
+    OSCSender mSender;
 
     // Buttons
     std::unique_ptr<ToggleButton>   mListViewToggleButton;
@@ -198,12 +146,11 @@ private:
     std::unique_ptr<TextButton>     mRemoveButton;
     
     // View
-    ComponentContainer mViewContainer;
+    std::unique_ptr<ComponentContainer>        mViewContainer;
     std::unique_ptr<SpaceViewerComponent>      mSpace;
     std::unique_ptr<SpeakerInfoListComponent>  mSpeakerListView;
-
-    std::vector<std::unique_ptr<ChannelInfoComponent>> mChannelComponents;
     
-    OSCSender mSender;
+    // Bottom Bar
+    std::unique_ptr<ChannelInfoComponentBar>   mChannelBar;
     
 };

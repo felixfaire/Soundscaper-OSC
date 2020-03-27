@@ -11,7 +11,7 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "OSC/OSCSettingsComponent.h"
+#include "../OSC/OSCSettingsComponent.h"
 
 //==============================================================================
 /*

@@ -15,7 +15,7 @@ MainComponent::MainComponent()
 {
     // Init model
     mModel.mSpeakerPositionsChanges.addChangeListener(this);
-    mModel.mSoundBedAmplitudesChanges.addChangeListener(this);
+    mModel.mSoundAtmosphereAmplitudesChanges.addChangeListener(this);
     mModel.mOSCReciever.addListener(this);
     AppModelLoader::loadSettings(mModel);
 
@@ -52,7 +52,7 @@ MainComponent::MainComponent()
 
     mFilesListComponent->resized();
     
-    mModel.setSoundbedAmplitude(0, 0.0f);
+    mModel.setSoundAtmosphereAmplitude(0, 0.0f);
     
     startTimer(15);
     
@@ -117,9 +117,9 @@ void MainComponent::changeListenerCallback(ChangeBroadcaster* source)
     {
         mAudio.mSynth.updateSpeakerPositions(mModel.getSpeakerPositions());
     }
-    else if (source == &mModel.mSoundBedAmplitudesChanges)
+    else if (source == &mModel.mSoundAtmosphereAmplitudesChanges)
     {
-        mAudio.setSoundBedAmplitudes(mModel.getSoundBedAmpitudes());
+        mAudio.setSoundAtmosphereAmplitudes(mModel.getSoundAtmosphereAmpitudes());
     }
 }
 
