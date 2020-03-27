@@ -57,7 +57,7 @@ public:
         const float minSize = jmin(b.getWidth(), b.getHeight());
         const float meter = minSize / mWindowDiameter;
         const int middleX = (int)b.getCentreX();
-        const int middleY = (int)b.getCentreY();
+        const int middleY = (int)b.getHeight() * getHeightBaselineProportion();
         
         // Draw Grid
         g.setColour(Colour::greyLevel(0.2f));
@@ -65,13 +65,14 @@ public:
         g.drawHorizontalLine(middleY, b.getX(), b.getRight());
         
         g.setColour(Colour::greyLevel(0.1f));
-        for (auto x = meter; x < b.getWidth() * 0.5f; x += meter)
+        for (auto x = meter; x < b.getWidth() * getHeightBaselineProportion(); x += meter)
         {
             g.drawVerticalLine(middleX + x, b.getY(), b.getBottom());
             g.drawVerticalLine(middleX - x, b.getY(), b.getBottom());
         }
 
-        for (auto y = meter; y < b.getHeight() * 0.5f; y += meter)
+        // 0.8f to account for shifted basline in non top views
+        for (auto y = meter; y < b.getHeight() * getHeightBaselineProportion(); y += meter)
         {
             g.drawHorizontalLine(middleY + y, b.getX(), b.getRight());
             g.drawHorizontalLine(middleY - y, b.getX(), b.getRight());
@@ -244,13 +245,19 @@ private:
         t = glm::scale(t, glm::vec2(1.0f) * mWindowDiameter);
         t = glm::scale(t, glm::vec2(1.0f / minDim));
         t = glm::scale(t, glm::vec2(1.0f, -1.0f)); // flip y up for world down for window rect
-        t = glm::translate(t, glm::vec2(-b.getCentreX(), -b.getCentreY()));
+        t = glm::translate(t, glm::vec2(-b.getCentreX(), -getHeight() * getHeightBaselineProportion()));
         
         mRectToWorld = t;
         mWorldToRect = glm::inverse(t);
     }
     
-    
+    float getHeightBaselineProportion()
+    {
+        if (mCurrentViewAxes == ViewAxes::XZ)
+            return 0.5f;
+        else
+            return 0.75f;
+    }
     
     float getDepthNormalized(const glm::vec3& p)
     {
