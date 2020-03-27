@@ -17,15 +17,92 @@
 #include "SpeakerHandleComponent.h"
 
 
+enum ViewAxes
+{
+    XZ,
+    XY,
+    ZY
+};
+
+class ViewAxesButtons : public Component,
+                        public Button::Listener
+{
+public:
+    ViewAxesButtons()
+        : mXZButton("Top"),
+          mXYButton("XY"),
+          mZYButton("ZY")
+    {
+        mXZButton.setRadioGroupId(12345);
+        mXYButton.setRadioGroupId(12345);
+        mZYButton.setRadioGroupId(12345);
+        
+        mXZButton.setClickingTogglesState(true);
+        mXYButton.setClickingTogglesState(true);
+        mZYButton.setClickingTogglesState(true);
+        
+        mXZButton.addListener(this);
+        mXYButton.addListener(this);
+        mZYButton.addListener(this);
+        
+        addAndMakeVisible(mXZButton);
+        addAndMakeVisible(mXYButton);
+        addAndMakeVisible(mZYButton);
+        
+        mXZButton.setToggleState(true, dontSendNotification);
+    }
+    
+    void resized() override
+    {
+        auto b = getLocalBounds();
+        const float step = (float)b.getWidth() / 3.0f;
+        
+        mXZButton.setBounds(b.removeFromLeft(step).reduced(5));
+        mXYButton.setBounds(b.removeFromLeft(step).reduced(5));
+        mZYButton.setBounds(b.reduced(5));
+    }
+
+    std::function<void(ViewAxes)> onViewAxesChanged;
+
+private:
+
+    void buttonClicked(Button* b) override
+    {
+        if (onViewAxesChanged == nullptr || b->getToggleState() == false)
+            return;
+        
+        if (b == &mXZButton)
+            onViewAxesChanged(ViewAxes::XZ);
+            
+        if (b == &mXYButton)
+            onViewAxesChanged(ViewAxes::XY);
+        
+        if (b == &mZYButton)
+            onViewAxesChanged(ViewAxes::ZY);
+    }
+
+    TextButton  mXZButton;
+    TextButton  mXYButton;
+    TextButton  mZYButton;
+    
+};
+
 //==============================================================================
 /*
 */
 class SpaceViewerComponent    : public Component
 {
 public:
+    
     SpaceViewerComponent(AppModel& model)
         : mModel(model)
     {
+        mViewAxesButtons.onViewAxesChanged = [this](ViewAxes v) {
+            setViewAxes(v);
+        };
+        
+        addAndMakeVisible(mViewAxesButtons);
+        
         updateZoomExtents();
     }
 
@@ -53,6 +130,7 @@ public:
         g.drawVerticalLine(middleX,   b.getY(), b.getBottom());
         g.drawHorizontalLine(middleY, b.getX(), b.getRight());
         
+        g.setColour(Colour::greyLevel(0.1f));
         for (auto x = meter; x < b.getWidth() * 0.5f; x += meter)
         {
             g.drawVerticalLine(middleX + x, b.getY(), b.getBottom());
@@ -75,7 +153,12 @@ public:
     }
 
     void resized() override
-    {        
+    {
+        auto b = getLocalBounds().reduced(10);
+        b = b.removeFromBottom(35);
+        
+        mViewAxesButtons.setBounds(b.removeFromRight(150));
+        
         updateMatrices();
         updateSpeakerButtonComponents();
     }
@@ -105,6 +188,12 @@ public:
         updateSpeakerButtonComponents();
     }
     
+    void setViewAxes(ViewAxes newViewAxes)
+    {
+        mCurrentViewAxes = newViewAxes;
+        updateComponentPositions();
+    }
+    
     std::function<void(glm::vec3)> onTrigger;
     std::function<void(glm::vec3)> onUpdate;
 
@@ -121,7 +210,7 @@ private:
         auto onHandleDragged = [this](int i, const glm::vec2& drag)
         {
             const auto diff = getRectToWorld(drag, false);
-            const auto newPos = mModel.getSpeakerPosition(i) + glm::vec3(diff.x, 0.0f, diff.y);
+            const auto newPos = mModel.getSpeakerPosition(i) + getUnflattenedPoint(diff);
             mModel.setSpeakerPosition(i, newPos);
         };
         
@@ -138,7 +227,8 @@ private:
             c->onUpdatePosition = onUpdatePosition;
             c->onDrag = onHandleDragged;
             c->onHandleReleased = onHandleReleased;
-            c->setSize(25, 25);
+            const int size = 25 + (int)(5.0f + getDepthNormalized(mModel.getSpeakerPosition(i)));
+            c->setSize(size, size);
             addAndMakeVisible(*c);
             mSpeakers.add(c);
         }
@@ -150,7 +240,7 @@ private:
         
         for (const auto& p : mModel.getSpeakerPositions())
         {
-            const float l = glm::length(glm::vec2(p.x, p.z));
+            const float l = glm::length(getFlattenedPoint(p));
             
             if (l > mWindowDiameter)
                 mWindowDiameter = l;
@@ -172,15 +262,15 @@ private:
         for (int i = 0; i < mSpeakers.size(); ++i)
         {
             const auto& s = mModel.getSpeakerPosition(i);
-            const auto p = getWorldToRect(glm::vec2(s.x, s.z));
+            const auto p = getWorldToRect(getFlattenedPoint(s));
+            const int size = 25 + (int)(5.0f * getDepthNormalized(s));
+            mSpeakers[i]->setSize(size, size);
             mSpeakers[i]->setPosition(p.x, p.y);
             uiPositions[i] = p;
         }
 
         mHullPath.updatePoints(uiPositions);
-        
         updateZoomExtents();
-        
         repaint();
     }
 
@@ -222,6 +312,53 @@ private:
         mRectToWorld = t;
         mWorldToRect = glm::inverse(t);
     }
+    
+    glm::vec2 getFlattenedPoint(const glm::vec3& p)
+    {
+        switch (mCurrentViewAxes)
+        {
+            case ViewAxes::XZ:
+                return glm::vec2(p.x, p.z);
+                
+            case ViewAxes::XY:
+                return glm::vec2(p.x, p.y);
+            
+            case ViewAxes::ZY:
+                return glm::vec2(p.z, p.y);
+        }
+    }
+    
+    glm::vec3 getUnflattenedPoint(const glm::vec2& p)
+    {
+        switch (mCurrentViewAxes)
+        {
+            case ViewAxes::XZ:
+                return glm::vec3(p.x, 0.0f, p.y);
+                
+            case ViewAxes::XY:
+                return glm::vec3(p.x, p.y, 0.0f);
+            
+            case ViewAxes::ZY:
+                return glm::vec3(0.0f, p.y, p.x);
+        }
+    }
+    
+    float getDepthNormalized(const glm::vec3& p)
+    {
+        float v = 0.0f;
+        
+        if (mCurrentViewAxes == ViewAxes::XZ)
+            v = p.y;
+        if (mCurrentViewAxes == ViewAxes::XY)
+            v = p.z;
+        if (mCurrentViewAxes == ViewAxes::ZY)
+            v = p.x;
+        
+        return glm::clamp(v / 4.0f, -1.0f, 1.0f);
+    }
+    
+    
+    ViewAxes      mCurrentViewAxes = ViewAxes::XZ;
 
     glm::mat3 mRectToWorld;
     glm::mat3 mWorldToRect;
@@ -234,8 +371,10 @@ private:
     float     mMinWindowDiameter = 4.0f;
     float     mMaxWindowDiameter = 100.0f;
 
+    
     OwnedArray<SpeakerHandleComponent> mSpeakers;
 
+    ViewAxesButtons mViewAxesButtons;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SpaceViewerComponent)
 };

@@ -113,8 +113,8 @@ public:
 private:
 
     // Data
-    File&                     mFilesLocation;
     String                    mTitle;
+    File&                     mFilesLocation;
     
     // UI
     AudioFileListBoxModel               mListBoxModel;
