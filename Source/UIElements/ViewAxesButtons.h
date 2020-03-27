@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "../Utils/ViewAxis.h"
+#include "../Utils/ViewAxes.h"
 
 class ViewAxesButtons : public Component,
                         public Button::Listener

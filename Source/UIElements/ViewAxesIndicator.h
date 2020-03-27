@@ -11,7 +11,7 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "../Utils/ViewAxis.h"
+#include "../Utils/ViewAxes.h"
 
 class ViewAxesIndicator : public Component
 {

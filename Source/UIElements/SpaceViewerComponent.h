@@ -17,6 +17,7 @@
 #include "SpeakerHandleComponent.h"
 #include "ViewAxesButtons.h"
 #include "ViewAxesIndicator.h"
+#include "SpaceViewerSilhouette.h"
 
 //==============================================================================
 /* This component visualises the spatial layout of the speakers.
@@ -71,15 +72,17 @@ public:
             g.drawVerticalLine(middleX - x, b.getY(), b.getBottom());
         }
 
-        // 0.8f to account for shifted basline in non top views
         for (auto y = meter; y < b.getHeight() * getHeightBaselineProportion(); y += meter)
         {
             g.drawHorizontalLine(middleY + y, b.getX(), b.getRight());
             g.drawHorizontalLine(middleY - y, b.getX(), b.getRight());
         }
         
+        // Draw silhouette
+        const float silhouetteScale = meter / 100.0f;
+        mSilhouette.paint({ (float)middleX, (float)middleY }, g, mCurrentViewAxes, silhouetteScale);
+        
         // Draw convex hull
-
         g.setColour(Colour(10, 50, 100).withAlpha(0.1f));
         g.fillPath(mHullPath.mPath);
         
@@ -284,6 +287,8 @@ private:
 
     ViewAxesButtons     mViewAxesButtons;
     ViewAxesIndicator   mAxesIndicator;
+    
+    SpaceViewerSilhouette mSilhouette;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SpaceViewerComponent)
 };
