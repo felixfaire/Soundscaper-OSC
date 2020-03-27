@@ -21,13 +21,20 @@ public:
     }
     
     // Performs gift wrapping algorithm on points to create convex hull
-    void updatePoints(const std::vector<glm::vec2>& points)
+    void updatePoints(const std::vector<glm::vec2>& allPoints)
     {
         mConvexHullPoints.clear();
         mPath.clear();
         
-        if (points.size() <= 1)
+        if (allPoints.size() <= 1)
             return;
+            
+        // remove duplicate points
+        std::vector<glm::vec2> points;
+        
+        for (auto& p : allPoints)
+            if (std::find(points.begin(), points.end(), p) == points.end())
+                points.push_back(p);
         
         int leftestIndex = 0;
         
@@ -41,7 +48,7 @@ public:
         int p = leftestIndex;
         do
         {
-            // Break if we have too many points (protecting edge cases)
+            // Break if we have too many points (protecting looping edge cases)
             if (mConvexHullPoints.size() == points.size())
                 break;
 

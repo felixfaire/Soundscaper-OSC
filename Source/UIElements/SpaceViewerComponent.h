@@ -66,7 +66,11 @@ public:
         }
         
         // Draw convex hull
-        g.setColour(Colours::white.withAlpha(0.3f));
+
+        g.setColour(Colour(10, 50, 100).withAlpha(0.1f));
+        g.fillPath(mHullPath.mPath);
+        
+        g.setColour(Colours::white.withAlpha(0.1f));
         g.strokePath(mHullPath.mPath, PathStrokeType(2.0f));
     }
 
