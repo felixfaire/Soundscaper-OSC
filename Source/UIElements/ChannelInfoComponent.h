@@ -127,26 +127,14 @@ public:
         const auto& setup = model.mDeviceManager.getAudioDeviceSetup();
         const auto& channels = setup.outputChannels;
 
-        // TODO: sort out amplitudes getting sent to the right channel indices
-
-//            std::vector<int> indices;
-        int index = 0;
-        
-//            while(true)
-//            {
-//                index = channels.findNextSetBit(index);
-//
-//                if (index != -1)
-//                    indices.push_back(index);
-//                else
-//                    return;
-//            }
+        int index = -1;
         
         for (const auto& l : model.mAudioLevels)
         {
-//                index = channels.findNextSetBit(index);
-            mChannelComponents[index]->setLevel(l);
-            index++;
+            index = channels.findNextSetBit(index + 1);
+            
+            if (index != -1 && index < mChannelComponents.size())
+                mChannelComponents[index]->setLevel(l);
         }
     }
     
