@@ -164,7 +164,7 @@ public:
     void setIndex(int newIndex) 
     { 
         mIndex = newIndex; 
-        mIndexLabel.setText("Channel: " + String(mIndex + 1), NotificationType::dontSendNotification);
+        mIndexLabel.setText("Speaker: " + String(mIndex + 1), NotificationType::dontSendNotification);
         mPositionInput.setPosition(mModel.getSpeakerPosition(mIndex));
     }
 

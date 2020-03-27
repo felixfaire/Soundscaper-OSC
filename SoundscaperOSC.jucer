@@ -26,6 +26,7 @@
               file="Source/Utils/AppModelLoader.h"/>
         <FILE id="zoaBbB" name="ConvexHullPath.h" compile="0" resource="0"
               file="Source/Utils/ConvexHullPath.h"/>
+        <FILE id="HKM1q3" name="ViewAxis.h" compile="0" resource="0" file="Source/Utils/ViewAxis.h"/>
       </GROUP>
       <GROUP id="{52B6D902-4F8E-197C-5A61-A1DDF4C02BF5}" name="OSC">
         <FILE id="OBsZIQ" name="OSCListBox.h" compile="0" resource="0" file="Source/OSC/OSCListBox.h"/>
@@ -58,6 +59,10 @@
               file="Source/Audio/SpatialSynthVoice.h"/>
       </GROUP>
       <GROUP id="{78B2BA97-B19B-FFD9-1DD4-16A761947A98}" name="UIElements">
+        <FILE id="cr1yE3" name="ViewAxesIndicator.h" compile="0" resource="0"
+              file="Source/UIElements/ViewAxesIndicator.h"/>
+        <FILE id="JAl3Mq" name="ViewAxesButtons.h" compile="0" resource="0"
+              file="Source/UIElements/ViewAxesButtons.h"/>
         <FILE id="rpwb4P" name="ComponentContainer.h" compile="0" resource="0"
               file="Source/UIElements/ComponentContainer.h"/>
         <FILE id="EL58i4" name="SpaceViewerComponent.h" compile="0" resource="0"

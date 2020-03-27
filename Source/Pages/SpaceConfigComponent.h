@@ -34,8 +34,8 @@ public:
             showConnectionErrorMessage ("Error: could not connect to UDP port 9001.");
 
         // Buttons
-        mAddButton.reset(new TextButton("Add"));
-        mRemoveButton.reset(new TextButton("Remove"));
+        mAddButton.reset(new TextButton("Add Speaker"));
+        mRemoveButton.reset(new TextButton("Remove Speaker"));
         mListViewToggleButton.reset(new ToggleButton("Show List View"));
 
         addAndMakeVisible(*mAddButton);
@@ -44,7 +44,7 @@ public:
 
         mAddButton->onClick = [this] () {
             auto& r = Random::getSystemRandom();
-            mModel.addSpeaker(glm::vec3(r.nextFloat(), r.nextFloat(), r.nextFloat()) * 2.0f - 1.0f);
+            mModel.addSpeaker(glm::vec3(r.nextFloat(), r.nextFloat(), r.nextFloat()) * 4.0f - 2.0f);
         };
 
         mRemoveButton->onClick = [this] () {
@@ -91,7 +91,7 @@ public:
     {
         auto b = getLocalBounds();
         
-        auto topBar = b.removeFromTop(40);
+        auto topBar = b.removeFromTop(35);
 
         mAddButton->setBounds(topBar.removeFromLeft(mAddButton->getBestWidthForHeight(topBar.getHeight())).reduced(0, 5));
         mRemoveButton->setBounds(topBar.removeFromLeft(mRemoveButton->getBestWidthForHeight(topBar.getHeight())).reduced(10, 5));
