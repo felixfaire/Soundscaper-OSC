@@ -15,6 +15,7 @@
 #include "SpeakerPositionsState.h"
 #include "AudioMonitorState.h"
 #include "AudioDataState.h"
+#include "AtmosphereLevelState.h"
 
 
 struct VoiceData
@@ -34,36 +35,14 @@ public:
     ~AppModel()
     {
     }
-    
-    void setSoundAtmosphereAmplitude(int index, float newAmplitude)
-    {
-        jassert(mSoundAtmosphereAmplitudes.size() == mAudioDataState.mSoundAtmosphereData.size());
-        jassert(index < mSoundAtmosphereAmplitudes.size());
-        
-        if (index >= mSoundAtmosphereAmplitudes.size())
-            return;
-        
-        mSoundAtmosphereAmplitudes[index] = newAmplitude;
-        mSoundAtmosphereAmplitudesChanges.sendChangeMessage();
-    }
-    
-    const std::vector<float>&   getSoundAtmosphereAmpitudes() const { return mSoundAtmosphereAmplitudes; }
-    float                       getSoundAtmosphereAmpitude(int i) const                 { return mSoundAtmosphereAmplitudes[i]; }
-
-    
-   
-    std::unique_ptr<PropertiesFile>     mSettingsFile;
-        
-    ChangeBroadcaster                   mSoundAtmosphereAmplitudesChanges;
-
+           
     SpeakerPositionsState               mSpeakerPositionsState;
     AudioMonitorState                   mAudioMonitorState;
     AudioDataState                      mAudioDataState;
-    
+    AtmosphereLevelState                mAtmosphereLevelState;
 
     std::vector<VoiceData>              mPlayingVoiceData; // TODO: unused
     int                                 mCurrentNoteID = 0; // TODO: make this clear its mouse specific
-    
     
     // IO Devices
     OSCReceiver                         mOSCReciever;
@@ -71,7 +50,8 @@ public:
 
 private:
 
-    // These must be changed via get / set to ensure all change messages are propogated correctly
-    std::vector<float>                  mSoundAtmosphereAmplitudes;
+    std::unique_ptr<PropertiesFile>     mSettingsFile;
+
+    friend class AppModelLoader;
     
 };

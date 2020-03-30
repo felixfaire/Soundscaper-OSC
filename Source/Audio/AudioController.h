@@ -153,6 +153,7 @@ public:
     
     void setSoundAtmosphereAmplitudes(const std::vector<float>& amps)
     {
+        // TODO: NOT THREAD SAFE YET
         jassert(amps.size() == mAtmosphereSources.size());
         
         for (int i = 0; i < amps.size(); ++i)

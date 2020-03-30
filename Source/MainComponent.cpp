@@ -16,7 +16,7 @@ MainComponent::MainComponent()
     // Init model
     mModel.mSpeakerPositionsState.addChangeListener(this);
     mModel.mAudioDataState.addChangeListener(this);
-    mModel.mSoundAtmosphereAmplitudesChanges.addChangeListener(this);
+    mModel.mAtmosphereLevelState.addChangeListener(this);
     mModel.mOSCReciever.addListener(this);
     AppModelLoader::loadSettings(mModel);
 
@@ -51,8 +51,6 @@ MainComponent::MainComponent()
     setWantsKeyboardFocus(true);
 
     mFilesListComponent->resized();
-    
-    mModel.setSoundAtmosphereAmplitude(0, 0.0f);
     
     startTimer(15); // outputs volume level update
     
@@ -119,15 +117,17 @@ void MainComponent::changeListenerCallback(ChangeBroadcaster* source)
     {
         mAudio.mSynth.updateSpeakerPositions(mModel.mSpeakerPositionsState.getPositions());
     }
-    else if (source == &mModel.mSoundAtmosphereAmplitudesChanges)
+    else if (source == &mModel.mAtmosphereLevelState)
     {
-        mAudio.setSoundAtmosphereAmplitudes(mModel.getSoundAtmosphereAmpitudes());
+        mAudio.setSoundAtmosphereAmplitudes(mModel.mAtmosphereLevelState.getSoundAtmosphereAmpitudes());
     }
     else if (source == &mModel.mAudioDataState)
     {
-        // TODO: update num atmosphere volumes here
-        /*if (mModel.mAudioDataState.mSoundAtmosphereData.size() != mModel.getSoundAtmosphereAmpitudes().size())
-            mModel.m*/
+        const int numAtmospheres = mModel.mAudioDataState.mSoundAtmosphereData.size();
+        const int numAtmosphereLevels = mModel.mAtmosphereLevelState.getSoundAtmosphereAmpitudes().size();
+
+        if (numAtmospheres != numAtmosphereLevels)
+            mModel.mAtmosphereLevelState.resetAmplitudes(numAtmospheres);
     }
 }
 
