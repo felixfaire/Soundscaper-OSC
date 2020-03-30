@@ -12,12 +12,17 @@
 
 #include <JuceHeader.h>
 
+#include "vec3.hpp"
+
+
+/** This class holds the data for the list of speakers and is responsible for sending
+    messages on changes to the data.
+*/
 class SpeakerPositionsState  : public ChangeBroadcaster
 {
 public:
     SpeakerPositionsState()
     {
-
     }
 
     void addSpeaker(const glm::vec3& pos)

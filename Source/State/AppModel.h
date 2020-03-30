@@ -9,9 +9,11 @@
 */
 
 #pragma once
-#include "vec3.hpp"
+
 #include "../Audio/SpatialSampler.h"
+
 #include "SpeakerPositionsState.h"
+#include "AudioMonitorState.h"
 
 struct SoundFileData
 {
@@ -72,30 +74,14 @@ public:
         mSoundClipData.emplace_back(name, data);
     }
     
-    void setAudioLevels(const std::vector<float>& newLevels)
-    {
-        if (newLevels.size() != mAudioLevels.size())
-            mAudioLevels.resize(newLevels.size());
-            
-        for (int i = 0; i < newLevels.size(); ++i)
-        {
-            mAudioLevels[i] *= 0.9f;
-            
-            if (newLevels[i] > mAudioLevels[i])
-                mAudioLevels[i] = newLevels[i];
-        }
-        
-        mAudioLevelChanges.sendChangeMessage();
-    }
     
-    
+   
     std::unique_ptr<PropertiesFile>     mSettingsFile;
         
-        
     ChangeBroadcaster                   mSoundAtmosphereAmplitudesChanges;
-    ChangeBroadcaster                   mAudioLevelChanges;
 
-    SpeakerPositionsState                mSpeakerPositionsState;
+    SpeakerPositionsState               mSpeakerPositionsState;
+    AudioMonitorState                   mAudioMonitorState;
     
     File                                mCurrentSoundAtmosphereFolder;
     std::vector<SoundFileData>          mSoundAtmosphereData;
@@ -107,7 +93,6 @@ public:
     
     int                                 mCurrentNoteID = 0;
     
-    std::vector<float>                  mAudioLevels;
     
     // IO Devices
     OSCReceiver                         mOSCReciever;
@@ -117,7 +102,5 @@ private:
 
     // These must be changed via get / set to ensure all change messages are propogated correctly
     std::vector<float>                  mSoundAtmosphereAmplitudes;
-    
-    friend class AppModelLoader;
     
 };

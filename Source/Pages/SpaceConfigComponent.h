@@ -26,7 +26,7 @@ public:
         : mModel(model)
     {
         mModel.mSpeakerPositionsState.addChangeListener(this);
-        mModel.mAudioLevelChanges.addChangeListener(this);
+        mModel.mAudioMonitorState.addChangeListener(this);
         mModel.mDeviceManager.addChangeListener(this);
 
 
@@ -124,7 +124,7 @@ private:
             mSpace->updateComponentPositions();
             mChannelBar->updateNumOutputChannels(mModel);
         }
-        else if (source == &mModel.mAudioLevelChanges)
+        else if (source == &mModel.mAudioMonitorState)
         {
             mChannelBar->updateAudioLevels(mModel);
         }

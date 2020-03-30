@@ -166,5 +166,5 @@ void MainComponent::oscMessageReceived(const OSCMessage& message)
 void MainComponent::timerCallback()
 {
     std::vector<float> levels = mAudio.getAudioLevels();
-    mModel.setAudioLevels(levels);
+    mModel.mAudioMonitorState.setAudioLevels(levels);
 }
