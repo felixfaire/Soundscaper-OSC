@@ -50,7 +50,7 @@ private:
         g.drawEllipse(x - r, y - r, r * 2.0f, r * 2.0f, thickness);
     }
 
-    void changeListenerCallback(ChangeBroadcaster* source)
+    void changeListenerCallback(ChangeBroadcaster* source) override
     {
         repaint();
     }

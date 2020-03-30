@@ -50,7 +50,7 @@ public:
 
     void addSound(int noteID, const SoundFileData& fileData, const glm::vec3& pos)
     {
-        const double startTime = Time::getMillisecondCounter();
+        const uint32 startTime = Time::getMillisecondCounter();
         const uint32 millis = (uint32)(fileData.mFileLength * 1000.0);
         VisualVoiceData v = { startTime, millis, fileData.mName, noteID, pos };
 

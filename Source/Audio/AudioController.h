@@ -72,6 +72,8 @@ public:
 
     void getNextAudioBlock (const AudioSourceChannelInfo& bufferToFill) override
     {
+        ScopedLock fileDataLock(mFileDataMutex);
+        
         mSoundEventData.processEventData();
         mSynth.renderNextBlock(*bufferToFill.buffer, bufferToFill.startSample, bufferToFill.numSamples);
         
@@ -91,6 +93,8 @@ public:
     
     void loadAudioFiles(AudioDataState& data)
     {
+        ScopedLock dataLock(mFileDataMutex);
+        
         // Load soundatmosphere files
         auto atmosphereFiles = data.mCurrentSoundAtmosphereFolder.findChildFiles(File::TypesOfFileToFind::findFiles, false, "*.wav");
         data.mSoundAtmosphereData.clear();
@@ -180,6 +184,8 @@ private:
     std::unique_ptr<AudioMonitorSource> mMonitor;
 
     SoundEventData     mSoundEventData;
+    
+    CriticalSection    mFileDataMutex;
 
     AudioDeviceManager& mDeviceManager;
     AudioSourcePlayer   mAudioSourcePlayer;

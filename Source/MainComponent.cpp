@@ -66,7 +66,7 @@ MainComponent::~MainComponent()
 
 void MainComponent::triggerSource(int noteID, int soundID, const glm::vec3& pos)
 {
-    const int numClips = mModel.mAudioDataState.mSoundClipData.size();
+    const int numClips = (int)mModel.mAudioDataState.mSoundClipData.size();
 
     jassert(soundID < numClips);
 
@@ -132,8 +132,8 @@ void MainComponent::changeListenerCallback(ChangeBroadcaster* source)
     }
     else if (source == &mModel.mAudioDataState)
     {
-        const int numAtmospheres = mModel.mAudioDataState.mSoundAtmosphereData.size();
-        const int numAtmosphereLevels = mModel.mAtmosphereLevelState.getSoundAtmosphereAmpitudes().size();
+        const int numAtmospheres = (int)mModel.mAudioDataState.mSoundAtmosphereData.size();
+        const int numAtmosphereLevels = (int)mModel.mAtmosphereLevelState.getSoundAtmosphereAmpitudes().size();
 
         if (numAtmospheres != numAtmosphereLevels)
             mModel.mAtmosphereLevelState.resetAmplitudes(numAtmospheres);

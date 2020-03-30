@@ -42,8 +42,6 @@ public:
         addAndMakeVisible(mAxesIndicator);
         
         mAxesIndicator.setViewAxes(mViewState.mCurrentAxes);
-
-        setBufferedToImage(true);
     }
 
     ~SpaceViewerComponent()
