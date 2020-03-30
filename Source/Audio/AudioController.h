@@ -89,11 +89,11 @@ public:
     
     // ===== Events ===========================
     
-    void loadAudioFiles(AppModel& model)
+    void loadAudioFiles(AudioDataState& data)
     {
         // Load soundatmosphere files
-        auto atmosphereFiles = model.mCurrentSoundAtmosphereFolder.findChildFiles(File::TypesOfFileToFind::findFiles, false, "*.wav");
-        model.mSoundAtmosphereData.clear();
+        auto atmosphereFiles = data.mCurrentSoundAtmosphereFolder.findChildFiles(File::TypesOfFileToFind::findFiles, false, "*.wav");
+        data.mSoundAtmosphereData.clear();
         mAtmosphereSources.clear();
         
         for (auto& atmosphereFile : atmosphereFiles)
@@ -104,18 +104,18 @@ public:
             {
                 const auto name = atmosphereFile.getFileNameWithoutExtension();
                 auto* newSound = new AudioFileSource(name, *atmosphereReader);
-                model.addSoundAtmosphereData(name, newSound->getAudioData());
+                data.addSoundAtmosphereData(name, newSound->getAudioData());
                 mAtmosphereSources.emplace_back(newSound);
             }
         }
         
         // Load spatial clip files
-        model.mSoundClipData.clear();
+        data.mSoundClipData.clear();
         
         mSynth.clearSounds();
         mSynth.clearVoices();
         
-        File folder = model.mCurrentSoundClipFolder;
+        File folder = data.mCurrentSoundClipFolder;
         auto clipFiles = folder.findChildFiles(File::TypesOfFileToFind::findFiles, false, "*.wav");
         
         int noteID = 0;
@@ -129,7 +129,7 @@ public:
                 const auto name = wavFile.getFileNameWithoutExtension();
                 auto* newSound = new SpatialSamplerSound(wavFile.getFileNameWithoutExtension(), *reader, noteID, 0.01, 0.5, 20.0);
                 
-                model.addSoundClipData(newSound->getName(), newSound->getAudioData());
+                data.addSoundClipData(newSound->getName(), newSound->getAudioData());
                 
                 mSynth.addSound(newSound);
                 mSynth.addVoice(new SpatialSamplerVoice());
@@ -141,6 +141,8 @@ public:
         {
             Logger::getCurrentLogger()->writeToLog("Failed to find any .wavs");
         }
+
+        data.sendChangeMessage();
     }
     
     // Manages lockfree message processing with a fifo

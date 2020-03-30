@@ -15,6 +15,7 @@ MainComponent::MainComponent()
 {
     // Init model
     mModel.mSpeakerPositionsState.addChangeListener(this);
+    mModel.mAudioDataState.addChangeListener(this);
     mModel.mSoundAtmosphereAmplitudesChanges.addChangeListener(this);
     mModel.mOSCReciever.addListener(this);
     AppModelLoader::loadSettings(mModel);
@@ -22,18 +23,18 @@ MainComponent::MainComponent()
     // Init Audio
     mAudio.initialise();
     mAudio.mSynth.updateSpeakerPositions(mModel.mSpeakerPositionsState.getPositions());
-    mAudio.loadAudioFiles(mModel);
+    mAudio.loadAudioFiles(mModel.mAudioDataState);
     
     // Init UI
     MinimalLookAndFeel::setDefaultLookAndFeel(&mLookAndFeel);
     
     mIOSettings.reset(new IOSettingsComponent(mModel, mAudio.getDeviceManager()));
-    mFilesListComponent.reset(new AudioFileListComponent(mModel));
+    mFilesListComponent.reset(new AudioFileListComponent(mModel.mAudioDataState));
     mSpaceComponent.reset(new SpaceConfigComponent(mModel));
     
     mFilesListComponent->onAudioFoldersChanged = [this]()
     {
-        mAudio.loadAudioFiles(mModel);
+        mAudio.loadAudioFiles(mModel.mAudioDataState);
     };
     
     mTabbedContainer.reset(new TabbedComponent(TabbedButtonBar::Orientation::TabsAtTop));
@@ -67,9 +68,11 @@ MainComponent::~MainComponent()
 
 void MainComponent::triggerSource(int noteID, int soundID, const glm::vec3& pos)
 {
-    jassert(soundID < mModel.mSoundClipData.size());
+    const int numClips = mModel.mAudioDataState.mSoundClipData.size();
 
-    if (soundID >= mModel.mSoundClipData.size())
+    jassert(soundID < numClips);
+
+    if (soundID >= numClips)
         return;
 
     mAudio.addSoundEvent({noteID, soundID, pos});
@@ -119,6 +122,12 @@ void MainComponent::changeListenerCallback(ChangeBroadcaster* source)
     else if (source == &mModel.mSoundAtmosphereAmplitudesChanges)
     {
         mAudio.setSoundAtmosphereAmplitudes(mModel.getSoundAtmosphereAmpitudes());
+    }
+    else if (source == &mModel.mAudioDataState)
+    {
+        // TODO: update num atmosphere volumes here
+        /*if (mModel.mAudioDataState.mSoundAtmosphereData.size() != mModel.getSoundAtmosphereAmpitudes().size())
+            mModel.m*/
     }
 }
 

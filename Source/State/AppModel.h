@@ -14,21 +14,8 @@
 
 #include "SpeakerPositionsState.h"
 #include "AudioMonitorState.h"
+#include "AudioDataState.h"
 
-struct SoundFileData
-{
-    SoundFileData(const String& name, const AudioBuffer<float>* data)
-        : mName(name),
-          mAudioData(data)
-    {
-        // TODO: make a proper address
-        mOSCAddress = mName.replace(" ", "_") + "/";
-    }
-    
-    String                              mName;
-    String                              mOSCAddress;
-    const AudioBuffer<float>*           mAudioData;
-};
 
 struct VoiceData
 {
@@ -50,7 +37,7 @@ public:
     
     void setSoundAtmosphereAmplitude(int index, float newAmplitude)
     {
-        jassert(mSoundAtmosphereAmplitudes.size() == mSoundAtmosphereData.size());
+        jassert(mSoundAtmosphereAmplitudes.size() == mAudioDataState.mSoundAtmosphereData.size());
         jassert(index < mSoundAtmosphereAmplitudes.size());
         
         if (index >= mSoundAtmosphereAmplitudes.size())
@@ -62,18 +49,7 @@ public:
     
     const std::vector<float>&   getSoundAtmosphereAmpitudes() const { return mSoundAtmosphereAmplitudes; }
     float                       getSoundAtmosphereAmpitude(int i) const                 { return mSoundAtmosphereAmplitudes[i]; }
-    
-    void addSoundAtmosphereData(const String& name, const AudioBuffer<float>* data)
-    {
-        mSoundAtmosphereData.emplace_back(name, data);
-        mSoundAtmosphereAmplitudes.push_back(1.0f);
-    }
-    
-    void addSoundClipData(const String& name, const AudioBuffer<float>* data)
-    {
-        mSoundClipData.emplace_back(name, data);
-    }
-    
+
     
    
     std::unique_ptr<PropertiesFile>     mSettingsFile;
@@ -82,16 +58,11 @@ public:
 
     SpeakerPositionsState               mSpeakerPositionsState;
     AudioMonitorState                   mAudioMonitorState;
+    AudioDataState                      mAudioDataState;
     
-    File                                mCurrentSoundAtmosphereFolder;
-    std::vector<SoundFileData>          mSoundAtmosphereData;
-    
-    File                                mCurrentSoundClipFolder;
-    std::vector<SoundFileData>          mSoundClipData;
-    
-    std::vector<VoiceData>              mPlayingVoiceData;
-    
-    int                                 mCurrentNoteID = 0;
+
+    std::vector<VoiceData>              mPlayingVoiceData; // TODO: unused
+    int                                 mCurrentNoteID = 0; // TODO: make this clear its mouse specific
     
     
     // IO Devices

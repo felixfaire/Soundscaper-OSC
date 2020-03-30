@@ -132,10 +132,10 @@ class AudioFileListComponent    : public Component,
                                   public FilenameComponentListener
 {
 public:
-    AudioFileListComponent(AppModel& model)
-        : m(model),
-          mSoundAtmospheres("Atmospheres", model.mCurrentSoundAtmosphereFolder, model.mSoundAtmosphereData),
-          mSoundClips("Clips", model.mCurrentSoundClipFolder, model.mSoundClipData)
+    AudioFileListComponent(AudioDataState& data)
+        : mAudioDataState(data),
+          mSoundAtmospheres("Atmospheres", data.mCurrentSoundAtmosphereFolder, data.mSoundAtmosphereData),
+          mSoundClips("Clips", data.mCurrentSoundClipFolder, data.mSoundClipData)
     {
         mSoundAtmospheres.addListener(this);
         mSoundClips.addListener(this);
@@ -169,12 +169,12 @@ private:
     {
         if (component == mSoundAtmospheres.getFilenameComponent())
         {
-            m.mCurrentSoundAtmosphereFolder = component->getCurrentFile();
+            mAudioDataState.mCurrentSoundAtmosphereFolder = component->getCurrentFile();
         }
         
         if (component == mSoundClips.getFilenameComponent())
         {
-            m.mCurrentSoundClipFolder = component->getCurrentFile();
+            mAudioDataState.mCurrentSoundClipFolder = component->getCurrentFile();
         }
         
         jassert(onAudioFoldersChanged != nullptr);
@@ -185,7 +185,7 @@ private:
         resized();
     }
 
-    AppModel&           m;
+    AudioDataState&     mAudioDataState;
     
     FilesListComponent  mSoundAtmospheres;
     FilesListComponent  mSoundClips;

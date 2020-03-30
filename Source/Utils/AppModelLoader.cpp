@@ -46,10 +46,10 @@ void AppModelLoader::loadSettings(AppModel& m)
     // Init app settings
 
     if (m.mSettingsFile->containsKey(mCurrentSoundClipFolderID))
-        m.mCurrentSoundClipFolder = m.mSettingsFile->getValue(mCurrentSoundClipFolderID);
+        m.mAudioDataState.mCurrentSoundClipFolder = m.mSettingsFile->getValue(mCurrentSoundClipFolderID);
         
     if (m.mSettingsFile->containsKey(mCurrentSoundAtmosphereFolderID))
-        m.mCurrentSoundAtmosphereFolder = m.mSettingsFile->getValue(mCurrentSoundAtmosphereFolderID);
+        m.mAudioDataState.mCurrentSoundAtmosphereFolder = m.mSettingsFile->getValue(mCurrentSoundAtmosphereFolderID);
 
     if (m.mSettingsFile->containsKey(mSpeakerInfoID))
     {
@@ -80,8 +80,9 @@ void AppModelLoader::loadSettings(AppModel& m)
 
 void AppModelLoader::saveSettings(AppModel& m)
 {
-    m.mSettingsFile->setValue(mCurrentSoundClipFolderID, m.mCurrentSoundClipFolder.getFullPathName());
-    m.mSettingsFile->setValue(mCurrentSoundAtmosphereFolderID, m.mCurrentSoundAtmosphereFolder.getFullPathName());
+    const auto& dataState = m.mAudioDataState;
+    m.mSettingsFile->setValue(mCurrentSoundClipFolderID, dataState.mCurrentSoundClipFolder.getFullPathName());
+    m.mSettingsFile->setValue(mCurrentSoundAtmosphereFolderID, dataState.mCurrentSoundAtmosphereFolder.getFullPathName());
 
     XmlElement speakersProps(mSpeakerInfoID);
 
