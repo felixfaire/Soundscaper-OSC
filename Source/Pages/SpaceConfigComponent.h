@@ -62,7 +62,7 @@ public:
         };
 
         // Views
-        mSpace.reset(new SpaceViewerComponent(mModel.mSpeakerPositionsState));
+        mSpace.reset(new SpaceViewerComponent(mModel.mSpeakerPositionsState, mModel.mVisualVoiceState));
         mSpeakerListView.reset(new SpeakerInfoListComponent(mModel.mSpeakerPositionsState));
         mViewContainer.reset(new ComponentContainer());
         mViewContainer->setContent(mSpace.get());
@@ -70,7 +70,7 @@ public:
         
         mSpace->onTrigger = [this](glm::vec3 p) {
             
-            const int noteID = ++mModel.mCurrentNoteID;
+            const int noteID = ++mModel.mCurrentMouseNoteID;
             const int soundID = 0;
             mSender.send("/start", noteID,
                                    soundID,
@@ -78,7 +78,7 @@ public:
         };
         
         mSpace->onUpdate = [this](glm::vec3 p) {
-            mSender.send("/update", mModel.mCurrentNoteID,
+            mSender.send("/update", mModel.mCurrentMouseNoteID,
                                     p.x, p.y, p.z);
         };
         

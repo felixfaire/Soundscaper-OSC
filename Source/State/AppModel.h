@@ -16,14 +16,8 @@
 #include "AudioMonitorState.h"
 #include "AudioDataState.h"
 #include "AtmosphereLevelState.h"
+#include "VisualPlayingVoicesState.h"
 
-
-struct VoiceData
-{
-    double mStartTime;
-    String mFileName;
-    int    mID;
-};
 
 struct AppModel
 {
@@ -40,9 +34,10 @@ public:
     AudioMonitorState                   mAudioMonitorState;
     AudioDataState                      mAudioDataState;
     AtmosphereLevelState                mAtmosphereLevelState;
-
-    std::vector<VoiceData>              mPlayingVoiceData; // TODO: unused
-    int                                 mCurrentNoteID = 0; // TODO: make this clear its mouse specific
+    VisualPlayingVoicesState            mVisualVoiceState;
+    
+    // Used by the mouse interface
+    int                                 mCurrentMouseNoteID = -99999;
     
     // IO Devices
     OSCReceiver                         mOSCReciever;

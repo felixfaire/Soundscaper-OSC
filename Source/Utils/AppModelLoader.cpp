@@ -68,7 +68,7 @@ void AppModelLoader::loadSettings(AppModel& m)
     else
     {
         // Load default stereo model
-        const float r = 2.0f;
+        const float r = 1.0f;
         m.mSpeakerPositionsState.mSpeakerPositions.push_back(glm::vec3(-r, 0.0f, 0.0f));
         m.mSpeakerPositionsState.mSpeakerPositions.push_back(glm::vec3( r, 0.0f, 0.0f));
         m.mSpeakerPositionsState.mSpeakerPositions.push_back(glm::vec3(0.0f, 0.0f, -r));

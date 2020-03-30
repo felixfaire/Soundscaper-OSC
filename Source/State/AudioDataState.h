@@ -15,9 +15,10 @@
 
 struct SoundFileData
 {
-    SoundFileData(const String& name, const AudioBuffer<float>* data)
+    SoundFileData(const String& name, const AudioBuffer<float>* data, double fileLength)
         : mName(name),
-        mAudioData(data)
+          mAudioData(data),
+          mFileLength(fileLength)
     {
         // TODO: make a proper OSC address
         mOSCAddress = mName.replace(" ", "_") + "/";
@@ -26,6 +27,7 @@ struct SoundFileData
     String                              mName;
     String                              mOSCAddress;
     const AudioBuffer<float>*           mAudioData;
+    double                              mFileLength;
 };
 
 
@@ -37,15 +39,14 @@ public:
 
     }
 
-    void addSoundAtmosphereData(const String& name, const AudioBuffer<float>* data)
+    void addSoundAtmosphereData(const String& name, const AudioBuffer<float>* data, double fileLength)
     {
-        mSoundAtmosphereData.emplace_back(name, data);
-        //mSoundAtmosphereAmplitudes.push_back(1.0f);
+        mSoundAtmosphereData.emplace_back(name, data, fileLength);
     }
 
-    void addSoundClipData(const String& name, const AudioBuffer<float>* data)
+    void addSoundClipData(const String& name, const AudioBuffer<float>* data, double fileLength)
     {
-        mSoundClipData.emplace_back(name, data);
+        mSoundClipData.emplace_back(name, data, fileLength);
     }
 
     File                                mCurrentSoundAtmosphereFolder;

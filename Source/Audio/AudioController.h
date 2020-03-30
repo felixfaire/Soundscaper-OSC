@@ -104,7 +104,8 @@ public:
             {
                 const auto name = atmosphereFile.getFileNameWithoutExtension();
                 auto* newSound = new AudioFileSource(name, *atmosphereReader);
-                data.addSoundAtmosphereData(name, newSound->getAudioData());
+                const double fileLength = (double)atmosphereReader->lengthInSamples / (double)atmosphereReader->sampleRate;
+                data.addSoundAtmosphereData(name, newSound->getAudioData(), fileLength);
                 mAtmosphereSources.emplace_back(newSound);
             }
         }
@@ -128,8 +129,9 @@ public:
             {
                 const auto name = wavFile.getFileNameWithoutExtension();
                 auto* newSound = new SpatialSamplerSound(wavFile.getFileNameWithoutExtension(), *reader, noteID, 0.01, 0.5, 20.0);
-                
-                data.addSoundClipData(newSound->getName(), newSound->getAudioData());
+                const double fileLength = (double)reader->lengthInSamples / (double)reader->sampleRate;
+
+                data.addSoundClipData(newSound->getName(), newSound->getAudioData(), fileLength);
                 
                 mSynth.addSound(newSound);
                 mSynth.addVoice(new SpatialSamplerVoice());

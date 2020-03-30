@@ -18,6 +18,10 @@
               file="Source/State/AudioMonitorState.h"/>
         <FILE id="MEVezK" name="SpeakerPositionsState.h" compile="0" resource="0"
               file="Source/State/SpeakerPositionsState.h"/>
+        <FILE id="EsexKH" name="VisualPlayingVoicesState.h" compile="0" resource="0"
+              file="Source/State/VisualPlayingVoicesState.h"/>
+        <FILE id="kc3df4" name="WorldViewState.h" compile="0" resource="0"
+              file="Source/State/WorldViewState.h"/>
       </GROUP>
       <GROUP id="{A50DFF5B-3E8D-48B2-6F4F-507030AA1568}" name="Pages">
         <FILE id="XNIgTf" name="AudioFileListComponent.h" compile="0" resource="0"
@@ -67,6 +71,8 @@
               file="Source/Audio/SpatialSynthVoice.h"/>
       </GROUP>
       <GROUP id="{78B2BA97-B19B-FFD9-1DD4-16A761947A98}" name="UIElements">
+        <FILE id="Y4EXHY" name="SpaceViewerVoicesComponent.h" compile="0" resource="0"
+              file="Source/UIElements/SpaceViewerVoicesComponent.h"/>
         <FILE id="kd8XeX" name="IconPaths.h" compile="0" resource="0" file="Source/UIElements/IconPaths.h"/>
         <FILE id="vpITlE" name="IconPaths.cpp" compile="1" resource="0" file="Source/UIElements/IconPaths.cpp"/>
         <FILE id="VqcDwV" name="SpaceViewerSilhouette.h" compile="0" resource="0"

@@ -52,7 +52,7 @@ MainComponent::MainComponent()
 
     mFilesListComponent->resized();
     
-    startTimer(15); // outputs volume level update
+    startTimer(16); // animation timer
     
     setSize(500, 800);
 }
@@ -71,19 +71,28 @@ void MainComponent::triggerSource(int noteID, int soundID, const glm::vec3& pos)
     jassert(soundID < numClips);
 
     if (soundID >= numClips)
-        return;
+        return; // TODO: push error message to app console
 
+    // Audio
     mAudio.addSoundEvent({noteID, soundID, pos});
+
+    // Visualisation
+    const auto& fileData = mModel.mAudioDataState.mSoundClipData[soundID];
+    mModel.mVisualVoiceState.addSound(noteID, fileData, pos);
 }
 
 void MainComponent::updateSource(int noteID, const glm::vec3& pos)
 {
     mAudio.addSoundEvent({noteID, -1, pos});
+
+    // Visualisation
+    mModel.mVisualVoiceState.updateSound(noteID, pos);
 }
 
 void MainComponent::allNotesOff()
 {
     mAudio.mSynth.allNotesOff(true);
+    mModel.mVisualVoiceState.clear();
 }
 
 
@@ -171,9 +180,13 @@ void MainComponent::oscMessageReceived(const OSCMessage& message)
     }
 }
 
-// Update model audio levels on a timer
+// Animation timer callback
 void MainComponent::timerCallback()
 {
+    // Update output audio levels
     std::vector<float> levels = mAudio.getAudioLevels();
     mModel.mAudioMonitorState.setAudioLevels(levels);
+
+    // Update visual sources
+    mModel.mVisualVoiceState.update();
 }
