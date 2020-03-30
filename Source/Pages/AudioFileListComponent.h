@@ -84,9 +84,16 @@ public:
         addAndMakeVisible(*mListBox);
     }
     
+    void paint(Graphics& g) override
+    {
+        auto b = getLocalBounds().toFloat();
+        g.setColour(Colour::greyLevel(0.1f));
+        g.fillRoundedRectangle(b, 5.0f);
+    }
+    
     void resized() override
     {
-        auto b = getLocalBounds();
+        auto b = getLocalBounds().reduced(5);
         mTitleLabel->setBounds(b.removeFromTop(50));
         mFolderChooser->setBounds(b.removeFromTop(30));
         mListBox->setBounds(b.reduced(0, 5));

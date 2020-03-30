@@ -13,8 +13,15 @@
 #include "vec3.hpp"
 #include "AudioDataState.h"
 
-struct VisualVoiceData
+class VisualVoiceData
 {
+public:
+
+    double getProgress(uint32 currTime) const
+    {
+        return (double)(currTime - mStartTime) / (double)mFileLength;
+    }
+    
     uint32      mStartTime;
     uint32      mFileLength;
     String      mFileName;

@@ -12,11 +12,11 @@
 #include "MainComponent.h"
 
 //==============================================================================
-class OSCAudioPlayerApplication  : public JUCEApplication
+class SoundscaperOSC  : public JUCEApplication
 {
 public:
     //==============================================================================
-    OSCAudioPlayerApplication() {}
+    SoundscaperOSC() {}
 
     const String getApplicationName() override       { return ProjectInfo::projectName; }
     const String getApplicationVersion() override    { return ProjectInfo::versionString; }
@@ -103,4 +103,4 @@ private:
 
 //==============================================================================
 // This macro generates the main() routine that launches the app.
-START_JUCE_APPLICATION (OSCAudioPlayerApplication)
+START_JUCE_APPLICATION (SoundscaperOSC)

@@ -44,7 +44,7 @@ public:
 
         mAddButton->onClick = [this] () {
             auto& r = Random::getSystemRandom();
-            mModel.mSpeakerPositionsState.addSpeaker(glm::vec3(r.nextFloat(), r.nextFloat(), r.nextFloat()) * 4.0f - 2.0f);
+            mModel.mSpeakerPositionsState.addSpeaker(glm::vec3(r.nextFloat() * 2.0f - 1.0f, r.nextFloat() * 2.0f, r.nextFloat() * 2.0f - 1.0f));
         };
 
         mRemoveButton->onClick = [this] () {
