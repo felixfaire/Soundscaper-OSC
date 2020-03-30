@@ -74,6 +74,8 @@ public:
 
     glm::vec2 getRectCenter(const Rectangle<float>& b) { return glm::vec2(b.getCentreX(), b.getHeight() * getHeightBaselineProportion()); }
 
+
+
     ViewAxes   mCurrentAxes = ViewAxes::XZ;
     glm::mat3  mRectToWorld;
     glm::mat3  mWorldToRect;

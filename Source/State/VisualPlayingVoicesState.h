@@ -41,9 +41,9 @@ public:
 
         const int currTime = Time::getMillisecondCounter();
 
-        std::remove_if(mPlayingVoices.begin(), mPlayingVoices.end(), [&](VisualVoiceData& a) {
+        mPlayingVoices.erase(std::remove_if(mPlayingVoices.begin(), mPlayingVoices.end(), [&](VisualVoiceData& a) {
             return (currTime - a.mStartTime) >= a.mFileLength;
-        });
+        }), mPlayingVoices.end());
 
         sendSynchronousChangeMessage();
     }
@@ -51,7 +51,8 @@ public:
     void addSound(int noteID, const SoundFileData& fileData, const glm::vec3& pos)
     {
         const double startTime = Time::getMillisecondCounter();
-        VisualVoiceData v = { startTime, fileData.mFileLength, fileData.mName, noteID, pos };
+        const uint32 millis = (uint32)(fileData.mFileLength * 1000.0);
+        VisualVoiceData v = { startTime, millis, fileData.mName, noteID, pos };
 
         mPlayingVoices.push_back(v);
     }

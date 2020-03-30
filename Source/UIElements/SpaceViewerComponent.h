@@ -31,7 +31,7 @@ public:
     
     SpaceViewerComponent(SpeakerPositionsState& speakersState, VisualPlayingVoicesState& voiceState)
         : mSpeakersState(speakersState),
-          mVisualVoices(voiceState)
+          mVisualVoices(voiceState, mViewState)
     {
         mViewAxesButtons.onViewAxesChanged = [this](ViewAxes v) {
             setViewAxes(v);
@@ -98,14 +98,14 @@ public:
 
     void resized() override
     {
+        mVisualVoices.setBounds(getLocalBounds());
         const int inset = 10;
         
         mViewAxesButtons.setBounds(getLocalBounds().reduced(inset).removeFromBottom(35).removeFromRight(180));
         
         const int axesSize = 100;
         mAxesIndicator.setBounds(getLocalBounds().reduced(inset).removeFromBottom(axesSize).removeFromLeft(axesSize));
-        
-        mViewState.updateMatrices(getLocalBounds().toFloat());
+
         updateSpeakerButtonComponents();
     }
     
@@ -203,11 +203,6 @@ private:
 
         mHullPath.updatePoints(uiPositions);
         repaint();
-    }
-    
-    void drawCircle(Graphics& g, float x, float y, float r, float thickness)
-    {
-        g.drawEllipse(x - r, y - r, r * 2.0f, r * 2.0f, thickness);
     }
     
     float getDepthNormalized(const glm::vec3& p)
