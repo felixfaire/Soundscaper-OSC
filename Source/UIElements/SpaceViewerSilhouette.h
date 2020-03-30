@@ -32,7 +32,7 @@ public:
         
         if (axes == ViewAxes::XZ) // Top
         {
-            g.fillPath(mTop, t);
+            g.strokePath(mTop, PathStrokeType(1.5f), t);
         }
         else if (axes == ViewAxes::XY) // Back
         {

@@ -22,7 +22,6 @@ MainComponent::MainComponent()
     // Init Audio
     mAudio.initialise();
     mAudio.mSynth.updateSpeakerPositions(mModel.getSpeakerPositions());
-    
     mAudio.loadAudioFiles(mModel);
     
     // Init UI
@@ -54,9 +53,9 @@ MainComponent::MainComponent()
     
     mModel.setSoundAtmosphereAmplitude(0, 0.0f);
     
-    startTimer(15);
+    startTimer(15); // outputs volume level update
     
-    setSize (500, 800);
+    setSize(500, 800);
 }
 
 MainComponent::~MainComponent()

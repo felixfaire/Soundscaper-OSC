@@ -179,6 +179,8 @@ private:
     {
         mWindowDiameter = 1.0f;
         
+        // TODO: fix assumption that lengths are calculated from the center
+        
         for (const auto& p : mModel.getSpeakerPositions())
         {
             const float l = glm::length(Axes::getFlattenedPoint(mCurrentViewAxes, p));

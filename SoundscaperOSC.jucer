@@ -59,10 +59,10 @@
               file="Source/Audio/SpatialSynthVoice.h"/>
       </GROUP>
       <GROUP id="{78B2BA97-B19B-FFD9-1DD4-16A761947A98}" name="UIElements">
+        <FILE id="kd8XeX" name="IconPaths.h" compile="0" resource="0" file="Source/UIElements/IconPaths.h"/>
         <FILE id="vpITlE" name="IconPaths.cpp" compile="1" resource="0" file="Source/UIElements/IconPaths.cpp"/>
         <FILE id="VqcDwV" name="SpaceViewerSilhouette.h" compile="0" resource="0"
               file="Source/UIElements/SpaceViewerSilhouette.h"/>
-        <FILE id="kd8XeX" name="IconPaths.h" compile="0" resource="0" file="Source/UIElements/IconPaths.h"/>
         <FILE id="cr1yE3" name="ViewAxesIndicator.h" compile="0" resource="0"
               file="Source/UIElements/ViewAxesIndicator.h"/>
         <FILE id="JAl3Mq" name="ViewAxesButtons.h" compile="0" resource="0"
