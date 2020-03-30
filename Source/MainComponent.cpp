@@ -14,14 +14,14 @@ MainComponent::MainComponent()
     : mAudio(mModel.mDeviceManager)
 {
     // Init model
-    mModel.mSpeakerPositionsChanges.addChangeListener(this);
+    mModel.mSpeakerPositionsState.addChangeListener(this);
     mModel.mSoundAtmosphereAmplitudesChanges.addChangeListener(this);
     mModel.mOSCReciever.addListener(this);
     AppModelLoader::loadSettings(mModel);
 
     // Init Audio
     mAudio.initialise();
-    mAudio.mSynth.updateSpeakerPositions(mModel.getSpeakerPositions());
+    mAudio.mSynth.updateSpeakerPositions(mModel.mSpeakerPositionsState.getSpeakerPositions());
     mAudio.loadAudioFiles(mModel);
     
     // Init UI
@@ -112,9 +112,9 @@ bool MainComponent::keyPressed(const KeyPress& key)
 
 void MainComponent::changeListenerCallback(ChangeBroadcaster* source)
 {
-    if (source == &mModel.mSpeakerPositionsChanges)
+    if (source == &mModel.mSpeakerPositionsState)
     {
-        mAudio.mSynth.updateSpeakerPositions(mModel.getSpeakerPositions());
+        mAudio.mSynth.updateSpeakerPositions(mModel.mSpeakerPositionsState.getSpeakerPositions());
     }
     else if (source == &mModel.mSoundAtmosphereAmplitudesChanges)
     {

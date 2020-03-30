@@ -10,6 +10,14 @@
     <GROUP id="{95A5C06C-B4E9-E01E-019B-DDE92792A038}" name="Source">
       <GROUP id="{732B9D9E-5FF9-27DE-B407-8BC635A18D83}" name="State">
         <FILE id="cwryVh" name="AppModel.h" compile="0" resource="0" file="Source/State/AppModel.h"/>
+        <FILE id="dC78wa" name="AtmosphereLevelState.h" compile="0" resource="0"
+              file="Source/State/AtmosphereLevelState.h"/>
+        <FILE id="dHvfx4" name="AudioDataState.h" compile="0" resource="0"
+              file="Source/State/AudioDataState.h"/>
+        <FILE id="aUUFt7" name="AudioMonitorState.h" compile="0" resource="0"
+              file="Source/State/AudioMonitorState.h"/>
+        <FILE id="MEVezK" name="SpeakerPositionsState.h" compile="0" resource="0"
+              file="Source/State/SpeakerPositionsState.h"/>
       </GROUP>
       <GROUP id="{A50DFF5B-3E8D-48B2-6F4F-507030AA1568}" name="Pages">
         <FILE id="XNIgTf" name="AudioFileListComponent.h" compile="0" resource="0"

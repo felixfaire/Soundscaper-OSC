@@ -89,11 +89,11 @@ public:
     
     void updateNumOutputChannels(const AppModel& model)
     {
-        if (mChannelComponents.size() != model.getSpeakerPositions().size())
+        if (mChannelComponents.size() != model.mSpeakerPositionsState.getSpeakerPositions().size())
         {
             mChannelComponents.clear();
             
-            for (int i = 0; i < model.getSpeakerPositions().size(); ++i)
+            for (int i = 0; i < model.mSpeakerPositionsState.getSpeakerPositions().size(); ++i)
             {
                 mChannelComponents.emplace_back(new ChannelInfoComponent(i));
                 addAndMakeVisible(*mChannelComponents.back());

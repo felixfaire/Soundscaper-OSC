@@ -18,9 +18,9 @@ class SpeakerHandleComponent : public Button,
                                public ChangeListener
 {
 public:
-    SpeakerHandleComponent(AppModel& m, int id)
+    SpeakerHandleComponent(SpeakerPositionsState& speakersState, int id)
         : Button("speaker_" + std::to_string(id)),
-          mModel(m),
+          mSpeakersState(speakersState),
           mID(id)
     {
         setRepaintsOnMouseActivity(true);
@@ -68,7 +68,7 @@ public:
         if (!event.mouseWasClicked())
             return;
             
-        auto* speakerEditor = new SpeakerEditorPopupComponent(mID, mModel.getSpeakerPosition(mID));
+        auto* speakerEditor = new SpeakerEditorPopupComponent(mID, mSpeakersState.getSpeakerPosition(mID));
         speakerEditor->addChangeListener(this);
         speakerEditor->setSize (250, 120);
 
@@ -100,7 +100,7 @@ private:
                 onUpdatePosition(mID, se->getPosition());
     }
     
-    AppModel& mModel;
+    SpeakerPositionsState& mSpeakersState;
     int mID = 0;
     glm::vec2 mPosition;
     glm::vec2 mSubPixelDiff;

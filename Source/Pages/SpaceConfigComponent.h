@@ -25,7 +25,7 @@ public:
     SpaceConfigComponent(AppModel& model)
         : mModel(model)
     {
-        mModel.mSpeakerPositionsChanges.addChangeListener(this);
+        mModel.mSpeakerPositionsState.addChangeListener(this);
         mModel.mAudioLevelChanges.addChangeListener(this);
         mModel.mDeviceManager.addChangeListener(this);
 
@@ -44,11 +44,11 @@ public:
 
         mAddButton->onClick = [this] () {
             auto& r = Random::getSystemRandom();
-            mModel.addSpeaker(glm::vec3(r.nextFloat(), r.nextFloat(), r.nextFloat()) * 4.0f - 2.0f);
+            mModel.mSpeakerPositionsState.addSpeaker(glm::vec3(r.nextFloat(), r.nextFloat(), r.nextFloat()) * 4.0f - 2.0f);
         };
 
         mRemoveButton->onClick = [this] () {
-            mModel.removeSpeaker();
+            mModel.mSpeakerPositionsState.removeSpeaker();
         };
 
         mListViewToggleButton->onClick = [this]() {
@@ -62,8 +62,8 @@ public:
         };
 
         // Views
-        mSpace.reset(new SpaceViewerComponent(mModel));
-        mSpeakerListView.reset(new SpeakerInfoListComponent(mModel));
+        mSpace.reset(new SpaceViewerComponent(mModel.mSpeakerPositionsState));
+        mSpeakerListView.reset(new SpeakerInfoListComponent(mModel.mSpeakerPositionsState));
         mViewContainer.reset(new ComponentContainer());
         mViewContainer->setContent(mSpace.get());
         mChannelBar.reset(new ChannelInfoComponentBar());
@@ -119,7 +119,7 @@ private:
 
     void changeListenerCallback (ChangeBroadcaster* source) override
     {
-        if (source == &mModel.mSpeakerPositionsChanges)
+        if (source == &mModel.mSpeakerPositionsState)
         {
             mSpace->updateComponentPositions();
             mChannelBar->updateNumOutputChannels(mModel);

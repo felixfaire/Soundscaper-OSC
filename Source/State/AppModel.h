@@ -11,6 +11,7 @@
 #pragma once
 #include "vec3.hpp"
 #include "../Audio/SpatialSampler.h"
+#include "SpeakerPositionsState.h"
 
 struct SoundFileData
 {
@@ -44,28 +45,6 @@ public:
     ~AppModel()
     {
     }
-    
-    void addSpeaker(const glm::vec3& pos)
-    {
-        mSpeakerPositions.push_back(pos);
-        mSpeakerPositionsChanges.sendChangeMessage();
-    }
-    
-    void removeSpeaker()
-    {
-        mSpeakerPositions.pop_back();
-        mSpeakerPositionsChanges.sendChangeMessage();
-    }
-    
-    void setSpeakerPosition(int index, const glm::vec3& pos)
-    {
-        jassert(index < mSpeakerPositions.size());
-        mSpeakerPositions[index] = pos;
-        mSpeakerPositionsChanges.sendChangeMessage();
-    }
-    
-    const std::vector<glm::vec3>& getSpeakerPositions() const { return mSpeakerPositions; }
-    const glm::vec3& getSpeakerPosition(int i) const          { return mSpeakerPositions[i]; }
     
     void setSoundAtmosphereAmplitude(int index, float newAmplitude)
     {
@@ -114,9 +93,9 @@ public:
         
         
     ChangeBroadcaster                   mSoundAtmosphereAmplitudesChanges;
-    ChangeBroadcaster                   mSpeakerPositionsChanges;
     ChangeBroadcaster                   mAudioLevelChanges;
 
+    SpeakerPositionsState                mSpeakerPositionsState;
     
     File                                mCurrentSoundAtmosphereFolder;
     std::vector<SoundFileData>          mSoundAtmosphereData;
@@ -138,7 +117,6 @@ private:
 
     // These must be changed via get / set to ensure all change messages are propogated correctly
     std::vector<float>                  mSoundAtmosphereAmplitudes;
-    std::vector<glm::vec3>              mSpeakerPositions;
     
     friend class AppModelLoader;
     

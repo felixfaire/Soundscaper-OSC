@@ -129,15 +129,15 @@ private:
 class SpeakerPostionComponent : public Component
 {
 public:
-    SpeakerPostionComponent(AppModel& m, int index)
-        : mModel(m),
+    SpeakerPostionComponent(SpeakerPositionsState& s, int index)
+        : mSpeakerState(s),
           mIndex(index),
-          mPositionInput(m.getSpeakerPosition(index))
+          mPositionInput(mSpeakerState.getSpeakerPosition(index))
     {
         setIndex(index);
 
         mPositionInput.onPositionChanged = [this](glm::vec3 pos) {
-            mModel.setSpeakerPosition(mIndex, pos);
+            mSpeakerState.setSpeakerPosition(mIndex, pos);
         };
 
         addAndMakeVisible(mIndexLabel);
@@ -165,12 +165,12 @@ public:
     { 
         mIndex = newIndex; 
         mIndexLabel.setText("Speaker: " + String(mIndex + 1), NotificationType::dontSendNotification);
-        mPositionInput.setPosition(mModel.getSpeakerPosition(mIndex));
+        mPositionInput.setPosition(mSpeakerState.getSpeakerPosition(mIndex));
     }
 
 private:
 
-    AppModel& mModel;
+    SpeakerPositionsState& mSpeakerState;
     int       mIndex;
 
     Label                  mIndexLabel;
@@ -184,25 +184,25 @@ private:
 class SpeakerInfoListBoxModel : public ListBoxModel
 {
 public:
-    SpeakerInfoListBoxModel(AppModel& m)
-        : mModel(m)
+    SpeakerInfoListBoxModel(SpeakerPositionsState& s)
+        : mSpeakerState(s)
     {
     }
 
     int getNumRows() override
     {
-        return (int)mModel.getSpeakerPositions().size();
+        return (int)mSpeakerState.getSpeakerPositions().size();
     }
 
     Component* refreshComponentForRow (int rowNumber, bool isRowSelected, Component* existingComponentToUpdate) override
     {
-        if (rowNumber >= mModel.getSpeakerPositions().size())
+        if (rowNumber >= mSpeakerState.getSpeakerPositions().size())
             return existingComponentToUpdate;
 
         auto* c = static_cast<SpeakerPostionComponent*>(existingComponentToUpdate);
 
         if (c == nullptr)
-            c = new SpeakerPostionComponent(mModel, rowNumber);
+            c = new SpeakerPostionComponent(mSpeakerState, rowNumber);
         else
             c->setIndex(rowNumber);
 
@@ -216,7 +216,7 @@ public:
     {
     }
 
-    AppModel& mModel;
+    SpeakerPositionsState& mSpeakerState;
 };
 
 
@@ -227,22 +227,22 @@ class SpeakerInfoListComponent : public Component,
                                  public ChangeListener
 {
 public:
-    SpeakerInfoListComponent(AppModel& m)
-        : mModel(m),
-          mListBoxModel(m)
+    SpeakerInfoListComponent(SpeakerPositionsState& s)
+        : mSpeakerState(s),
+          mListBoxModel(s)
     {
         mListBox.reset(new ListBox("SpeakerList", &mListBoxModel));
         mListBox->setRowHeight((int)mRowHeight);
         mListBox->setColour(ListBox::ColourIds::backgroundColourId, Colours::transparentBlack);
 
-        mModel.mSpeakerPositionsChanges.addChangeListener(this);
+        mSpeakerState.addChangeListener(this);
 
         addAndMakeVisible(*mListBox);
     }
 
     ~SpeakerInfoListComponent()
     {
-        mModel.mSpeakerPositionsChanges.removeChangeListener(this);
+        mSpeakerState.removeChangeListener(this);
     }
 
     void resized() override
@@ -265,7 +265,7 @@ private:
         mListBox->updateContent();
     }
 
-    AppModel&                           mModel;
+    SpeakerPositionsState&              mSpeakerState;
 
     // UI
     SpeakerInfoListBoxModel             mListBoxModel;

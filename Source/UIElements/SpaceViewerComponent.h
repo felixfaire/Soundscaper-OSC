@@ -26,8 +26,8 @@ class SpaceViewerComponent    : public Component
 {
 public:
     
-    SpaceViewerComponent(AppModel& model)
-        : mModel(model)
+    SpaceViewerComponent(SpeakerPositionsState& speakersState)
+        : mSpeakersState(speakersState)
     {
         mViewAxesButtons.onViewAxesChanged = [this](ViewAxes v) {
             setViewAxes(v);
@@ -121,7 +121,7 @@ public:
         
     void updateComponentPositions()
     {
-        if (mModel.getSpeakerPositions().size() != mSpeakers.size())
+        if (mSpeakersState.getSpeakerPositions().size() != mSpeakerHandles.size())
             createSpeakerComponents();
         
         updateZoomExtents();
@@ -142,36 +142,36 @@ private:
 
     void createSpeakerComponents()
     {
-        mSpeakers.clear();
+        mSpeakerHandles.clear();
         
         auto onUpdatePosition = [this](int i, const glm::vec3& p) {
-            mModel.setSpeakerPosition(i, p);
+            mSpeakersState.setSpeakerPosition(i, p);
         };
         
         auto onHandleDragged = [this](int i, const glm::vec2& drag)
         {
             const auto diff = getRectToWorld(drag, false);
-            const auto newPos = mModel.getSpeakerPosition(i) + Axes::getUnflattenedPoint(mCurrentViewAxes, diff);
-            mModel.setSpeakerPosition(i, newPos);
+            const auto newPos = mSpeakersState.getSpeakerPosition(i) + Axes::getUnflattenedPoint(mCurrentViewAxes, diff);
+            mSpeakersState.setSpeakerPosition(i, newPos);
         };
         
         auto onHandleReleased = [this](int i)
         {
-            auto p = mModel.getSpeakerPosition(i);
+            auto p = mSpeakersState.getSpeakerPosition(i);
             p = glm::round(p * 10.0f) * 0.1f;
-            mModel.setSpeakerPosition(i, p);
+            mSpeakersState.setSpeakerPosition(i, p);
         };
 
-        for (int i = 0; i < mModel.getSpeakerPositions().size(); ++i)
+        for (int i = 0; i < mSpeakersState.getSpeakerPositions().size(); ++i)
         {
-            SpeakerHandleComponent* c = new SpeakerHandleComponent(mModel, i);
+            SpeakerHandleComponent* c = new SpeakerHandleComponent(mSpeakersState, i);
             c->onUpdatePosition = onUpdatePosition;
             c->onDrag = onHandleDragged;
             c->onHandleReleased = onHandleReleased;
-            const int size = 25 + (int)(5.0f + getDepthNormalized(mModel.getSpeakerPosition(i)));
+            const int size = 25 + (int)(5.0f + getDepthNormalized(mSpeakersState.getSpeakerPosition(i)));
             c->setSize(size, size);
             addAndMakeVisible(*c);
-            mSpeakers.add(c);
+            mSpeakerHandles.add(c);
         }
     }
 
@@ -181,7 +181,7 @@ private:
         
         // TODO: fix assumption that lengths are calculated from the center
         
-        for (const auto& p : mModel.getSpeakerPositions())
+        for (const auto& p : mSpeakersState.getSpeakerPositions())
         {
             const float l = glm::length(Axes::getFlattenedPoint(mCurrentViewAxes, p));
             
@@ -196,19 +196,19 @@ private:
 
     void updateSpeakerButtonComponents()
     {
-        if (mSpeakers.size() == 0)
+        if (mSpeakerHandles.size() == 0)
             return;
             
-        std::vector<glm::vec2> uiPositions(mSpeakers.size());
+        std::vector<glm::vec2> uiPositions(mSpeakerHandles.size());
 
         // Position speaker components
-        for (int i = 0; i < mSpeakers.size(); ++i)
+        for (int i = 0; i < mSpeakerHandles.size(); ++i)
         {
-            const auto& s = mModel.getSpeakerPosition(i);
+            const auto& s = mSpeakersState.getSpeakerPosition(i);
             const auto p = getWorldToRect(Axes::getFlattenedPoint(mCurrentViewAxes, s));
             const int size = 25 - (int)(5.0f * getDepthNormalized(s));
-            mSpeakers[i]->setSize(size, size);
-            mSpeakers[i]->setPosition(p.x, p.y);
+            mSpeakerHandles[i]->setSize(size, size);
+            mSpeakerHandles[i]->setPosition(p.x, p.y);
             uiPositions[i] = p;
         }
 
@@ -276,7 +276,7 @@ private:
     glm::mat3 mRectToWorld;
     glm::mat3 mWorldToRect;
 
-    AppModel& mModel;
+    SpeakerPositionsState& mSpeakersState;
     
     ConvexHullPath mHullPath;
     
@@ -285,7 +285,7 @@ private:
     float     mMaxWindowDiameter = 100.0f;
 
     
-    OwnedArray<SpeakerHandleComponent> mSpeakers;
+    OwnedArray<SpeakerHandleComponent> mSpeakerHandles;
 
     ViewAxesButtons     mViewAxesButtons;
     ViewAxesIndicator   mAxesIndicator;

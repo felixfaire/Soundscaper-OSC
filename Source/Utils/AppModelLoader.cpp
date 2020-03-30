@@ -62,18 +62,20 @@ void AppModelLoader::loadSettings(AppModel& m)
             pos.y = (float)s->getDoubleAttribute("y", 0.0);
             pos.z = (float)s->getDoubleAttribute("z", 0.0);
 
-            m.mSpeakerPositions.push_back(pos);
+            m.mSpeakerPositionsState.mSpeakerPositions.push_back(pos);
         }
     }
     else
     {
         // Load default stereo model
         const float r = 2.0f;
-        m.mSpeakerPositions.push_back(glm::vec3(-r, 0.0f, 0.0f));
-        m.mSpeakerPositions.push_back(glm::vec3( r, 0.0f, 0.0f));
+        m.mSpeakerPositionsState.mSpeakerPositions.push_back(glm::vec3(-r, 0.0f, 0.0f));
+        m.mSpeakerPositionsState.mSpeakerPositions.push_back(glm::vec3( r, 0.0f, 0.0f));
+        m.mSpeakerPositionsState.mSpeakerPositions.push_back(glm::vec3(0.0f, 0.0f, -r));
+        m.mSpeakerPositionsState.mSpeakerPositions.push_back(glm::vec3(0.0f, 0.0f,  r));
     }
     
-    m.mSpeakerPositionsChanges.sendChangeMessage();
+    m.mSpeakerPositionsState.sendChangeMessage();
 }
 
 void AppModelLoader::saveSettings(AppModel& m)
@@ -83,7 +85,7 @@ void AppModelLoader::saveSettings(AppModel& m)
 
     XmlElement speakersProps(mSpeakerInfoID);
 
-    for (const auto& s : m.mSpeakerPositions)
+    for (const auto& s : m.mSpeakerPositionsState.getSpeakerPositions())
     {
         XmlElement* speaker = new XmlElement("speaker");
         speaker->setAttribute("x", s.x);
