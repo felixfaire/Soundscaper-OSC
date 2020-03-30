@@ -39,8 +39,8 @@ public:
         sendChangeMessage();
     }
 
-    const std::vector<glm::vec3>& getSpeakerPositions() const { return mSpeakerPositions; }
-    const glm::vec3& getSpeakerPosition(int i) const          { return mSpeakerPositions[i]; }
+    const std::vector<glm::vec3>& getPositions() const { return mSpeakerPositions; }
+    const glm::vec3& getPosition(int i) const          { return mSpeakerPositions[i]; }
 
 private:
 

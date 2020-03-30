@@ -68,7 +68,7 @@ public:
         if (!event.mouseWasClicked())
             return;
             
-        auto* speakerEditor = new SpeakerEditorPopupComponent(mID, mSpeakersState.getSpeakerPosition(mID));
+        auto* speakerEditor = new SpeakerEditorPopupComponent(mID, mSpeakersState.getPosition(mID));
         speakerEditor->addChangeListener(this);
         speakerEditor->setSize (250, 120);
 

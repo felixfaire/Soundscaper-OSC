@@ -21,7 +21,7 @@ MainComponent::MainComponent()
 
     // Init Audio
     mAudio.initialise();
-    mAudio.mSynth.updateSpeakerPositions(mModel.mSpeakerPositionsState.getSpeakerPositions());
+    mAudio.mSynth.updateSpeakerPositions(mModel.mSpeakerPositionsState.getPositions());
     mAudio.loadAudioFiles(mModel);
     
     // Init UI
@@ -114,7 +114,7 @@ void MainComponent::changeListenerCallback(ChangeBroadcaster* source)
 {
     if (source == &mModel.mSpeakerPositionsState)
     {
-        mAudio.mSynth.updateSpeakerPositions(mModel.mSpeakerPositionsState.getSpeakerPositions());
+        mAudio.mSynth.updateSpeakerPositions(mModel.mSpeakerPositionsState.getPositions());
     }
     else if (source == &mModel.mSoundAtmosphereAmplitudesChanges)
     {

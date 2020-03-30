@@ -121,7 +121,7 @@ public:
         
     void updateComponentPositions()
     {
-        if (mSpeakersState.getSpeakerPositions().size() != mSpeakerHandles.size())
+        if (mSpeakersState.getPositions().size() != mSpeakerHandles.size())
             createSpeakerComponents();
         
         updateZoomExtents();
@@ -151,24 +151,24 @@ private:
         auto onHandleDragged = [this](int i, const glm::vec2& drag)
         {
             const auto diff = getRectToWorld(drag, false);
-            const auto newPos = mSpeakersState.getSpeakerPosition(i) + Axes::getUnflattenedPoint(mCurrentViewAxes, diff);
+            const auto newPos = mSpeakersState.getPosition(i) + Axes::getUnflattenedPoint(mCurrentViewAxes, diff);
             mSpeakersState.setSpeakerPosition(i, newPos);
         };
         
         auto onHandleReleased = [this](int i)
         {
-            auto p = mSpeakersState.getSpeakerPosition(i);
+            auto p = mSpeakersState.getPosition(i);
             p = glm::round(p * 10.0f) * 0.1f;
             mSpeakersState.setSpeakerPosition(i, p);
         };
 
-        for (int i = 0; i < mSpeakersState.getSpeakerPositions().size(); ++i)
+        for (int i = 0; i < mSpeakersState.getPositions().size(); ++i)
         {
             SpeakerHandleComponent* c = new SpeakerHandleComponent(mSpeakersState, i);
             c->onUpdatePosition = onUpdatePosition;
             c->onDrag = onHandleDragged;
             c->onHandleReleased = onHandleReleased;
-            const int size = 25 + (int)(5.0f + getDepthNormalized(mSpeakersState.getSpeakerPosition(i)));
+            const int size = 25 + (int)(5.0f + getDepthNormalized(mSpeakersState.getPosition(i)));
             c->setSize(size, size);
             addAndMakeVisible(*c);
             mSpeakerHandles.add(c);
@@ -181,7 +181,7 @@ private:
         
         // TODO: fix assumption that lengths are calculated from the center
         
-        for (const auto& p : mSpeakersState.getSpeakerPositions())
+        for (const auto& p : mSpeakersState.getPositions())
         {
             const float l = glm::length(Axes::getFlattenedPoint(mCurrentViewAxes, p));
             
@@ -204,7 +204,7 @@ private:
         // Position speaker components
         for (int i = 0; i < mSpeakerHandles.size(); ++i)
         {
-            const auto& s = mSpeakersState.getSpeakerPosition(i);
+            const auto& s = mSpeakersState.getPosition(i);
             const auto p = getWorldToRect(Axes::getFlattenedPoint(mCurrentViewAxes, s));
             const int size = 25 - (int)(5.0f * getDepthNormalized(s));
             mSpeakerHandles[i]->setSize(size, size);

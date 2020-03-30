@@ -132,7 +132,7 @@ public:
     SpeakerPostionComponent(SpeakerPositionsState& s, int index)
         : mSpeakerState(s),
           mIndex(index),
-          mPositionInput(mSpeakerState.getSpeakerPosition(index))
+          mPositionInput(mSpeakerState.getPosition(index))
     {
         setIndex(index);
 
@@ -165,7 +165,7 @@ public:
     { 
         mIndex = newIndex; 
         mIndexLabel.setText("Speaker: " + String(mIndex + 1), NotificationType::dontSendNotification);
-        mPositionInput.setPosition(mSpeakerState.getSpeakerPosition(mIndex));
+        mPositionInput.setPosition(mSpeakerState.getPosition(mIndex));
     }
 
 private:
@@ -191,12 +191,12 @@ public:
 
     int getNumRows() override
     {
-        return (int)mSpeakerState.getSpeakerPositions().size();
+        return (int)mSpeakerState.getPositions().size();
     }
 
     Component* refreshComponentForRow (int rowNumber, bool isRowSelected, Component* existingComponentToUpdate) override
     {
-        if (rowNumber >= mSpeakerState.getSpeakerPositions().size())
+        if (rowNumber >= mSpeakerState.getPositions().size())
             return existingComponentToUpdate;
 
         auto* c = static_cast<SpeakerPostionComponent*>(existingComponentToUpdate);

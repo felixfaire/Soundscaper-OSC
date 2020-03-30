@@ -85,7 +85,7 @@ void AppModelLoader::saveSettings(AppModel& m)
 
     XmlElement speakersProps(mSpeakerInfoID);
 
-    for (const auto& s : m.mSpeakerPositionsState.getSpeakerPositions())
+    for (const auto& s : m.mSpeakerPositionsState.getPositions())
     {
         XmlElement* speaker = new XmlElement("speaker");
         speaker->setAttribute("x", s.x);

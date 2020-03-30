@@ -26,7 +26,7 @@ public:
     
     void paint(Point<float> p, Graphics& g, ViewAxes axes, float scale)
     {
-        g.setColour(Colours::white.withAlpha(0.2f));
+        g.setColour(Colours::white.withAlpha(0.1f));
         
         AffineTransform t = AffineTransform().scaled(1.75f * scale).translated(p.x, p.y);
         
