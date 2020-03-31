@@ -17,12 +17,13 @@
 #include "Pages/AudioFileListComponent.h"
 #include "Pages/SpaceConfigComponent.h"
 
+#include "UIElements/ChannelMonitorComponent.h"
+
 #include "UIElements/MinimalLookAndFeel.h"
 
 //==============================================================================
 /*
-    This component lives inside our window, and this is where you should put all
-    your controls and content.
+    Main App window component
 */
 class MainComponent   : public Component,
                         public ChangeListener,
@@ -35,6 +36,7 @@ public:
     ~MainComponent();
 
     //==============================================================================
+    // Component
     void paint (Graphics& g) override;
     void resized() override;
     bool keyPressed(const KeyPress& event) override;
@@ -62,9 +64,13 @@ private:
     // UI
     std::unique_ptr<TabbedComponent>              mTabbedContainer;
     
+    // Pages
     std::unique_ptr<IOSettingsComponent>          mIOSettings;
     std::unique_ptr<AudioFileListComponent>       mFilesListComponent;
     std::unique_ptr<SpaceConfigComponent>         mSpaceComponent;
+
+    // Bottom Bar
+    std::unique_ptr<ChannelMonitorComponentBar>   mChannelMonitorBar;
 
     MinimalLookAndFeel                            mLookAndFeel;
 

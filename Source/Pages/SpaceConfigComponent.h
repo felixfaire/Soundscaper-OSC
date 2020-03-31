@@ -12,7 +12,6 @@
 
 #include <JuceHeader.h>
 #include "../UIElements/SpaceViewerComponent.h"
-#include "../UIElements/ChannelInfoComponent.h"
 #include "../UIElements/SpeakerInfoListComponent.h"
 #include "../UIElements/ComponentContainer.h"
 
@@ -66,7 +65,6 @@ public:
         mSpeakerListView.reset(new SpeakerInfoListComponent(mModel.mSpeakerPositionsState));
         mViewContainer.reset(new ComponentContainer());
         mViewContainer->setContent(mSpace.get());
-        mChannelBar.reset(new ChannelInfoComponentBar());
         
         mSpace->onTrigger = [this](glm::vec3 p) {
             
@@ -83,8 +81,6 @@ public:
         };
         
         addAndMakeVisible(*mViewContainer);
-        addAndMakeVisible(*mChannelBar);
-        
     }
     
     void resized() override
@@ -97,12 +93,7 @@ public:
         mRemoveButton->setBounds(topBar.removeFromLeft(mRemoveButton->getBestWidthForHeight(topBar.getHeight())).reduced(10, 5));
         mListViewToggleButton->setBounds(topBar);
 
-        b.removeFromTop(5);
-        auto cb = b.removeFromBottom(20);
-        b.removeFromBottom(5);
-        
         mViewContainer->setBounds(b);
-        mChannelBar->setBounds(cb);
     }
     
 
@@ -122,16 +113,6 @@ private:
         if (source == &mModel.mSpeakerPositionsState)
         {
             mSpace->updateComponentPositions();
-            mChannelBar->updateNumOutputChannels(mModel);
-        }
-        else if (source == &mModel.mAudioMonitorState)
-        {
-            mChannelBar->updateAudioLevels(mModel);
-        }
-        else if (source == &mModel.mDeviceManager)
-        {
-            const auto& setup = mModel.mDeviceManager.getAudioDeviceSetup();
-            mChannelBar->updateActivatedChannels(setup);
         }
     }
     
@@ -150,7 +131,5 @@ private:
     std::unique_ptr<SpaceViewerComponent>      mSpace;
     std::unique_ptr<SpeakerInfoListComponent>  mSpeakerListView;
     
-    // Bottom Bar
-    std::unique_ptr<ChannelInfoComponentBar>   mChannelBar;
     
 };

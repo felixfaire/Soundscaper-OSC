@@ -41,12 +41,15 @@ MainComponent::MainComponent()
     mTabbedContainer->addTab("Space", Colour(), mSpaceComponent.get(), false);
     mTabbedContainer->addTab("Sounds", Colour(), mFilesListComponent.get(), false);
     mTabbedContainer->addTab("Settings", Colour(), mIOSettings.get(), false);
-    mTabbedContainer->setIndent(10);
+    mTabbedContainer->setIndent(5);
     mTabbedContainer->setTabBarDepth(50);
     mTabbedContainer->setOutline(0);
     mTabbedContainer->setColour(TabbedComponent::ColourIds::backgroundColourId, Colour());
+
+    mChannelMonitorBar.reset(new ChannelMonitorComponentBar(mModel));
     
     addAndMakeVisible(*mTabbedContainer);
+    addAndMakeVisible(*mChannelMonitorBar);
     
     setWantsKeyboardFocus(true);
 
@@ -105,7 +108,11 @@ void MainComponent::paint (Graphics& g)
 void MainComponent::resized()
 {
     auto bounds = getLocalBounds();
+    auto cb = bounds.removeFromBottom(30);
     mTabbedContainer->setBounds(bounds);
+
+    cb = cb.withTrimmedBottom(5);
+    mChannelMonitorBar->setBounds(cb.reduced(5, 0));
 }
 
 bool MainComponent::keyPressed(const KeyPress& key)

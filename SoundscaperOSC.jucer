@@ -87,8 +87,8 @@
               file="Source/UIElements/SpaceViewerComponent.h"/>
         <FILE id="RWNp4m" name="SpeakerInfoListComponent.h" compile="0" resource="0"
               file="Source/UIElements/SpeakerInfoListComponent.h"/>
-        <FILE id="O2rB5Y" name="ChannelInfoComponent.h" compile="0" resource="0"
-              file="Source/UIElements/ChannelInfoComponent.h"/>
+        <FILE id="O2rB5Y" name="ChannelMonitorComponent.h" compile="0" resource="0"
+              file="Source/UIElements/ChannelMonitorComponent.h"/>
         <FILE id="qpTJDR" name="AudioFileComponent.h" compile="0" resource="0"
               file="Source/UIElements/AudioFileComponent.h"/>
         <FILE id="hg248b" name="MinimalLookAndFeel.h" compile="0" resource="0"
