@@ -24,6 +24,7 @@ public:
           mFileLength(fileLengthMillis),
           mPosition(pos)
     {   
+        mPositionHistory.push_back(pos);
     }
 
     void update(uint32 currTime, float deltaTimeSecs)
@@ -58,7 +59,7 @@ public:
         }
     }
 
-    bool hasMoved() const { return mPositionHistory.size() > 0; }
+    bool hasMoved() const { return mPositionHistory.size() > 1; }
     
     int         mID;
     String      mFileName;

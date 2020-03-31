@@ -34,8 +34,7 @@ public:
 
     void paint(Graphics& g) override
     {
-        g.setColour(Colour::greyLevel(0.6f));
-
+        g.setColour(Colour::fromFloatRGBA(0.5f, 0.7f, 1.0f, 0.8f));
 
         for (const auto& v : mVoicesState.mPlayingVoices)
         {
@@ -47,16 +46,11 @@ public:
 
             if (v.hasMoved())
             {
-                float thickness = 0.2f;
-                float step = 0.8f / (float)v.mPositionHistory.size();
-
                 Path path;
 
                 for (int i = 0; i < v.mPositionHistory.size(); ++i)
                 {
                     const auto hp2D = mViewState.getWorldToRect(v.mPositionHistory[i]);
-                    //drawCircle(g, hp2D.x, hp2D.y, 5.0f * thickness * (1.0f - t));
-                    //thickness += step;
 
                     if (i == 0)
                         path.startNewSubPath(hp2D.x, hp2D.y);
