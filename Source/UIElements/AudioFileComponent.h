@@ -33,10 +33,10 @@ public:
         const int margin = 10;
         b.reduce(margin, 0);
                 
-        g.setColour(Colour::greyLevel(0.8f));
+        g.setColour(Colour::greyLevel(0.9f));
         g.drawText(mData->mName, b, Justification(Justification::Flags::centredLeft), true);
         
-        g.setColour(Colour::greyLevel(0.6f));
+        g.setColour(Colour::greyLevel(0.7f));
         g.drawText(mData->mOSCAddress, b, Justification(Justification::Flags::centredRight), true);
     }
     
