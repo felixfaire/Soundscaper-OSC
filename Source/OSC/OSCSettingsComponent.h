@@ -16,57 +16,6 @@
 
 
 //==============================================================================
-class OSCSenderDemo   : public Component
-{
-public:
-    OSCSenderDemo()
-    {
-        mButton.setButtonText("Send");
-        addAndMakeVisible(mButton);
-
-        mSlider.setRange (0.0, 2.0, 1.0);
-        mSlider.setSliderStyle(Slider::LinearHorizontal);
-        addAndMakeVisible (mSlider);
-
-        mButton.onClick = [this]
-        {
-            // create and send an OSC message with  an address and a int value:
-            if (!mSender.send ("/sound/position", (int)mSlider.getValue()))
-                showConnectionErrorMessage ("Error: could not send OSC message.");
-        };
-
-        // specify here where to send OSC messages to: host URL and UDP port number
-        if (!mSender.connect ("127.0.0.1", 9001))
-            showConnectionErrorMessage ("Error: could not connect to UDP port 9001.");
-    }
-
-    void resized()
-    {
-        auto b = getLocalBounds();
-
-        mButton.setBounds(b.removeFromRight(80));
-        mSlider.setBounds(b);
-    }
-
-private:
-    //==============================================================================
-    void showConnectionErrorMessage (const String& messageText)
-    {
-        AlertWindow::showMessageBoxAsync (AlertWindow::WarningIcon,
-            "Connection error",
-            messageText,
-            "OK");
-    }
-
-    //==============================================================================
-    Slider      mSlider;
-    TextButton  mButton;
-    OSCSender   mSender;
-
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (OSCSenderDemo)
-};
-
-//==============================================================================
 class OSCSettingsComponent   : public Component,
                                private Label::Listener,
                                private OSCReceiver::Listener<OSCReceiver::MessageLoopCallback>
@@ -96,10 +45,10 @@ public:
         addAndMakeVisible(mOscLogListBox);
 //        addAndMakeVisible(mDemoSender);
 
-        mOscReceiver.addListener (this);
-        mOscReceiver.registerFormatErrorHandler ([this] (const char* data, int dataSize)
+        mOscReceiver.addListener(this);
+        mOscReceiver.registerFormatErrorHandler([this] (const char* data, int dataSize)
         {
-            mOscLogListBox.addInvalidOSCPacket (data, dataSize);
+            mOscLogListBox.addInvalidOSCPacket(data, dataSize);
         });
 
         connect();
@@ -138,12 +87,11 @@ private:
     //==============================================================================
     Label           mPortNumberLabel    { {}, "UDP Port Number: " };
     Label           mPortNumberField    { {}, "9001" };
-    TextButton      mConnectButton { "Connect" };
-    TextButton      mClearButton   { "Clear" };
+    TextButton      mConnectButton      { "Connect" };
+    TextButton      mClearButton        { "Clear" };
     Label           mConnectionStatusLabel;
 
     OSCReceiver&    mOscReceiver;
-    OSCSenderDemo   mDemoSender;
     OSCLogListBox   mOscLogListBox;
 
     int             mCurrentPortNumber = -1;
@@ -175,14 +123,14 @@ private:
     }
 
     //==============================================================================
-    void oscMessageReceived (const OSCMessage& message) override
+    void oscMessageReceived(const OSCMessage& message) override
     {
-        mOscLogListBox.addOSCMessage (message);
+        mOscLogListBox.addOSCMessage(message);
     }
 
-    void oscBundleReceived (const OSCBundle& bundle) override
+    void oscBundleReceived(const OSCBundle& bundle) override
     {
-        mOscLogListBox.addOSCBundle (bundle);
+        mOscLogListBox.addOSCBundle(bundle);
     }
 
     //==============================================================================
@@ -190,20 +138,20 @@ private:
     {
         auto portToConnect = mPortNumberField.getText().getIntValue();
 
-        if (! isValidOscPort (portToConnect))
+        if (!isValidOscPort(portToConnect))
         {
             handleInvalidPortNumberEntered();
             return;
         }
 
-        if (mOscReceiver.connect (portToConnect))
+        if (mOscReceiver.connect(portToConnect))
         {
             mCurrentPortNumber = portToConnect;
-            mConnectButton.setButtonText ("Disconnect");
+            mConnectButton.setButtonText("Disconnect");
         }
         else
         {
-            handleConnectError (portToConnect);
+            handleConnectError(portToConnect);
         }
 
         updateConnectionStatusLabel();
@@ -215,7 +163,7 @@ private:
         if (mOscReceiver.disconnect())
         {
             mCurrentPortNumber = -1;
-            mConnectButton.setButtonText ("Connect");
+            mConnectButton.setButtonText("Connect");
         }
         else
         {
@@ -226,18 +174,18 @@ private:
     }
 
     //==============================================================================
-    void handleConnectError (int failedPort)
+    void handleConnectError(int failedPort)
     {
-        AlertWindow::showMessageBoxAsync (AlertWindow::WarningIcon,
+        AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon,
             "OSC Connection error",
-            "Error: could not connect to port " + String (failedPort),
+            "Error: could not connect to port " + String(failedPort),
             "OK");
     }
 
     //==============================================================================
     void handleDisconnectError()
     {
-        AlertWindow::showMessageBoxAsync (AlertWindow::WarningIcon,
+        AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon,
             "Unknown error",
             "An unknown error occurred while trying to disconnect from UDP port.",
             "OK");
@@ -246,7 +194,7 @@ private:
     //==============================================================================
     void handleInvalidPortNumberEntered()
     {
-        AlertWindow::showMessageBoxAsync (AlertWindow::WarningIcon,
+        AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon,
             "Invalid port number",
             "Error: you have entered an invalid UDP port number.",
             "OK");
@@ -259,7 +207,7 @@ private:
     }
 
     //==============================================================================
-    bool isValidOscPort (int port) const
+    bool isValidOscPort(int port) const
     {
         return port > 0 && port < 65536;
     }
@@ -270,16 +218,16 @@ private:
         String text = "";
 
         if (isConnected())
-            text += "Connected to UDP port " + String (mCurrentPortNumber);
+            text += "Connected to UDP port " + String(mCurrentPortNumber);
         else
             text += "Disconnected";
 
         auto textColour = Colour::greyLevel(0.8f);//isConnected() ? Colours::green : Colours::red;
 
-        mConnectionStatusLabel.setText (text, dontSendNotification);
-        mConnectionStatusLabel.setFont (Font (15.00f, Font::bold));
-        mConnectionStatusLabel.setColour (Label::textColourId, textColour);
-        mConnectionStatusLabel.setJustificationType (Justification::centredLeft);
+        mConnectionStatusLabel.setText(text, dontSendNotification);
+        mConnectionStatusLabel.setFont(Font(15.00f, Font::bold));
+        mConnectionStatusLabel.setColour(Label::textColourId, textColour);
+        mConnectionStatusLabel.setJustificationType(Justification::centredLeft);
     }
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (OSCSettingsComponent)

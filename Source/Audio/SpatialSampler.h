@@ -40,7 +40,7 @@ public:
         @param maxSampleLengthSeconds   a maximum length of audio to read from the audio
                                         source, in seconds
     */
-    SpatialSamplerSound (const String& name,
+    SpatialSamplerSound(const String& name,
                   AudioFormatReader& source,
                   int noteID,
                   double attackTimeSecs,
@@ -52,32 +52,32 @@ public:
 
     //==============================================================================
     /** Returns the sample's name */
-    const String& getName() const noexcept                  { return name; }
+    const String& getName() const noexcept                  { return mName; }
 
     /** Returns the audio sample data.
         This could return nullptr if there was a problem loading the data.
     */
-    AudioBuffer<float>* getAudioData() const noexcept       { return data.get(); }
+    AudioBuffer<float>* getAudioData() const noexcept       { return mSampleData.get(); }
 
     //==============================================================================
     /** Changes the parameters of the ADSR envelope which will be applied to the sample. */
-    void setEnvelopeParameters (ADSR::Parameters parametersToUse)    { adsrParams = parametersToUse; }
+    void setEnvelopeParameters(ADSR::Parameters parametersToUse)    { mAdsrParams = parametersToUse; }
 
     //==============================================================================
-    bool appliesToNote (int note) override { return note == noteID; };
+    bool appliesToNote(int note) override { return note == mNoteID; };
 
 private:
     //==============================================================================
     friend class SpatialSamplerVoice;
 
-    String name;
-    std::unique_ptr<AudioBuffer<float>> data;
-    double sourceSampleRate;
+    String                              mName;
+    std::unique_ptr<AudioBuffer<float>> mSampleData;
+    double                              mSourceSampleRate;
     
-    int length = 0;
-    int noteID = 0;
+    int                                 mLength = 0;
+    int                                 mNoteID = 0;
 
-    ADSR::Parameters adsrParams;
+    ADSR::Parameters                    mAdsrParams;
 
     JUCE_LEAK_DETECTOR (SpatialSamplerSound)
 };
@@ -115,10 +115,10 @@ public:
 
 private:
     //==============================================================================
-    double pitchRatio = 0;
-    double sourceSamplePosition = 0;
+    double mPitchRatio = 0;
+    double mSourceSamplePosition = 0;
 
-    ADSR adsr;
+    ADSR   mAdsr;
 
     JUCE_LEAK_DETECTOR (SpatialSamplerVoice)
 };

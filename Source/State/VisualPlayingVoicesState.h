@@ -33,7 +33,7 @@ public:
 
         if (hasMoved())
         {
-            const float delta = 0.99f * (float)mMaxHistory * deltaTimeSecs;
+            const float delta = 0.99f * 32.0f * deltaTimeSecs;
 
             for (size_t i = 0; i < mPositionHistory.size() - 1; ++i)
                 mPositionHistory[i] = glm::mix(mPositionHistory[i], mPositionHistory[i + 1], glm::clamp(delta, 0.0f, 1.0f));
@@ -69,7 +69,7 @@ public:
 
     float                   mProgress = 0.0f;
     std::vector<glm::vec3>  mPositionHistory;
-    int                     mMaxHistory = 32;
+    int                     mMaxHistory = 64;
 };
 
 

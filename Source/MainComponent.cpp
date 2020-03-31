@@ -108,11 +108,11 @@ void MainComponent::paint (Graphics& g)
 void MainComponent::resized()
 {
     auto bounds = getLocalBounds();
-    auto cb = bounds.removeFromBottom(30);
+    auto monitorBounds = bounds.removeFromBottom(25);
     mTabbedContainer->setBounds(bounds);
 
-    cb = cb.withTrimmedBottom(5);
-    mChannelMonitorBar->setBounds(cb.reduced(5, 0));
+    monitorBounds = monitorBounds.withTrimmedBottom(5);
+    mChannelMonitorBar->setBounds(monitorBounds.reduced(5, 0));
 }
 
 bool MainComponent::keyPressed(const KeyPress& key)

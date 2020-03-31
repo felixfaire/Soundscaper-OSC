@@ -1,27 +1,38 @@
 #include "SpatialSampler.h"
 
 
-SpatialSamplerSound::SpatialSamplerSound (const String& soundName,
+SpatialSamplerSound::SpatialSamplerSound(const String& soundName,
                             AudioFormatReader& source,
                             int note,
                             double attackTimeSecs,
                             double releaseTimeSecs,
                             double maxSampleLengthSeconds)
-    : name (soundName),
-      sourceSampleRate (source.sampleRate),
-      noteID (note)
+    : mName(soundName),
+      mSourceSampleRate(source.sampleRate),
+      mNoteID(note)
 {
-    if (sourceSampleRate > 0 && source.lengthInSamples > 0)
+    if (mSourceSampleRate > 0 && source.lengthInSamples > 0)
     {
-        length = jmin ((int) source.lengthInSamples,
-                       (int) (maxSampleLengthSeconds * sourceSampleRate));
+        mLength = jmin ((int)source.lengthInSamples,
+                       (int)(maxSampleLengthSeconds * mSourceSampleRate));
 
-        data.reset (new AudioBuffer<float> (jmin (2, (int) source.numChannels), length + 4));
+        // Make mono buffer
+        mSampleData.reset(new AudioBuffer<float>(1, mLength + 4));
+        mSampleData->clear();
+    
+        // Load all audio file channels
+        std::unique_ptr<AudioBuffer<float>> tempBuffer = std::make_unique<AudioBuffer<float>>(mSampleData->getNumChannels(), mSampleData->getNumSamples());
+        source.read(tempBuffer.get(), 0, mLength + 4, 0, true, true);
+        
+        // Sum channels to mono
+        for (int i = 0; i < tempBuffer->getNumChannels(); ++i)
+            mSampleData->addFrom(0, 0, *tempBuffer, i, 0, tempBuffer->getNumSamples());
+        
+        // Average
+        mSampleData->applyGain(1.0f / (float)tempBuffer->getNumChannels());
 
-        source.read (data.get(), 0, length + 4, 0, true, true);
-
-        adsrParams.attack  = static_cast<float> (attackTimeSecs);
-        adsrParams.release = static_cast<float> (releaseTimeSecs);
+        mAdsrParams.attack  = static_cast<float>(attackTimeSecs);
+        mAdsrParams.release = static_cast<float>(releaseTimeSecs);
     }
 }
 
@@ -34,27 +45,27 @@ SpatialSamplerSound::~SpatialSamplerSound()
 SpatialSamplerVoice::SpatialSamplerVoice() {}
 SpatialSamplerVoice::~SpatialSamplerVoice() {}
 
-bool SpatialSamplerVoice::canPlaySound (SpatialSynthSound* sound)
+bool SpatialSamplerVoice::canPlaySound(SpatialSynthSound* sound)
 {
-    return dynamic_cast<const SpatialSamplerSound*> (sound) != nullptr;
+    return dynamic_cast<const SpatialSamplerSound*>(sound) != nullptr;
 }
 
-void SpatialSamplerVoice::startNote (int noteID, float velocity, const glm::vec3& pos, SpatialSynthSound* s)
+void SpatialSamplerVoice::startNote(int noteID, float velocity, const glm::vec3& pos, SpatialSynthSound* s)
 {
-    if (auto* sound = dynamic_cast<const SpatialSamplerSound*> (s))
+    if (auto* sound = dynamic_cast<const SpatialSamplerSound*>(s))
     {
         /*pitchRatio = std::pow (2.0, (midiNoteNumber - sound->midiRootNote) / 12.0)
                         * sound->sourceSampleRate / getSampleRate();*/
-        pitchRatio = 1.0;
+        mPitchRatio = 1.0;
         mPosition = pos;
-        sourceSamplePosition = 0.0;
+        mSourceSamplePosition = 0.0;
         mNeedsDBAPUpdate = true;
         mCurrentNoteID = noteID;
 
-        adsr.setSampleRate (sound->sourceSampleRate);
-        adsr.setParameters (sound->adsrParams);
+        mAdsr.setSampleRate (sound->mSourceSampleRate);
+        mAdsr.setParameters (sound->mAdsrParams);
 
-        adsr.noteOn();
+        mAdsr.noteOn();
     }
     else
     {
@@ -62,30 +73,29 @@ void SpatialSamplerVoice::startNote (int noteID, float velocity, const glm::vec3
     }
 }
 
-void SpatialSamplerVoice::stopNote (float /*velocity*/, bool allowTailOff)
+void SpatialSamplerVoice::stopNote(float /*velocity*/, bool allowTailOff)
 {
     if (allowTailOff)
     {
-        adsr.noteOff();
+        mAdsr.noteOff();
     }
     else
     {
         clearCurrentNote();
-        adsr.reset();
+        mAdsr.reset();
     }
 }
 
 
 //==============================================================================
-// TODO: change the audio files to mono before playback
-void SpatialSamplerVoice::renderNextBlock (AudioBuffer<float>& outputBuffer, int startSample, int numSamples)
+
+void SpatialSamplerVoice::renderNextBlock(AudioBuffer<float>& outputBuffer, int startSample, int numSamples)
 {
-    if (auto* playingSound = static_cast<SpatialSamplerSound*> (getCurrentlyPlayingSound().get()))
+    if (auto* playingSound = static_cast<SpatialSamplerSound*>(getCurrentlyPlayingSound().get()))
     {
         // Get sample data
-        auto& data = *playingSound->data;
-        const float* const inL = data.getReadPointer (0);
-        const float* const inR = data.getNumChannels() > 1 ? data.getReadPointer (1) : nullptr;
+        auto& data = *playingSound->mSampleData;
+        const float* const monoSamples = data.getReadPointer(0);
             
         const int numChannels = outputBuffer.getNumChannels();
         const float invSamples = 1.0f / (float)numSamples;
@@ -98,32 +108,31 @@ void SpatialSamplerVoice::renderNextBlock (AudioBuffer<float>& outputBuffer, int
         
         while (--numSamples >= 0)
         {
-            auto pos = (int)sourceSamplePosition;
-            auto alpha = (float)(sourceSamplePosition - pos);
+            auto pos = (int)mSourceSamplePosition;
+            auto alpha = (float)(mSourceSamplePosition - pos);
             auto invAlpha = 1.0f - alpha;
             
             for (int i = 0; i < mChannelAmplitudes.size(); ++i)
                 mChannelAmplitudes[i] += mChannelAmplitudeIncrements[i];
 
             // just using a very simple linear interpolation here..
-            float l = (inL[pos] * invAlpha + inL[pos + 1] * alpha);
-            float r = (inR != nullptr) ? (inR[pos] * invAlpha + inR[pos + 1] * alpha) : l;
+            float s = (monoSamples[pos] * invAlpha + monoSamples[pos + 1] * alpha);
 
-            auto envelopeValue = adsr.getNextSample();
+            auto envelopeValue = mAdsr.getNextSample();
             
             for (int ch = 0; ch < numChannels; ++ch)
             {
-                float* out = outputBuffer.getWritePointer (ch, startSample);
+                float* out = outputBuffer.getWritePointer(ch, startSample);
             
-                out[i] += (l + r) * 0.35f * envelopeValue * mChannelAmplitudes[ch];
+                out[i] += s * envelopeValue * mChannelAmplitudes[ch];
             }
         
-            sourceSamplePosition += pitchRatio;
+            mSourceSamplePosition += mPitchRatio;
             i++;
             
-            if (sourceSamplePosition > playingSound->length)
+            if (mSourceSamplePosition > playingSound->mLength)
             {
-                stopNote (0.0f, false);
+                stopNote(0.0f, false);
                 break;
             }
         }
