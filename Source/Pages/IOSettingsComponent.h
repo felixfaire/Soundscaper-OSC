@@ -90,7 +90,7 @@ public:
         auto b = getLocalBounds();
         int settingsHeight = mAudioSettings->getItemHeight() * 10 + 50;
         mAudioSettingsContainer->setBounds(b.removeFromTop(settingsHeight));
-        b.removeFromTop(10);
+        b.removeFromTop(5);
         mOSCSettingsContainer->setBounds(b);
     }
 
