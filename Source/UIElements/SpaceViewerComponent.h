@@ -13,6 +13,7 @@
 #include <JuceHeader.h>
 #include "vec2.hpp"
 
+#include "MinimalLookAndFeel.h"
 #include "../State/WorldViewState.h"
 
 #include "../Utils/ConvexHullPath.h"
@@ -50,13 +51,9 @@ public:
 
     void paint (Graphics& g) override
     {
-        auto b = getLocalBounds().toFloat();
+        auto b = getLocalBounds().reduced(1).toFloat();
         
-        g.setColour(Colour::greyLevel(0.05f));
-        g.fillRoundedRectangle(b, 4.0f);
-        
-        g.setColour(Colour::greyLevel(0.2f));
-        g.drawRoundedRectangle(b, 4.0f, 1.0f);
+        MinimalLookAndFeel::drawViewPanelBackground(g, b);
         
         const float minSize = jmin(b.getWidth(), b.getHeight());
         const float meter = minSize / mViewState.mWindowDiameter;

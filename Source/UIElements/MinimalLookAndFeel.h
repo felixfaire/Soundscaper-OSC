@@ -26,6 +26,21 @@ public:
     ~MinimalLookAndFeel()
     {
     }
+
+    static void drawViewPanelBackground(Graphics& g, Rectangle<float> bounds)
+    {
+        g.setColour(Colour::greyLevel(0.05f));
+        g.fillRoundedRectangle(bounds, 4.0f);
+
+        g.setColour(Colour::greyLevel(0.2f));
+        g.drawRoundedRectangle(bounds, 4.0f, 1.0f);
+    }
+
+    static void drawPanelBackground(Graphics& g, Rectangle<float> bounds)
+    {
+        g.setColour(Colours::white.withAlpha(0.05f));
+        g.fillRoundedRectangle(bounds, 4.0f);
+    }
     
     // ===== Text Button ========================
     

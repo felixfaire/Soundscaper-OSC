@@ -68,7 +68,7 @@ public:
     {
         
         mTitleLabel.reset(new Label("FilesList", mTitle));
-        mTitleLabel->setFont(mTitleLabel->getFont().withHeight(20.0f));
+        mTitleLabel->setFont(mTitleLabel->getFont().withHeight(25.0f));
 
         mFolderChooser.reset(new FilenameComponent("Samples Folder",
                                                     mFilesLocation,
@@ -86,16 +86,16 @@ public:
     
     void paint(Graphics& g) override
     {
-        auto b = getLocalBounds().toFloat();
-        g.setColour(Colour::greyLevel(0.1f));
-        g.fillRoundedRectangle(b, 5.0f);
+        auto b = getLocalBounds().reduced(1).toFloat();
+
+        MinimalLookAndFeel::drawPanelBackground(g, b);
     }
     
     void resized() override
     {
         auto b = getLocalBounds().reduced(5);
-        mTitleLabel->setBounds(b.removeFromTop(50));
-        mFolderChooser->setBounds(b.removeFromTop(30));
+        mTitleLabel->setBounds(b.removeFromTop(mRowHeight));
+        mFolderChooser->setBounds(b.removeFromTop(27).reduced(1));
         mListBox->setBounds(b.reduced(0, 5));
         mListBox->updateContent();
     }
@@ -164,7 +164,7 @@ public:
         auto b = getLocalBounds();
         
         mSoundAtmospheres.setBounds(b.removeFromTop(mSoundAtmospheres.getIdealHeight()));
-        b.removeFromTop(20);
+        b.removeFromTop(10);
         mSoundClips.setBounds(b);
     }
     
