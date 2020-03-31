@@ -90,8 +90,8 @@ public:
     const AudioBuffer<float>* getAudioData() { return mData.get(); }
     
 private:
-    float   mAmplitude = 1.0f;
-    float   mTargetAmplitude = 1.0f;
+    float   mAmplitude = 0.0f;
+    float   mTargetAmplitude = 0.0f;
     String  mName;
     std::unique_ptr<AudioBuffer<float>> mData;
     double  mSourceSampleRate;

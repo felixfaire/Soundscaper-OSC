@@ -53,7 +53,7 @@ public:
     {
         auto b = getLocalBounds().reduced(1).toFloat();
         
-        MinimalLookAndFeel::drawViewPanelBackground(g, b);
+        MinimalLookAndFeel::drawDarkPanelBackground(g, b);
         
         const float minSize = jmin(b.getWidth(), b.getHeight());
         const float meter = minSize / mViewState.mWindowDiameter;

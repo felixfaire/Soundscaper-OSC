@@ -11,7 +11,7 @@
 #pragma once
 
 #include <JuceHeader.h>
-
+#include "MinimalLookAndFeel.h"
 #include "../State/VisualPlayingVoicesState.h"
 
 class SpaceViewerVoicesComponent : public Component,
@@ -34,7 +34,7 @@ public:
 
     void paint(Graphics& g) override
     {
-        g.setColour(Colour::fromFloatRGBA(0.5f, 0.7f, 1.0f, 0.8f));
+        g.setColour(MinimalLookAndFeel::getSoundColour());
 
         for (const auto& v : mVoicesState.mPlayingVoices)
         {

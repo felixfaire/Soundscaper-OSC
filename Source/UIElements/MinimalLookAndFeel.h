@@ -27,7 +27,9 @@ public:
     {
     }
 
-    static void drawViewPanelBackground(Graphics& g, Rectangle<float> bounds)
+    static Colour getSoundColour() { return (Colour(0xcc1b9f89)); }
+
+    static void drawDarkPanelBackground(Graphics& g, Rectangle<float> bounds)
     {
         g.setColour(Colour::greyLevel(0.05f));
         g.fillRoundedRectangle(bounds, 4.0f);
