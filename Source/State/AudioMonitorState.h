@@ -33,7 +33,7 @@ public:
                 mAudioLevels[i] = newLevels[i];
         }
 
-        sendChangeMessage();
+        sendSynchronousChangeMessage();
     }
 
     const std::vector<float>&  getAudioLevels() const { return mAudioLevels; }

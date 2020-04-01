@@ -152,6 +152,18 @@ public:
         }
     }
 
+    // ===== COMBOBOX =======================================================
+
+    void positionComboBoxText (ComboBox& box, Label& label)
+    {
+        label.setBounds (1, 1,
+            box.getWidth() - 30,
+            box.getHeight() - 2);
+
+        label.setMinimumHorizontalScale(1.0f);
+        label.setFont (getComboBoxFont (box));
+    }
+
     // ===== FONTS ==========================================================
     
     Typeface::Ptr getTypefaceForFont(const Font& f) override

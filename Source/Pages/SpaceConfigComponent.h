@@ -25,8 +25,6 @@ public:
         : mModel(model)
     {
         mModel.mSpeakerPositionsState.addChangeListener(this);
-        mModel.mAudioMonitorState.addChangeListener(this);
-        mModel.mDeviceManager.addChangeListener(this);
 
 
         if (!mSender.connect ("127.0.0.1", 9001))

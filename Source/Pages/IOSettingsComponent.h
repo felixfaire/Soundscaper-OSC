@@ -88,7 +88,7 @@ public:
     void resized() override
     {
         auto b = getLocalBounds();
-        int settingsHeight = mAudioSettings->getItemHeight() * 10 + 50;
+        int settingsHeight = mAudioSettings->getItemHeight() * 12 + 50;
         mAudioSettingsContainer->setBounds(b.removeFromTop(settingsHeight));
         b.removeFromTop(5);
         mOSCSettingsContainer->setBounds(b);

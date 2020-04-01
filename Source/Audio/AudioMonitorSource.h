@@ -32,19 +32,41 @@ public:
         int                 numSamples = bufferToFill.numSamples;
         const int           numOutputChannels = outputBuffer.getNumChannels();
         
+        ScopedLock lock(mLevelsMutex);
+
         if (numOutputChannels != mLevels.size())
             mLevels.resize(numOutputChannels);
         
         for (int ch = 0; ch < numOutputChannels; ++ch)
-            mLevels[ch] = outputBuffer.getRMSLevel(ch, startSample, numSamples);
+        {
+            const float level = outputBuffer.getMagnitude(ch, startSample, numSamples);
+
+            if (level > 1.0f)
+            {
+                for (int i = startSample; i < startSample + numSamples - 1; ++i) 
+                    DBG(std::to_string(i) + ": " + std::to_string(outputBuffer.getSample(ch, i)));
+
+                jassert(false);
+            }
+
+            mLevels[ch] = level;
+        }
     }
     
     void releaseResources() override
     {
         
     }
-    
 
+    std::vector<float> getLevels() 
+    {
+        ScopedLock lock(mLevelsMutex);
+        return mLevels; 
+    }
+    
+private:
+
+    CriticalSection    mLevelsMutex;
     std::vector<float> mLevels;
     
 };

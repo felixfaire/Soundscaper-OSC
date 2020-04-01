@@ -58,7 +58,9 @@ public:
     
     void setLevel(float newLevel)
     {
-        mLevel = newLevel;
+        jassert(newLevel < 1.0f);
+
+        mLevel = glm::clamp(newLevel, 0.0f, 1.0f);
         repaint();
     }
     
@@ -159,7 +161,11 @@ private:
 
     void changeListenerCallback(ChangeBroadcaster* source) override
     {
-        if (source == &mModel.mSpeakerPositionsState)
+        if (source == &mModel.mAudioMonitorState)
+        {
+            updateAudioLevels(mModel);
+        }
+        else if (source == &mModel.mSpeakerPositionsState)
         {
             updateNumOutputChannels(mModel);
         }
@@ -167,10 +173,6 @@ private:
         {
             const auto& setup = mModel.mDeviceManager.getAudioDeviceSetup();
             updateActivatedChannels(setup);
-        }
-        else if (source == &mModel.mAudioMonitorState)
-        {
-            updateAudioLevels(mModel);
         }
     }
 

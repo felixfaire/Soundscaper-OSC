@@ -15,7 +15,7 @@
 
 struct SoundFileData
 {
-    SoundFileData(const String& name, const AudioBuffer<float>* data, double fileLength)
+    SoundFileData(const String& name, const AudioBuffer<float>& data, double fileLength)
         : mName(name),
           mFileLength(fileLength)
     {
@@ -25,11 +25,12 @@ struct SoundFileData
         generateWaveform(data);
     }
 
-    void generateWaveform(const AudioBuffer<float>* data)
+    void generateWaveform(const AudioBuffer<float>& data)
     {
-        const int numSamples = data->getNumSamples();
+        const int numSamples = data.getNumSamples();
         const int step = numSamples / mWaveformSize;
         const int windowSize = step * 2;
+        const int numChannels = data.getNumChannels();
 
         float maxLevel = 0.01f;
 
@@ -37,7 +38,7 @@ struct SoundFileData
         {
             const int startSample = i * step;
             const int numWindowSamples = jmin(windowSize, numSamples - startSample - 1);
-            const float level = data->getRMSLevel(0, startSample, numWindowSamples);
+            const float level = data.getRMSLevel(numChannels - 1, startSample, numWindowSamples);
             mWaveform.push_back(level);
 
             if (level > maxLevel)
@@ -65,12 +66,12 @@ public:
 
     }
 
-    void addSoundAtmosphereData(const String& name, const AudioBuffer<float>* data, double fileLength)
+    void addSoundAtmosphereData(const String& name, const AudioBuffer<float>& data, double fileLength)
     {
         mSoundAtmosphereData.emplace_back(name, data, fileLength);
     }
 
-    void addSoundClipData(const String& name, const AudioBuffer<float>* data, double fileLength)
+    void addSoundClipData(const String& name, const AudioBuffer<float>& data, double fileLength)
     {
         mSoundClipData.emplace_back(name, data, fileLength);
     }

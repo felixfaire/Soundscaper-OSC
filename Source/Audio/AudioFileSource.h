@@ -46,12 +46,12 @@ public:
     void getNextAudioBlock (const AudioSourceChannelInfo& bufferToFill) override
     {
         // Get sample data
-        const auto&         data = *mData;
+
         AudioBuffer<float>& outputBuffer = *bufferToFill.buffer;
         const int           startSample = bufferToFill.startSample;
         int                 numSamples = bufferToFill.numSamples;
             
-        const int fileChannels = data.getNumChannels();
+        const int fileChannels = mData->getNumChannels();
         const int outChannels = outputBuffer.getNumChannels();
         
         // Basic amplitude smoothing
@@ -64,10 +64,13 @@ public:
             auto pos = (int)mSourceSamplePosition;
             auto alpha = (float)(mSourceSamplePosition - pos);
             auto invAlpha = 1.0f - alpha;
+
+            jassert(pos >= 0 && pos < mData->getNumSamples());
             
             for (int ch = 0; ch < outChannels; ++ch)
             {
-                const float* const inCh = data.getReadPointer(ch % fileChannels);
+                const int chIndex = ch % fileChannels;
+                const float* const inCh = mData->getReadPointer(chIndex);
                 const float interp = (inCh[pos] * invAlpha + inCh[pos + 1] * alpha);
                 
                 float* out = outputBuffer.getWritePointer(ch, startSample);
@@ -77,7 +80,8 @@ public:
             mSourceSamplePosition += 1.0;
             i++;
             
-            if (mSourceSamplePosition > mData->getNumSamples())
+            // Looping
+            if (mSourceSamplePosition >= mData->getNumSamples())
                 mSourceSamplePosition -= mData->getNumSamples();
         }
     }

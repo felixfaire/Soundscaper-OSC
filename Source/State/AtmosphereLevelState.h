@@ -21,15 +21,20 @@ public:
     void resetAmplitudes(int numAmplitudes)
     {
         mSoundAtmosphereAmplitudes = std::vector<float>(numAmplitudes, 0.0f);
-        sendChangeMessage();
+        sendSynchronousChangeMessage();
     }
 
     void setSoundAtmosphereAmplitude(int index, float newAmplitude)
     {
         jassert(index < mSoundAtmosphereAmplitudes.size());
 
-        if (index >= mSoundAtmosphereAmplitudes.size())
+        if (index >= mSoundAtmosphereAmplitudes.size()
+        || mSoundAtmosphereAmplitudes[index] == newAmplitude)
+        {
             return;
+        }
+
+        jassert(newAmplitude < 1.0f);
 
         mSoundAtmosphereAmplitudes[index] = newAmplitude;
         sendChangeMessage();

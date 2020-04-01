@@ -13,14 +13,14 @@
 #include <JuceHeader.h>
 #include "MinimalLookAndFeel.h"
 
+
+
 class AudioFileComponent  : public Component
 {
 public:
-    AudioFileComponent(const SoundFileData& data)
-        : mData(&data)
+    AudioFileComponent()
     {
-        mLabel.reset(new Label("NameLabel", data.mName));
-        updateTooltip();
+        mLabel.reset(new Label("NameLabel", ""));
         mLabel->setColour(Label::ColourIds::textColourId, Colour::greyLevel(0.9f));
         mLabel->setFont(mLabel->getFont().withHeight(15.0f));
         mLabel->setInterceptsMouseClicks(true, true);
@@ -63,6 +63,9 @@ private:
 
     void drawWaveform(Graphics& g, Rectangle<float> b)
     {
+        if (mData == nullptr)
+            return;
+
         Path waveform;
         waveform.startNewSubPath(b.getX(), b.getCentreY());
 

@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <JUCERPROJECT id="gowFme" name="Soundscaper" projectType="guiapp" jucerVersion="5.4.7"
-              headerPath="../../../../glm/glm/" companyName="Synaesthete Ltd">
+              headerPath="../../../../glm/glm/&#10;../../../../SDKs/asiosdk_2.3.3/common"
+              companyName="Synaesthete">
   <MAINGROUP id="FyPVfO" name="Soundscaper">
     <GROUP id="{C0A6F8B8-450C-163F-77B6-E0380DEB11BE}" name="Assets">
       <FILE id="rZZaOC" name="Raleway-Regular.ttf" compile="0" resource="1"
@@ -71,32 +72,42 @@
               file="Source/Audio/SpatialSynthVoice.h"/>
       </GROUP>
       <GROUP id="{78B2BA97-B19B-FFD9-1DD4-16A761947A98}" name="UIElements">
-        <FILE id="Y4EXHY" name="SpaceViewerVoicesComponent.h" compile="0" resource="0"
-              file="Source/UIElements/SpaceViewerVoicesComponent.h"/>
-        <FILE id="kd8XeX" name="IconPaths.h" compile="0" resource="0" file="Source/UIElements/IconPaths.h"/>
-        <FILE id="vpITlE" name="IconPaths.cpp" compile="1" resource="0" file="Source/UIElements/IconPaths.cpp"/>
-        <FILE id="VqcDwV" name="SpaceViewerSilhouette.h" compile="0" resource="0"
-              file="Source/UIElements/SpaceViewerSilhouette.h"/>
-        <FILE id="cr1yE3" name="ViewAxesIndicator.h" compile="0" resource="0"
-              file="Source/UIElements/ViewAxesIndicator.h"/>
-        <FILE id="JAl3Mq" name="ViewAxesButtons.h" compile="0" resource="0"
-              file="Source/UIElements/ViewAxesButtons.h"/>
-        <FILE id="rpwb4P" name="ComponentContainer.h" compile="0" resource="0"
-              file="Source/UIElements/ComponentContainer.h"/>
-        <FILE id="EL58i4" name="SpaceViewerComponent.h" compile="0" resource="0"
-              file="Source/UIElements/SpaceViewerComponent.h"/>
-        <FILE id="RWNp4m" name="SpeakerInfoListComponent.h" compile="0" resource="0"
-              file="Source/UIElements/SpeakerInfoListComponent.h"/>
+        <GROUP id="{AEDDC02C-1C9D-4E26-96F1-4F7DB65CDAA2}" name="SpacePage">
+          <FILE id="Y4EXHY" name="SpaceViewerVoicesComponent.h" compile="0" resource="0"
+                file="Source/UIElements/SpaceViewerVoicesComponent.h"/>
+          <FILE id="kd8XeX" name="IconPaths.h" compile="0" resource="0" file="Source/UIElements/IconPaths.h"/>
+          <FILE id="vpITlE" name="IconPaths.cpp" compile="1" resource="0" file="Source/UIElements/IconPaths.cpp"/>
+          <FILE id="VqcDwV" name="SpaceViewerSilhouette.h" compile="0" resource="0"
+                file="Source/UIElements/SpaceViewerSilhouette.h"/>
+          <FILE id="cr1yE3" name="ViewAxesIndicator.h" compile="0" resource="0"
+                file="Source/UIElements/ViewAxesIndicator.h"/>
+          <FILE id="JAl3Mq" name="ViewAxesButtons.h" compile="0" resource="0"
+                file="Source/UIElements/ViewAxesButtons.h"/>
+          <FILE id="rpwb4P" name="ComponentContainer.h" compile="0" resource="0"
+                file="Source/UIElements/ComponentContainer.h"/>
+          <FILE id="EL58i4" name="SpaceViewerComponent.h" compile="0" resource="0"
+                file="Source/UIElements/SpaceViewerComponent.h"/>
+          <FILE id="RWNp4m" name="SpeakerInfoListComponent.h" compile="0" resource="0"
+                file="Source/UIElements/SpeakerInfoListComponent.h"/>
+          <FILE id="eB4fCP" name="SpeakerHandleComponent.h" compile="0" resource="0"
+                file="Source/UIElements/SpeakerHandleComponent.h"/>
+          <FILE id="PUq3kH" name="SpeakerEditorPopupComponent.h" compile="0"
+                resource="0" file="Source/UIElements/SpeakerEditorPopupComponent.h"/>
+        </GROUP>
+        <GROUP id="{20ACE17D-B93E-5DC2-DA55-A06BB6052A66}" name="SoundsPage">
+          <FILE id="qpTJDR" name="AudioFileComponent.h" compile="0" resource="0"
+                file="Source/UIElements/AudioFileComponent.h"/>
+          <FILE id="O4hF3M" name="AudioDataFolderListComponent.h" compile="0"
+                resource="0" file="Source/UIElements/AudioDataFolderListComponent.h"/>
+          <FILE id="oR59mS" name="ClipFolderListComponent.h" compile="0" resource="0"
+                file="Source/UIElements/ClipFolderListComponent.h"/>
+          <FILE id="RRpRf3" name="AtmosphereFolderListComponent.h" compile="0"
+                resource="0" file="Source/UIElements/AtmosphereFolderListComponent.h"/>
+        </GROUP>
         <FILE id="O2rB5Y" name="ChannelMonitorComponent.h" compile="0" resource="0"
               file="Source/UIElements/ChannelMonitorComponent.h"/>
-        <FILE id="qpTJDR" name="AudioFileComponent.h" compile="0" resource="0"
-              file="Source/UIElements/AudioFileComponent.h"/>
         <FILE id="hg248b" name="MinimalLookAndFeel.h" compile="0" resource="0"
               file="Source/UIElements/MinimalLookAndFeel.h"/>
-        <FILE id="eB4fCP" name="SpeakerHandleComponent.h" compile="0" resource="0"
-              file="Source/UIElements/SpeakerHandleComponent.h"/>
-        <FILE id="PUq3kH" name="SpeakerEditorPopupComponent.h" compile="0"
-              resource="0" file="Source/UIElements/SpeakerEditorPopupComponent.h"/>
       </GROUP>
       <FILE id="cM4RsR" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>
       <FILE id="IWDRtt" name="MainComponent.cpp" compile="1" resource="0"
@@ -192,5 +203,6 @@
     <WINDOWS buildEnabled="0"/>
     <OSX/>
   </LIVE_SETTINGS>
-  <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1" JUCE_USE_MP3AUDIOFORMAT="1"/>
+  <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1" JUCE_USE_MP3AUDIOFORMAT="1"
+               JUCE_ASIO="1"/>
 </JUCERPROJECT>

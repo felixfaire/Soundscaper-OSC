@@ -109,7 +109,7 @@ public:
                 const auto name = atmosphereFile.getFileNameWithoutExtension();
                 auto* newSound = new AudioFileSource(name, *atmosphereReader);
                 const double fileLength = (double)atmosphereReader->lengthInSamples / (double)atmosphereReader->sampleRate;
-                data.addSoundAtmosphereData(name, newSound->getAudioData(), fileLength);
+                data.addSoundAtmosphereData(name, *newSound->getAudioData(), fileLength);
                 mAtmosphereSources.emplace_back(newSound);
             }
         }
@@ -135,7 +135,7 @@ public:
                 auto* newSound = new SpatialSamplerSound(wavFile.getFileNameWithoutExtension(), *reader, noteID, 0.01, 0.5, 20.0);
                 const double fileLength = (double)reader->lengthInSamples / (double)reader->sampleRate;
 
-                data.addSoundClipData(newSound->getName(), newSound->getAudioData(), fileLength);
+                data.addSoundClipData(newSound->getName(), *newSound->getAudioData(), fileLength);
                 
                 mSynth.addSound(newSound);
                 mSynth.addVoice(new SpatialSamplerVoice());
@@ -148,7 +148,7 @@ public:
             Logger::getCurrentLogger()->writeToLog("Failed to find any .wavs");
         }
 
-        data.sendChangeMessage();
+        data.sendSynchronousChangeMessage();
     }
     
     // Manages lockfree message processing with a fifo
@@ -167,10 +167,9 @@ public:
             mAtmosphereSources[i]->setAmplitude(amps[i]);
     }
     
-    std::vector<float>& getAudioLevels()
+    std::vector<float> getAudioLevels()
     {
-        // TODO: NOT THREAD SAFE YET
-        return mMonitor->mLevels;
+        return mMonitor->getLevels();
     }
         
     AudioDeviceManager& getDeviceManager() { return mDeviceManager; }

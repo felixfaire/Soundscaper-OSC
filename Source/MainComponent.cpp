@@ -29,7 +29,7 @@ MainComponent::MainComponent()
     MinimalLookAndFeel::setDefaultLookAndFeel(&mLookAndFeel);
     
     mIOSettings.reset(new IOSettingsComponent(mModel, mAudio.getDeviceManager()));
-    mFilesListComponent.reset(new AudioFileListComponent(mModel.mAudioDataState));
+    mFilesListComponent.reset(new AudioFileListComponent(mModel));
     mSpaceComponent.reset(new SpaceConfigComponent(mModel));
     
     mFilesListComponent->onAudioFoldersChanged = [this]()
@@ -52,8 +52,6 @@ MainComponent::MainComponent()
     addAndMakeVisible(*mChannelMonitorBar);
     
     setWantsKeyboardFocus(true);
-
-    mFilesListComponent->resized();
     
     startTimer(16); // animation timer
     
@@ -191,7 +189,7 @@ void MainComponent::oscMessageReceived(const OSCMessage& message)
 void MainComponent::timerCallback()
 {
     // Update output audio levels
-    std::vector<float> levels = mAudio.getAudioLevels();
+    const auto& levels = mAudio.getAudioLevels();
     mModel.mAudioMonitorState.setAudioLevels(levels);
 
     // Update visual sources
