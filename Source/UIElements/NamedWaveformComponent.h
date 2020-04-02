@@ -22,7 +22,7 @@ public:
     {
         mLabel.reset(new Label("NameLabel", ""));
         mLabel->setColour(Label::ColourIds::textColourId, Colour::greyLevel(0.9f));
-        mLabel->setFont(mLabel->getFont().withHeight(15.0f));
+        mLabel->setFont(mLabel->getFont().withHeight(18.0f));
         mLabel->setInterceptsMouseClicks(true, true);
 
         addAndMakeVisible(*mLabel);
@@ -42,7 +42,7 @@ public:
     void setData(const SoundFileData* newData) 
     { 
         mData = newData; 
-        mLabel->setText(mData->mName, dontSendNotification);
+        mLabel->setText(String(mData->mIndex) + String(": ") + mData->mName, dontSendNotification);
         updateTooltip();
     }
     
@@ -50,7 +50,7 @@ private:
 
     void updateTooltip()
     {
-        mLabel->setTooltip("OSC Adress: " + mData->mOSCAddress);
+        mLabel->setTooltip("OSC string id: \n" + String("\"") + mData->mOSCAddress + String("\""));
     }
 
     void drawWaveform(Graphics& g, Rectangle<float> b)
@@ -83,13 +83,13 @@ private:
         const float start = b.getX() + mTextWidth;
         const float end = start + 100.0f;
 
-        ColourGradient grad(MinimalLookAndFeel::getSoundColour().withAlpha(0.1f), { start, b.getCentreY() },
+        ColourGradient grad(MinimalLookAndFeel::getSoundColour().withAlpha(0.13f), { start, b.getCentreY() },
                             MinimalLookAndFeel::getSoundColour().withAlpha(0.3f), { end, b.getCentreY() }, false);
         g.setGradientFill(grad);
         g.fillPath(waveform);
     }
 
-    const SoundFileData* mData;
+    const SoundFileData* mData = nullptr;
 
     std::unique_ptr<Label> mLabel;
     float                  mTextWidth;

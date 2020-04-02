@@ -54,6 +54,9 @@ MainComponent::MainComponent()
     setWantsKeyboardFocus(true);
     
     startTimer(16); // animation timer
+
+    mTooltipWindow->setOpaque(false);
+    mTooltipWindow->setMillisecondsBeforeTipAppears(900);
     
     setSize(500, 800);
 }
@@ -106,7 +109,7 @@ void MainComponent::paint (Graphics& g)
 void MainComponent::resized()
 {
     auto bounds = getLocalBounds();
-    auto monitorBounds = bounds.removeFromBottom(25);
+    auto monitorBounds = bounds.removeFromBottom(22);
     mTabbedContainer->setBounds(bounds);
 
     monitorBounds = monitorBounds.withTrimmedBottom(5);

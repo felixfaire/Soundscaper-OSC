@@ -17,18 +17,14 @@
 
 
 
-class SpaceConfigComponent : public Component,
-                             public ChangeListener
+class SpaceConfigComponent : public Component
 {
 public:
     SpaceConfigComponent(AppModel& model)
         : mModel(model)
     {
-        mModel.mSpeakerPositionsState.addChangeListener(this);
-
-
-        if (!mSender.connect ("127.0.0.1", 9001))
-            showConnectionErrorMessage ("Error: could not connect to UDP port 9001.");
+        if (!mSender.connect("127.0.0.1", 9001))
+            showConnectionErrorMessage("Error: could not connect to UDP port 9001.");
 
         // Buttons
         mAddButton.reset(new TextButton("Add Speaker"));
@@ -104,17 +100,7 @@ private:
             "Connection error",
             messageText,
             "OK");
-    }
-
-    void changeListenerCallback (ChangeBroadcaster* source) override
-    {
-        if (source == &mModel.mSpeakerPositionsState)
-        {
-            mSpace->updateComponentPositions();
-        }
-    }
-    
-    
+    }    
 
     AppModel& mModel;
     OSCSender mSender;

@@ -50,7 +50,7 @@ public:
         const int atmosphereHeight = jmin(b.getHeight() / 2, mSoundAtmospheres->getIdealHeight());
 
         mSoundAtmospheres->setBounds(b.removeFromTop(atmosphereHeight));
-        b.removeFromTop(10);
+        b.removeFromTop(5);
         mSoundClips->setBounds(b);
     }
     

@@ -26,7 +26,8 @@
 //==============================================================================
 /* This component visualises the spatial layout of the speakers.
 */
-class SpaceViewerComponent    : public Component
+class SpaceViewerComponent    : public Component,
+                                public ChangeListener
 {
 public:
     
@@ -34,6 +35,8 @@ public:
         : mSpeakersState(speakersState),
           mVisualVoices(voiceState, mViewState)
     {
+        mSpeakersState.addChangeListener(this);
+
         mViewAxesButtons.onViewAxesChanged = [this](ViewAxes v) {
             setViewAxes(v);
         };
@@ -140,6 +143,14 @@ public:
     std::function<void(glm::vec3)> onUpdate;
 
 private:
+
+    void changeListenerCallback (ChangeBroadcaster* source) override
+    {
+        if (source == &mSpeakersState)
+        {
+            updateComponentPositions();
+        }
+    }
 
     void createSpeakerComponents()
     {

@@ -32,6 +32,7 @@ public:
         mLevelSlider->setSliderStyle(Slider::SliderStyle::RotaryHorizontalVerticalDrag);
         mLevelSlider->setTextBoxStyle(Slider::NoTextBox, true, 1, 1);
         mLevelSlider->setRange(0.0, 1.0);
+        mLevelSlider->setTooltip("volume");
         mLevelSlider->onValueChange = [this]() {
             mModel.mAtmosphereLevelState.setSoundAtmosphereAmplitude(mCurrentIndex, (float)mLevelSlider->getValue());
         };

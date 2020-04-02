@@ -15,12 +15,12 @@
 
 struct SoundFileData
 {
-    SoundFileData(const String& name, const AudioBuffer<float>& data, double fileLength)
+    SoundFileData(const String& name, const AudioBuffer<float>& data, double fileLength, int index)
         : mName(name),
-          mFileLength(fileLength)
+          mFileLength(fileLength),
+          mIndex(index)
     {
-        // TODO: make a proper OSC address
-        mOSCAddress = mName.replace(" ", "_") + "/";
+        mOSCAddress = mName.replace(" ", "_");
 
         generateWaveform(data);
     }
@@ -52,6 +52,7 @@ struct SoundFileData
     String                              mName;
     String                              mOSCAddress;
     double                              mFileLength;
+    int                                 mIndex;
 
     std::vector<float>                  mWaveform;
     int                                 mWaveformSize = 256;
@@ -68,12 +69,12 @@ public:
 
     void addSoundAtmosphereData(const String& name, const AudioBuffer<float>& data, double fileLength)
     {
-        mSoundAtmosphereData.emplace_back(name, data, fileLength);
+        mSoundAtmosphereData.emplace_back(name, data, fileLength, (int)mSoundAtmosphereData.size());
     }
 
     void addSoundClipData(const String& name, const AudioBuffer<float>& data, double fileLength)
     {
-        mSoundClipData.emplace_back(name, data, fileLength);
+        mSoundClipData.emplace_back(name, data, fileLength, (int)mSoundClipData.size());
     }
 
     File                                mCurrentSoundAtmosphereFolder;

@@ -72,6 +72,8 @@ private:
     // Bottom Bar
     std::unique_ptr<ChannelMonitorComponentBar>   mChannelMonitorBar;
 
+    SharedResourcePointer<TooltipWindow>          mTooltipWindow;
+
     MinimalLookAndFeel                            mLookAndFeel;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)

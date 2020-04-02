@@ -43,6 +43,9 @@ public:
 
     void updateZoomExtents(const Rectangle<float>& bounds, const std::vector<glm::vec3>& positions)
     {
+        // Update new bounds matrices
+        updateMatrices(bounds);
+
         mWindowDiameter = 1.0f;
         const auto worldWindowCenter = getRectToWorld(glm::vec2(bounds.getCentreX(), bounds.getCentreY()));
 
@@ -55,6 +58,8 @@ public:
         }
 
         mWindowDiameter *= 2.2f;
+
+        // Update new scale window diameter
         updateMatrices(bounds);
     }
 
