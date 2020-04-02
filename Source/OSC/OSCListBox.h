@@ -15,13 +15,13 @@
 
 //==============================================================================
 class OSCLogListBox    : public ListBox,
-                        private ListBoxModel,
-                        private AsyncUpdater
+                         private ListBoxModel,
+                         private AsyncUpdater
 {
 public:
     OSCLogListBox()
     {
-        setModel (this);
+        setModel(this);
     }
 
     ~OSCLogListBox() override = default;
@@ -33,35 +33,35 @@ public:
     }
 
     //==============================================================================
-    void paintListBoxItem (int row, Graphics& g, int width, int height, bool rowIsSelected) override
+    void paintListBoxItem(int row, Graphics& g, int width, int height, bool rowIsSelected) override
     {
-        ignoreUnused (rowIsSelected);
+        ignoreUnused(rowIsSelected);
 
-        if (isPositiveAndBelow (row, mOscLogList.size()))
+        if (isPositiveAndBelow(row, mOscLogList.size()))
         {
-            const int itemIndex = (mStartEntry + row) % getNumRows();
+            const int itemIndex =(mStartEntry + row) % getNumRows();
 
-            g.setColour (Colours::white);
+            g.setColour(Colours::white);
 
-            g.drawText (mOscLogList[itemIndex],
-                        Rectangle<int> (width, height).reduced (4, 0),
+            g.drawText(mOscLogList[itemIndex],
+                        Rectangle<int>(width, height).reduced(4, 0),
                         Justification::centredLeft, true);
         }
     }
 
     //==============================================================================
-    void addOSCMessage (const OSCMessage& message, int level = 0)
+    void addOSCMessage(const OSCMessage& message, int level = 0)
     {
-        addEntry(getIndentationString (level)
+        addEntry(getIndentationString(level)
             + "- "
             + message.getAddressPattern().toString()
             + ", "
-            + String (message.size())
+            + String(message.size())
             + " argument(s)");
 
         if (!message.isEmpty())
         {
-            for (auto& arg : message)
+            for(auto& arg : message)
                 addOSCMessageArgument(arg, level + 1);
         }
 
@@ -69,15 +69,15 @@ public:
     }
 
     //==============================================================================
-    void addOSCBundle (const OSCBundle& bundle, int level = 0)
+    void addOSCBundle(const OSCBundle& bundle, int level = 0)
     {
         OSCTimeTag timeTag = bundle.getTimeTag();
 
-        addEntry(getIndentationString (level)
+        addEntry(getIndentationString(level)
             + "- osc bundle, time tag = "
-            + timeTag.toTime().toString (true, true, true, true));
+            + timeTag.toTime().toString(true, true, true, true));
 
-        for (auto& element : bundle)
+        for(auto& element : bundle)
         {
             if (element.isMessage())
                 addOSCMessage(element.getMessage(), level + 1);
@@ -89,7 +89,7 @@ public:
     }
 
     //==============================================================================
-    void addOSCMessageArgument (const OSCArgument& arg, int level)
+    void addOSCMessageArgument(const OSCArgument& arg, int level)
     {
         String typeAsString;
         String valueAsString;
@@ -97,12 +97,12 @@ public:
         if (arg.isFloat32())
         {
             typeAsString = "float32";
-            valueAsString = String (arg.getFloat32());
+            valueAsString = String(arg.getFloat32());
         }
         else if (arg.isInt32())
         {
             typeAsString = "int32";
-            valueAsString = String (arg.getInt32());
+            valueAsString = String(arg.getInt32());
         }
         else if (arg.isString())
         {
@@ -113,20 +113,20 @@ public:
         {
             typeAsString = "blob";
             auto& blob = arg.getBlob();
-            valueAsString = String::fromUTF8 ((const char*) blob.getData(), (int) blob.getSize());
+            valueAsString = String::fromUTF8((const char*) blob.getData(),(int) blob.getSize());
         }
         else
         {
             typeAsString = "(unknown)";
         }
 
-        addEntry(getIndentationString (level + 1) + "- " + typeAsString.paddedRight(' ', 12) + valueAsString);
+        addEntry(getIndentationString(level + 1) + "- " + typeAsString.paddedRight(' ', 12) + valueAsString);
     }
 
     //==============================================================================
-    void addInvalidOSCPacket (const char* /* data */, int dataSize)
+    void addInvalidOSCPacket(const char* /* data */, int dataSize)
     {
-        addEntry("- (" + String(dataSize) + "bytes with invalid format)");
+        addEntry("-(" + String(dataSize) + "bytes with invalid format)");
     }
 
     //==============================================================================
@@ -141,7 +141,7 @@ public:
     void handleAsyncUpdate() override
     {
         updateContent();
-        scrollToEnsureRowIsOnscreen (mOscLogList.size() - 1);
+        scrollToEnsureRowIsOnscreen(mOscLogList.size() - 1);
         repaint();
     }
 
@@ -150,12 +150,12 @@ private:
     void addEntry(const String& entry)
     {
         mOscLogList.set(mStartEntry, entry);
-        mStartEntry = (mStartEntry + 1) % mMaxNumEntries;
+        mStartEntry =(mStartEntry + 1) % mMaxNumEntries;
     }
 
-    static String getIndentationString (int level)
+    static String getIndentationString(int level)
     {
-        return String().paddedRight (' ', 2 * level);
+        return String().paddedRight(' ', 2 * level);
     }
 
     //==============================================================================
@@ -163,5 +163,5 @@ private:
     int             mStartEntry = 0;
     StringArray     mOscLogList;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (OSCLogListBox)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OSCLogListBox)
 };

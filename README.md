@@ -96,7 +96,6 @@ string: int: <voice-id>, float: <volume>, float: <x>, float: <y>, float: <z>
 
   The software currently uses a method called Distance Based Amplitude Panning (DBAP) which has the advantage of making simple but effective spatial sound fields from arbitrary speaker placements. This method is great for physical installations as it does not require knowledge of the users position (and works for multiple users). However, virtual sounds are only panned effectively if they are played from within convex hull (bounds) of the physical speakers. (There are multiple solutions to this to handle sources that are further away though none are implemented yet).
 
-TODO: The Space speaker layout editor is currently only 2D so editing speakers vertically is not an option.
 
 ### Feature Wishlist:
 
@@ -106,10 +105,16 @@ TODO: The Space speaker layout editor is currently only 2D so editing speakers v
   - Ambisonic file decoding and playback.
   - Audio input routing to a virtual 3D voice.
   - ...
+
 ### Build Instructions:
 
   This project relies on the JUCE framework and glm library to build. These libraries should be placed at ../../JUCE and ../../glm or their locations can be respecified in the Projucer project (see JUCE docs for more info on using JUCE).
 
+
+
+TODO:   
+- Replace osc message listbox with proper console
+- Add multi page container
 
 
 MIT License
