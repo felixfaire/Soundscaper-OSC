@@ -40,6 +40,8 @@ public:
     void paint (Graphics& g) override;
     void resized() override;
     bool keyPressed(const KeyPress& event) override;
+    void layoutPages(Rectangle<int> bounds);
+    void setMultiViewEnabled(bool enabled);
 
     // Controller
     void triggerSource(int noteID, int soundID, const glm::vec3& pos);
@@ -72,6 +74,9 @@ private:
     // Bottom Bar
     std::unique_ptr<ChannelMonitorComponentBar>   mChannelMonitorBar;
 
+    float                                         mAspect = 1.0f;
+    float                                         mAspectThresh = 1.4f;
+    bool                                          mMultiViewEnabled = false;
     SharedResourcePointer<TooltipWindow>          mTooltipWindow;
 
     MinimalLookAndFeel                            mLookAndFeel;

@@ -96,6 +96,9 @@ public:
 
     void resized() override
     {
+        if (getWidth() == 0 || getHeight() == 0)
+            return;
+
         mVisualVoices.setBounds(getLocalBounds());
         const int inset = 10;
         
