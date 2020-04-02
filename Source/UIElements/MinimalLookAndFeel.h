@@ -43,6 +43,14 @@ public:
         g.setColour(Colours::white.withAlpha(0.05f));
         g.fillRoundedRectangle(bounds, 4.0f);
     }
+
+    static void drawFileListItemBackground(Graphics& g, Rectangle<int> localBounds)
+    {
+        localBounds.reduce(1, 5);
+
+        g.setColour(Colour::greyLevel(0.4f));
+        g.drawRoundedRectangle(localBounds.toFloat(), 4.0f, 1.0f);
+    }
     
     // ===== Text Button ========================
     

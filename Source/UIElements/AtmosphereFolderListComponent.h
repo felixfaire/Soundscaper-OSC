@@ -16,7 +16,7 @@
 #include "MinimalLookAndFeel.h"
 #include "AudioDataFolderListComponent.h"
 
-#include "AudioFileComponent.h"
+#include "NamedWaveformComponent.h"
 
 
 class AtmosphereListItemComponent : public Component,
@@ -27,7 +27,7 @@ public:
         : mModel(model),
           mCurrentIndex(index)
     {
-        mAudioFileComponent.reset(new AudioFileComponent());
+        mNamedWaveformComponent.reset(new NamedWaveformComponent());
         mLevelSlider.reset(new Slider());
         mLevelSlider->setSliderStyle(Slider::SliderStyle::RotaryHorizontalVerticalDrag);
         mLevelSlider->setTextBoxStyle(Slider::NoTextBox, true, 1, 1);
@@ -36,7 +36,7 @@ public:
             mModel.mAtmosphereLevelState.setSoundAtmosphereAmplitude(mCurrentIndex, (float)mLevelSlider->getValue());
         };
 
-        addAndMakeVisible(*mAudioFileComponent);
+        addAndMakeVisible(*mNamedWaveformComponent);
         addAndMakeVisible(*mLevelSlider);
 
         setIndex(index);
@@ -44,12 +44,18 @@ public:
         mModel.mAtmosphereLevelState.addChangeListener(this);
     }
 
+    void paint(Graphics& g) override
+    {
+        auto b = getLocalBounds();
+        MinimalLookAndFeel::drawFileListItemBackground(b);
+    }
+
     void resized() override
     {
         auto b = getLocalBounds();
 
-        mAudioFileComponent->setBounds(b);
         mLevelSlider->setBounds(b.removeFromRight(b.getHeight()));
+        mNamedWaveformComponent->setBounds(b.reduced(3, 7));
     }
 
     void setIndex(int index) 
@@ -62,7 +68,7 @@ public:
         // Update audio file component
         const auto& fileList = mModel.mAudioDataState.mSoundAtmosphereData;
         const auto* fileData = &fileList[index];
-        mAudioFileComponent->setData(fileData);
+        mNamedWaveformComponent->setData(fileData);
 
         // Update Slider
         updateSliderValue();
@@ -83,9 +89,9 @@ private:
 
     AppModel&                           mModel;
 
-    int                                 mCurrentIndex;
-    std::unique_ptr<Slider>             mLevelSlider;
-    std::unique_ptr<AudioFileComponent> mAudioFileComponent;
+    int                                     mCurrentIndex;
+    std::unique_ptr<Slider>                 mLevelSlider;
+    std::unique_ptr<NamedWaveformComponent> mNamedWaveformComponent;
     
 };
 

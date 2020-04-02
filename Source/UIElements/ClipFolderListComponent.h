@@ -16,7 +16,7 @@
 #include "MinimalLookAndFeel.h"
 #include "AudioDataFolderListComponent.h"
 
-#include "AudioFileComponent.h"
+#include "NamedWaveformComponent.h"
 
 
 class ClipListItemComponent : public Component
@@ -26,17 +26,22 @@ public:
         : mModel(model),
           mCurrentIndex(index)
     {
-        mAudioFileComponent.reset(new AudioFileComponent());
-        addAndMakeVisible(*mAudioFileComponent);
+        mNamedWaveformComponent.reset(new NamedWaveformComponent());
+        addAndMakeVisible(*mNamedWaveformComponent);
 
         setIndex(index);
+    }
+
+    void paint(Graphics& g) override
+    {
+        auto b = getLocalBounds();
+        MinimalLookAndFeel::drawFileListItemBackground(b);
     }
 
     void resized() override
     {
         auto b = getLocalBounds();
-
-        mAudioFileComponent->setBounds(b);
+        mNamedWaveformComponent->setBounds(b);
     }
 
     void setIndex(int index) 
@@ -48,15 +53,15 @@ public:
         // Update audio file component
         const auto& fileList = mModel.mAudioDataState.mSoundClipData;
         const auto* fileData = &fileList[index];
-        mAudioFileComponent->setData(fileData);
+        mNamedWaveformComponent->setData(fileData);
     }
 
 private:
 
     AppModel&                           mModel;
 
-    int                                 mCurrentIndex;
-    std::unique_ptr<AudioFileComponent> mAudioFileComponent;
+    int                                     mCurrentIndex;
+    std::unique_ptr<NamedWaveformComponent> mNamedWaveformComponent;
 
 };
 

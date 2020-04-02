@@ -95,8 +95,8 @@
                 resource="0" file="Source/UIElements/SpeakerEditorPopupComponent.h"/>
         </GROUP>
         <GROUP id="{20ACE17D-B93E-5DC2-DA55-A06BB6052A66}" name="SoundsPage">
-          <FILE id="qpTJDR" name="AudioFileComponent.h" compile="0" resource="0"
-                file="Source/UIElements/AudioFileComponent.h"/>
+          <FILE id="qpTJDR" name="NamedWaveformComponent.h" compile="0" resource="0"
+                file="Source/UIElements/NamedWaveformComponent.h"/>
           <FILE id="O4hF3M" name="AudioDataFolderListComponent.h" compile="0"
                 resource="0" file="Source/UIElements/AudioDataFolderListComponent.h"/>
           <FILE id="oR59mS" name="ClipFolderListComponent.h" compile="0" resource="0"
