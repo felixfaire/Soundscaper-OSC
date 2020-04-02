@@ -44,7 +44,7 @@ public:
         {
             b.reduced(2.0f);
             b.setWidth(b.getWidth() * mLevel * 2.0f);
-            g.setColour(Colours::lightgreen);
+            g.setColour(MinimalLookAndFeel::getLevelColour());
             g.fillRoundedRectangle(b, 4.0f);
         }
     }

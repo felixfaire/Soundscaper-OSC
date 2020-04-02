@@ -35,13 +35,13 @@ public:
     void paint(Graphics& g) override
     {
         auto b = getLocalBounds();
-        MinimalLookAndFeel::drawFileListItemBackground(b);
+        MinimalLookAndFeel::drawFileListItemBackground(g, b);
     }
 
     void resized() override
     {
         auto b = getLocalBounds();
-        mNamedWaveformComponent->setBounds(b);
+        mNamedWaveformComponent->setBounds(b.reduced(3, 7));
     }
 
     void setIndex(int index) 

@@ -34,8 +34,6 @@ public:
             return;
         }
 
-        jassert(newAmplitude < 1.0f);
-
         mSoundAtmosphereAmplitudes[index] = newAmplitude;
         sendChangeMessage();
     }

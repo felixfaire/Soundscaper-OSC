@@ -47,7 +47,7 @@ public:
     void paint(Graphics& g) override
     {
         auto b = getLocalBounds();
-        MinimalLookAndFeel::drawFileListItemBackground(b);
+        MinimalLookAndFeel::drawFileListItemBackground(g, b);
     }
 
     void resized() override
