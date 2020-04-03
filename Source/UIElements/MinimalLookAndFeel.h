@@ -75,30 +75,24 @@ public:
     
     void drawTabButton(TabBarButton& button, Graphics& g, bool isMouseOver, bool isMouseDown) override
     {
-        const Rectangle<int> activeArea(button.getActiveArea());
+        float alpha = button.getToggleState() ? 1.0f : 0.3f;
+        alpha *= button.isEnabled() ?((isMouseOver || isMouseDown) ? 1.0f : 0.8f) : 0.3f;
 
-        const Colour bkg(button.getTabBackgroundColour());
-        const float textAlphaMult = button.getToggleState() ? 1.0f : 0.3f;
-
-        g.setColour(button.findColour(TabbedButtonBar::tabOutlineColourId));
-
-        Rectangle<int> r(activeArea);
-        r.removeFromBottom(5);
-
-        // Text Underline
-        if (button.getToggleState())
-            g.fillRect(r.removeFromBottom(2).reduced(40, 0));
-
-        float alpha = button.isEnabled() ?((isMouseOver || isMouseDown) ? 1.0f : 0.8f) : 0.3f;
-        alpha *= textAlphaMult;
-
-        Colour col(bkg.contrasting().withMultipliedAlpha(alpha));
+        Colour col = Colour::greyLevel(0.9f).withAlpha(alpha);
         const Rectangle<float> area(button.getTextArea().toFloat());
 
+        // Draw text
         TextLayout textLayout;
         createTabTextLayout(button, area.getWidth(), area.getHeight(), col, textLayout);
-
         textLayout.draw(g, area);
+        
+        // Text Underline
+        Rectangle<int> r = button.getActiveArea();
+        r.removeFromBottom(5);
+        g.setColour(col);
+        
+        if (button.getToggleState())
+            g.fillRect(r.removeFromBottom(2).reduced(35, 0));
     }
     
     void drawTabbedButtonBarBackground(TabbedButtonBar&, Graphics&) override
@@ -151,7 +145,7 @@ public:
 
     // ===== COMBOBOX =======================================================
 
-    void positionComboBoxText(ComboBox& box, Label& label)
+    void positionComboBoxText(ComboBox& box, Label& label) override
     {
         label.setBounds(1, 1,
             box.getWidth() - 30,
@@ -236,7 +230,7 @@ public:
             .constrainedWithin (parentArea);
     }
 
-    void drawTooltip(Graphics& g, const String& text, int width, int height)
+    void drawTooltip(Graphics& g, const String& text, int width, int height) override
     {
         Rectangle<int> bounds(width, height);
         auto cornerSize = 4.0f;

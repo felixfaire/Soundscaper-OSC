@@ -131,6 +131,9 @@ public:
         if (mSpeakersState.getPositions().size() != mSpeakerHandles.size())
             createSpeakerComponents();
         
+        if (getWidth() == 0 || getHeight() == 0)
+            return;
+        
         mViewState.updateZoomExtents(getLocalBounds().toFloat(), mSpeakersState.getPositions());
         updateSpeakerButtonComponents();
     }

@@ -16,7 +16,7 @@
 #include "Pages/IOSettingsComponent.h"
 #include "Pages/AudioFileListComponent.h"
 #include "Pages/SpaceConfigComponent.h"
-
+#include "UIElements/ExpandingPageContainer.h"
 #include "UIElements/ChannelMonitorComponent.h"
 
 #include "UIElements/MinimalLookAndFeel.h"
@@ -40,8 +40,6 @@ public:
     void paint (Graphics& g) override;
     void resized() override;
     bool keyPressed(const KeyPress& event) override;
-    void layoutPages(Rectangle<int> bounds);
-    void setMultiViewEnabled(bool enabled);
 
     // Controller
     void triggerSource(int noteID, int soundID, const glm::vec3& pos);
@@ -64,7 +62,7 @@ private:
     AudioController                               mAudio;
 
     // UI
-    std::unique_ptr<TabbedComponent>              mTabbedContainer;
+    std::unique_ptr<ExpandingPageContainer>       mPagesContainer;
     
     // Pages
     std::unique_ptr<IOSettingsComponent>          mIOSettings;
@@ -74,9 +72,6 @@ private:
     // Bottom Bar
     std::unique_ptr<ChannelMonitorComponentBar>   mChannelMonitorBar;
 
-    float                                         mAspect = 1.0f;
-    float                                         mAspectThresh = 1.4f;
-    bool                                          mMultiViewEnabled = false;
     SharedResourcePointer<TooltipWindow>          mTooltipWindow;
 
     MinimalLookAndFeel                            mLookAndFeel;

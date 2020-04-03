@@ -28,9 +28,16 @@ MainComponent::MainComponent()
     // Init UI
     MinimalLookAndFeel::setDefaultLookAndFeel(&mLookAndFeel);
     
-    mIOSettings.reset(new IOSettingsComponent(mModel, mAudio.getDeviceManager()));
-    mFilesListComponent.reset(new AudioFileListComponent(mModel));
     mSpaceComponent.reset(new SpaceConfigComponent(mModel));
+    mFilesListComponent.reset(new AudioFileListComponent(mModel));
+    mIOSettings.reset(new IOSettingsComponent(mModel, mAudio.getDeviceManager()));
+    
+    mPagesContainer.reset(new ExpandingPageContainer());
+    mPagesContainer->addPage("Space", mSpaceComponent.get());
+    mPagesContainer->addPage("Sounds", mFilesListComponent.get());
+    mPagesContainer->addPage("Settings", mIOSettings.get());
+    mPagesContainer->setMultiViewEnabled(false);
+    addAndMakeVisible(mPagesContainer.get());
     
     mFilesListComponent->onAudioFoldersChanged = [this]()
     {
@@ -47,7 +54,6 @@ MainComponent::MainComponent()
     mTooltipWindow->setOpaque(false);
     mTooltipWindow->setMillisecondsBeforeTipAppears(900);
     
-    setMultiViewEnabled(false);
     setSize(500, 800);
 }
 
@@ -98,70 +104,13 @@ void MainComponent::paint (Graphics& g)
 
 void MainComponent::resized()
 {
-    // Update multiview based on aspect
-    const float newAspect = (float)getWidth() / (float)getHeight();
-
-    if (newAspect > mAspectThresh && mAspect <= mAspectThresh)
-        setMultiViewEnabled(true);
-    else if (newAspect < mAspectThresh && mAspect >= mAspectThresh)
-        setMultiViewEnabled(false);
-
-    mAspect = newAspect;
-
     // Layout components
     auto bounds = getLocalBounds();
     auto monitorBounds = bounds.removeFromBottom(22);
-    layoutPages(bounds);
+    mPagesContainer->setBounds(bounds);
 
     monitorBounds = monitorBounds.withTrimmedBottom(5);
     mChannelMonitorBar->setBounds(monitorBounds.reduced(5, 0));
-}
-
-void MainComponent::setMultiViewEnabled(bool enabled)
-{
-    if (enabled)
-    {
-        mTabbedContainer.reset();
-        addAndMakeVisible(*mSpaceComponent);
-        addAndMakeVisible(*mFilesListComponent);
-        addAndMakeVisible(*mIOSettings);
-    }
-    else
-    {
-        removeChildComponent(mSpaceComponent.get());
-        removeChildComponent(mFilesListComponent.get());
-        removeChildComponent(mIOSettings.get());
-
-        mTabbedContainer.reset(new TabbedComponent(TabbedButtonBar::Orientation::TabsAtTop));
-        mTabbedContainer->addTab("Space", Colour(), mSpaceComponent.get(), false);
-        mTabbedContainer->addTab("Sounds", Colour(), mFilesListComponent.get(), false);
-        mTabbedContainer->addTab("Settings", Colour(), mIOSettings.get(), false);
-        mTabbedContainer->setIndent(5);
-        mTabbedContainer->setTabBarDepth(50);
-        mTabbedContainer->setOutline(0);
-        mTabbedContainer->setColour(TabbedComponent::ColourIds::backgroundColourId, Colour());
-        addAndMakeVisible(*mTabbedContainer);
-    }
-
-    mMultiViewEnabled = enabled;
-}
-
-void MainComponent::layoutPages(Rectangle<int> bounds)
-{
-    if (mMultiViewEnabled)
-    {
-        bounds.reduce(5, 5);
-        int step = bounds.getWidth() / 3;
-        mSpaceComponent->setBounds(bounds.removeFromLeft(step));
-        bounds.removeFromLeft(5);
-        mFilesListComponent->setBounds(bounds.removeFromLeft(step));
-        bounds.removeFromLeft(5);
-        mIOSettings->setBounds(bounds);
-    }
-    else
-    {
-        mTabbedContainer->setBounds(bounds);
-    }
 }
 
 bool MainComponent::keyPressed(const KeyPress& key)

@@ -104,6 +104,8 @@
           <FILE id="RRpRf3" name="AtmosphereFolderListComponent.h" compile="0"
                 resource="0" file="Source/UIElements/AtmosphereFolderListComponent.h"/>
         </GROUP>
+        <FILE id="Gnvqdy" name="ExpandingPageContainer.h" compile="0" resource="0"
+              file="Source/UIElements/ExpandingPageContainer.h"/>
         <FILE id="O2rB5Y" name="ChannelMonitorComponent.h" compile="0" resource="0"
               file="Source/UIElements/ChannelMonitorComponent.h"/>
         <FILE id="hg248b" name="MinimalLookAndFeel.h" compile="0" resource="0"

@@ -77,7 +77,7 @@ public:
 
 private:
 
-    void changeListenerCallback(ChangeBroadcaster* source)
+    void changeListenerCallback(ChangeBroadcaster* source) override
     {
         updateSliderValue();
     }
