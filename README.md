@@ -73,7 +73,6 @@ Simply trigger a sound from the 'voices' list at a certain 3D position with this
 
     OSC address: 'start/'
     Arguments: string: <name-of-voice-file>  (or int: <index-of-voice-file>)
-                float: <volume> 
                 float: <x>
                 float: <y> 
                 float: <z>
@@ -87,7 +86,6 @@ Optionally you can also trigger a voice with a unique integer 'voice-id' to be a
     OSC address: 'start/'
     Arguments: string: <name-of-voice-file>  (or int: <index-of-voice-file>)
                   int: <voice-id> 
-                float: <volume> 
                 float: <x>
                 float: <y> 
                 float: <z>
@@ -97,15 +95,13 @@ This identifier allows you to update that sound's position for its duration with
     OSC address: 'update/'
     Arguments: string: <name-of-voice-file>  (or int: <index-of-voice-file>)
                   int: <voice-id> 
-                float: <volume> 
                 float: <x>
                 float: <y> 
                 float: <z>
 
 ### Examples
 
-Some practical examples of the above written in [Processing](https://processing.org/) can be found here.
-TODO: add link to processing examples on github.
+Some practical examples of the above written in [Processing](https://processing.org/) can be found [here](https://github.com/felixfaire/Soundscaper-OSC-Examples).
 
 ### Current Limitations:
 
@@ -115,20 +111,18 @@ TODO: add link to processing examples on github.
 ### Feature Wishlist:
 
   - Use distance attenuation for sounds outside the convex hull of speakers
+  - Replace osc message listbox with helpful console error output
   - Allow looping voices
   - Doppler shift with velocity?
   - Ambisonic file decoding and playback.
   - Audio input routing to a virtual 3D voice.
-  - ...
+  - ...Let me know if you have any specific requirements
 
 ### Build Instructions:
 
   This project relies on the JUCE framework and glm library to build. These libraries should be placed at ../../JUCE and ../../glm or their locations can be respecified in the Projucer project (see JUCE docs for more info on using JUCE).
 
 
-
-TODO:   
-- Replace osc message listbox with helpful console error output
 
 
 MIT License

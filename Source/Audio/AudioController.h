@@ -98,7 +98,7 @@ public:
         ScopedLock dataLock(mFileDataMutex);
         
         // Load soundatmosphere files
-        auto atmosphereFiles = data.mCurrentSoundAtmosphereFolder.findChildFiles(File::TypesOfFileToFind::findFiles, false, "*.wav");
+        auto atmosphereFiles = data.mCurrentSoundAtmosphereFolder.findChildFiles(File::TypesOfFileToFind::findFiles, false);
         data.mSoundAtmosphereData.clear();
         mAtmosphereSources.clear();
         
@@ -123,7 +123,7 @@ public:
         mSynth.clearVoices();
         
         File folder = data.mCurrentSoundClipFolder;
-        auto clipFiles = folder.findChildFiles(File::TypesOfFileToFind::findFiles, false, "*.wav");
+        auto clipFiles = folder.findChildFiles(File::TypesOfFileToFind::findFiles, false);
         
         int noteID = 0;
         
