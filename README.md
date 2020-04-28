@@ -1,4 +1,4 @@
-[![N|Solid](https://s3.eu-west-2.amazonaws.com/www.synaesthete.studio/soundscaper-osc/images/SoundscaperOSC_Pages.png)](https://felixfaire.com)
+[![Soundscaper Pages](https://s3.eu-west-2.amazonaws.com/www.synaesthete.studio/soundscaper-osc/images/SoundscaperOSC_Pages.png)](https://felixfaire.com)
 
 # Soundscaper OSC 
 
