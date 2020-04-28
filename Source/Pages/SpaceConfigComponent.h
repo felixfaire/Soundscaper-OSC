@@ -14,7 +14,7 @@
 #include "../UIElements/SpaceViewerComponent.h"
 #include "../UIElements/SpeakerInfoListComponent.h"
 #include "../UIElements/ComponentContainer.h"
-
+#include "../UIElements/HelpButton.h"
 
 
 class SpaceConfigComponent : public Component
@@ -30,10 +30,15 @@ public:
         mAddButton.reset(new TextButton("Add Speaker"));
         mRemoveButton.reset(new TextButton("Remove Speaker"));
         mListViewToggleButton.reset(new ToggleButton("Show List View"));
+        mHelpButton.reset(new HelpButton());
+        
+        mHelpButton->setTitle("Speaker Layout");
+        mHelpButton->setText("This window allows you to configure your speaker layout in 3D. Drag a speaker icon to move it or click to edit individual speaker coordinates. You can also switch to list view to view / edit all speaker coordinates. \n\nThe space view will show any currently playing clips. You can click (or drag) in empty space to trigger the first clip in the list for testing.");
 
         addAndMakeVisible(*mAddButton);
         addAndMakeVisible(*mRemoveButton);
         addAndMakeVisible(*mListViewToggleButton);
+        addAndMakeVisible(*mHelpButton);
 
         mAddButton->onClick = [this] () {
             auto& r = Random::getSystemRandom();
@@ -64,8 +69,8 @@ public:
             
             const int noteID = ++mModel.mCurrentMouseNoteID;
             const int soundID = 0;
-            mSender.send("/start", noteID,
-                                   soundID,
+            mSender.send("/start", soundID,
+                                   noteID,
                                    p.x, p.y, p.z);
         };
         
@@ -81,8 +86,9 @@ public:
     {
         auto b = getLocalBounds();
         
-        auto topBar = b.removeFromTop(35);
-
+        auto barHeight = 35;
+        auto topBar = b.removeFromTop(barHeight);
+        mHelpButton->setBounds(topBar.removeFromRight(topBar.getHeight()).withSizeKeepingCentre(20, 20));
         mAddButton->setBounds(topBar.removeFromLeft(mAddButton->getBestWidthForHeight(topBar.getHeight())).reduced(0, 5));
         mRemoveButton->setBounds(topBar.removeFromLeft(mRemoveButton->getBestWidthForHeight(topBar.getHeight())).reduced(10, 5));
         mListViewToggleButton->setBounds(topBar);
@@ -94,9 +100,9 @@ public:
 private:
 
     //==============================================================================
-    void showConnectionErrorMessage (const String& messageText)
+    void showConnectionErrorMessage(const String& messageText)
     {
-        AlertWindow::showMessageBoxAsync (AlertWindow::WarningIcon,
+        AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon,
             "Connection error",
             messageText,
             "OK");
@@ -109,6 +115,7 @@ private:
     std::unique_ptr<ToggleButton>   mListViewToggleButton;
     std::unique_ptr<TextButton>     mAddButton;
     std::unique_ptr<TextButton>     mRemoveButton;
+    std::unique_ptr<HelpButton>     mHelpButton;
     
     // View
     std::unique_ptr<ComponentContainer>        mViewContainer;

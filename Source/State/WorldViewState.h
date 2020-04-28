@@ -43,15 +43,13 @@ public:
 
     void updateZoomExtents(const Rectangle<float>& bounds, const std::vector<glm::vec3>& positions)
     {
-        // Update new bounds matrices
-        updateMatrices(bounds);
-
         mWindowDiameter = 1.0f;
-        const auto worldWindowCenter = getRectToWorld(glm::vec2(bounds.getCentreX(), bounds.getCentreY()));
+        const auto worldWindowCenter = glm::vec3(0.0f);//getRectToWorld(glm::vec2(bounds.getCentreX(), bounds.getCentreY()));
+        const glm::vec2 wc = Axes::getFlattenedPoint(mCurrentAxes, worldWindowCenter);
 
         for (const auto& p : positions)
         {
-            const float l = glm::distance(Axes::getFlattenedPoint(mCurrentAxes, p), Axes::getFlattenedPoint(mCurrentAxes, worldWindowCenter));
+            const float l = glm::distance(Axes::getFlattenedPoint(mCurrentAxes, p), wc);
 
             if (l > mWindowDiameter)
                 mWindowDiameter = l;

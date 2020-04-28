@@ -70,7 +70,7 @@ public:
             
         auto* speakerEditor = new SpeakerEditorPopupComponent(mID, mSpeakersState.getPosition(mID));
         speakerEditor->addChangeListener(this);
-        speakerEditor->setSize (250, 120);
+        speakerEditor->setSize(250, 120);
 
         auto& cb = CallOutBox::launchAsynchronously(speakerEditor, getBounds(), getParentComponent());
         cb.setDismissalMouseClicksAreAlwaysConsumed(true);

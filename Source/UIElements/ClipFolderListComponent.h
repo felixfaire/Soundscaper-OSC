@@ -28,7 +28,7 @@ public:
     {
         mNamedWaveformComponent.reset(new NamedWaveformComponent());
         addAndMakeVisible(*mNamedWaveformComponent);
-
+        
         setIndex(index);
     }
 
@@ -122,6 +122,9 @@ public:
         mListBox->setRowHeight((int)mRowHeight);
         mListBox->setColour(ListBox::ColourIds::backgroundColourId, Colours::transparentBlack);
         addAndMakeVisible(*mListBox);
+        
+        mHelpButton->setTitle("Sound Clips");
+        mHelpButton->setText("These sounds can be triggered at a position in space or moved over their duration. \n\nThese sounds can be triggered by their name (hover the list item to see the OSC name) or their index in this list.\n\nSee the readme for more details on OSC message formats.");
     }
 
 private:

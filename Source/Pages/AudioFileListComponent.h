@@ -14,7 +14,6 @@
 #include "../UIElements/AtmosphereFolderListComponent.h"
 #include "../UIElements/ClipFolderListComponent.h"
 
-
 //==============================================================================
 /*
 */

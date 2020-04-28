@@ -24,6 +24,7 @@
 //==============================================================================
 /*
     Main App window component
+    This also acts as the primary controller for the UI and OSC callbacks
 */
 class MainComponent   : public Component,
                         public ChangeListener,

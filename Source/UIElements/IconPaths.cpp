@@ -189,6 +189,11 @@ static const unsigned char sideOnPathData[] = {110,109,51,51,195,192,51,51,182,1
 51,51,195,192,51,51,182,194,99,101,0,0 };
 
 
+static const unsigned char helpPathData[] = { 110,109,205,140,175,67,154,153,171,67,98,51,243,190,67,206,204,122,67,52,51,220,67,103,230,85,67,0,0,0,68,103,102,87,67,98,102,230,17,68,103,230,88,67,154,57,39,68,0,128,135,67,0,0,41,68,52,51,176,67,98,51,179,43,68,206,204,237,67,0,224,2,68,52,243,253,
+67,0,0,0,68,154,217,32,68,109,205,12,0,68,102,134,71,68,108,205,12,0,68,204,140,72,68,101,0,0 };
+
+
+
 
 Path IconPaths::getTopPath()
 {
@@ -208,5 +213,12 @@ Path IconPaths::getBackPath()
 {
     Path path;
     path.loadPathFromData(backPathData, sizeof(backPathData));
+    return path;
+}
+
+Path IconPaths::getHelpPath()
+{
+    Path path;
+    path.loadPathFromData(helpPathData, sizeof(helpPathData));
     return path;
 }

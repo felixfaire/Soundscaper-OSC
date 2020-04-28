@@ -76,6 +76,25 @@ public:
     {
         mSoundClipData.emplace_back(name, data, fileLength, (int)mSoundClipData.size());
     }
+    
+    
+    int getAtmosphereIndexFromClipAddress(const String& address)
+    {
+        for (int i = 0; i < mSoundClipData.size(); ++i)
+            if (mSoundClipData[i].mOSCAddress == address)
+                return i;
+                
+        return -1;
+    }
+    
+    int getSoundIndexFromClipAddress(const String& address)
+    {
+        for (int i = 0; i < mSoundClipData.size(); ++i)
+            if (mSoundClipData[i].mOSCAddress == address)
+                return i;
+                
+        return -1;
+    }
 
     File                                mCurrentSoundAtmosphereFolder;
     std::vector<SoundFileData>          mSoundAtmosphereData;

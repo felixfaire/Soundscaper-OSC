@@ -140,8 +140,6 @@ public:
     void updateAudioLevels(const AppModel& model)
     {
         const auto& levels = model.mAudioMonitorState.getAudioLevels();
-
-        jassert(levels.size() <= mChannelComponents.size());
             
         const auto& setup = model.mDeviceManager.getAudioDeviceSetup();
         const auto& channels = setup.outputChannels;
@@ -151,7 +149,7 @@ public:
         for (const auto& l : levels)
         {
             index = channels.findNextSetBit(index + 1);
-            
+                        
             if (index != -1 && index < mChannelComponents.size())
                 mChannelComponents[index]->setLevel(l);
         }

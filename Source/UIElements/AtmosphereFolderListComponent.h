@@ -154,6 +154,9 @@ public:
         mListBox->setRowHeight((int)mRowHeight);
         mListBox->setColour(ListBox::ColourIds::backgroundColourId, Colours::transparentBlack);
         addAndMakeVisible(*mListBox);
+        
+        mHelpButton->setTitle("Sound Atmospheres");
+        mHelpButton->setText("These sounds are looped and play continuously through all speakers. They can be faded via OSC or using the onscreen dials for testing. See the instructions readme for more info on OSC message formats.\n\nNote: Multichannel files will assign channels to speakers in a repeating pattern. ");
     }
 
     int getIdealHeight()

@@ -70,7 +70,7 @@ void MainComponent::triggerSource(int noteID, int soundID, const glm::vec3& pos)
 
     jassert(soundID < numClips);
 
-    if (soundID >= numClips)
+    if (soundID >= numClips || soundID < 0)
         return; // TODO: push error message to app console
 
     // Audio
@@ -150,17 +150,46 @@ void MainComponent::oscMessageReceived(const OSCMessage& message)
     // TODO: convert this to not use strings
     if (message.getAddressPattern().toString() == "/start")
     {
-        if (message[0].isInt32()
-         && message[1].isInt32()
-         && message[2].isFloat32()
-         && message[3].isFloat32()
-         && message[4].isFloat32())
+        if (message[0].isInt32() // noteID
+         && message[1].isInt32() // soundID
+         && message[2].isFloat32() && message[3].isFloat32() && message[4].isFloat32())
         {
-            const int noteID = message[0].getInt32();
-            const int soundID = message[1].getInt32();
+            const int soundID = message[0].getInt32();
+            const int noteID = message[1].getInt32();
             const float x = message[2].getFloat32();
             const float y = message[3].getFloat32();
             const float z = message[4].getFloat32();
+            triggerSource(noteID, soundID, glm::vec3(x, y, z));
+        }
+        else if (message[0].isString() // soundAddress
+              && message[1].isInt32()  // noteID
+              && message[2].isFloat32() && message[3].isFloat32() && message[4].isFloat32())
+        {
+            const int soundID = mModel.mAudioDataState.getSoundIndexFromClipAddress(message[0].getString());
+            const int noteID = message[1].getInt32();
+            const float x = message[2].getFloat32();
+            const float y = message[3].getFloat32();
+            const float z = message[4].getFloat32();
+            triggerSource(noteID, soundID, glm::vec3(x, y, z));
+        }
+        else if (message[0].isInt32() // soundID
+              && message[1].isFloat32() && message[2].isFloat32() && message[3].isFloat32())
+        {
+            const int noteID = -1;
+            const int soundID = message[0].getInt32();
+            const float x = message[1].getFloat32();
+            const float y = message[2].getFloat32();
+            const float z = message[3].getFloat32();
+            triggerSource(noteID, soundID, glm::vec3(x, y, z));
+        }
+        else if (message[0].isString() // soundAddress
+              && message[1].isFloat32() && message[2].isFloat32() && message[3].isFloat32())
+        {
+            const int noteID = -1;
+            const int soundID = mModel.mAudioDataState.getSoundIndexFromClipAddress(message[0].getString());
+            const float x = message[1].getFloat32();
+            const float y = message[2].getFloat32();
+            const float z = message[3].getFloat32();
             triggerSource(noteID, soundID, glm::vec3(x, y, z));
         }
         else
@@ -177,6 +206,21 @@ void MainComponent::oscMessageReceived(const OSCMessage& message)
             const float y = message[2].getFloat32();
             const float z = message[3].getFloat32();
             updateSource(noteID, glm::vec3(x, y, z));
+        }
+        else
+        {
+            DBG("Incorrect message type");
+        }
+    }
+    else if (message.getAddressPattern().toString() == "/atmosphere")
+    {
+        if (message[0].isInt32()
+         && message[1].isFloat32())
+        {
+            const int atmosphereIndex = message[0].getInt32();
+            const float level = message[1].getFloat32();
+         
+            mModel.mAtmosphereLevelState.setSoundAtmosphereAmplitude(atmosphereIndex, level);
         }
         else
         {

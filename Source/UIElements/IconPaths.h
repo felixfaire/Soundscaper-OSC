@@ -18,4 +18,5 @@ public:
     static Path getTopPath();
     static Path getSideOnPath();
     static Path getBackPath();
+    static Path getHelpPath();
 };

@@ -16,6 +16,8 @@
 #include "AudioFileSource.h"
 #include "AudioMonitorSource.h"
 
+/** This class controls and contains all the audio functionality of the app.
+*/
 class AudioController   : public AudioSource
 {
 public:
@@ -37,7 +39,7 @@ public:
     ~AudioController()
     {
         shutdownAudio();
-        jassert (mAudioSourcePlayer.getCurrentSource() == nullptr);
+        jassert(mAudioSourcePlayer.getCurrentSource() == nullptr);
     }
     
     // ===== Config ===============================
@@ -56,7 +58,7 @@ public:
     
     // ===== Processing ===============================
     
-    void prepareToPlay (int samplesPerBlockExpected, double sampleRate) override
+    void prepareToPlay(int samplesPerBlockExpected, double sampleRate) override
     {
         String message;
         message << "Preparing to play audio..." << newLine;
@@ -70,7 +72,7 @@ public:
             src->prepareToPlay(samplesPerBlockExpected, sampleRate);
     }
 
-    void getNextAudioBlock (const AudioSourceChannelInfo& bufferToFill) override
+    void getNextAudioBlock(const AudioSourceChannelInfo& bufferToFill) override
     {
         ScopedLock fileDataLock(mFileDataMutex);
         
@@ -85,7 +87,7 @@ public:
     
     void releaseResources() override
     {
-        Logger::getCurrentLogger()->writeToLog ("Releasing audio resources");
+        Logger::getCurrentLogger()->writeToLog("Releasing audio resources");
     }
     
     
