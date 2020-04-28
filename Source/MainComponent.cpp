@@ -97,9 +97,9 @@ void MainComponent::allNotesOff()
 
 
 //===== COMPONENT =============================================================
-void MainComponent::paint (Graphics& g)
+void MainComponent::paint(Graphics& g)
 {
-    g.fillAll (Colour(10, 20, 30));
+    g.fillAll(Colour(10, 20, 30));
 }
 
 void MainComponent::resized()
