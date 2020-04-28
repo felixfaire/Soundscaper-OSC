@@ -111,6 +111,7 @@ Some practical examples of the above written in [Processing](https://processing.
 ### Feature Wishlist:
 
   - Use distance attenuation for sounds outside the convex hull of speakers
+  - Replace osc message listbox with helpful console error output
   - Allow looping voices
   - Doppler shift with velocity?
   - Ambisonic file decoding and playback.
@@ -122,9 +123,6 @@ Some practical examples of the above written in [Processing](https://processing.
   This project relies on the JUCE framework and glm library to build. These libraries should be placed at ../../JUCE and ../../glm or their locations can be respecified in the Projucer project (see JUCE docs for more info on using JUCE).
 
 
-
-TODO:   
-- Replace osc message listbox with helpful console error output
 
 
 MIT License
