@@ -1,1 +1,5 @@
 theme: jekyll-theme-cayman
+show_downloads: true
+
+github:
+  mac_url: https://s3.eu-west-2.amazonaws.com/www.synaesthete.studio/soundscaper-osc/downloads/SoundscaperOSC+-+App_0.9.0.dmg
