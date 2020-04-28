@@ -1,9 +1,8 @@
+[![N|Solid](https://s3.eu-west-2.amazonaws.com/www.synaesthete.studio/soundscaper-osc/images/SoundscaperOSC_Pages.png)](https://felixfaire.com)
 
-[![N|Solid](https://felixfaire.com/wp-content/uploads/Flux_Comp1.jpg)](https://felixfaire.com)
+# Soundscaper OSC 
 
-# Spatial Soundscaper OSC 
-
-This tool aims to provide an easy way to spatially play sounds through arbitrary numbers of speakers in realtime for simple immersive audio installations.
+This tool aims to provide an easy way to spatially play sounds through arbitrary numbers of physical speakers in realtime for simple immersive audio installations.
 
 The software allows you to configure:
 
@@ -38,13 +37,16 @@ The software allows you to configure:
 
   The application features 3 pages to build your soundscape environment:
   
-  **Space:** to configure your physical speaker positions and plan layout (Top view).
-  **Sounds:** to load all the sound files you wish to use.
-  **Settings:** to configure your audio device and OSC settings.
+  - **Space:** to configure your physical speaker positions and visualise playing sounds.
+  - **Sounds:** to load all the sound files you wish to use in your soundscape.
+  - **Settings:** to configure your audio device and OSC settings.
 
-  ## Setup:
+_Tip: You can also make the application window larger to see all the pages at once._
+[![N|Solid](https://s3.eu-west-2.amazonaws.com/www.synaesthete.studio/soundscaper-osc/images/SoundscaperOSC_Main1.png)](https://felixfaire.com)
 
-  1. On the '**Space**' page drag the numbered nodes (each represents a speaker) to match the physical speakers in your room, each grid unit is 1m. You can also click on the node to directly type in 3D coordinates (y is height in space). 
+## Setup:
+
+  1. On the '**Space**' page drag the numbered nodes (each represents a speaker) to match the physical speakers in your room, each grid unit is 1m. You can also click on the node to directly type in 3D coordinates (y is height in space). You can change the plane / section of the space or toggle the list view to insert speaker positions numerically. 
 
   2. On the **Sounds** page:
      - Select a folder location for your 'atmospheres' (these are looping background audio files that play through all speakers at the same time).
@@ -55,42 +57,55 @@ The software allows you to configure:
      - Tick all the channels you wish to be able to use.
      - Make sure the OSC port matches the one coming from your control application.
 
-  ## OSC Control:
-  
-  ### Controlling 'Atmospheres':
+## OSC Control:
+    
+### Controlling 'Atmospheres':
   
   All files in the specified atmosphere folder will constantly loop in the background. Their volumes (0.0 - 1.0) can be controlled with the following OSC message format:
 
-    OSC address: 'atmosphere/<name-of-atmosphere-file>/'
-    arguments:    float <volume>
+    OSC address: 'atmosphere/'
+    Arguments:   int: <index-of-atmosphere-file>
+               float: <volume>
 
 ### Triggering 'Voices':
 
 Simply trigger a sound from the 'voices' list at a certain 3D position with this osc message format:
 
-*OSC address:* `voice/start/`
-*Arguments*: 
-```c++
-string: <name-of-voice-file>, float: <volume>, float: <x>, float: <y>, float: <z>
-```
+    OSC address: 'start/'
+    Arguments: string: <name-of-voice-file>  (or int: <index-of-voice-file>)
+                float: <volume> 
+                float: <x>
+                float: <y> 
+                float: <z>
+
 (Note: _name-of-voice-file_ does not include the file extension)
 
 ### Moving 'Voices':
   
-Optionally you can also trigger a voice with a unique integer 'voice-id' to be able to move that voice around in space after it has been triggered (see below). 
+Optionally you can also trigger a voice with a unique integer 'voice-id' to be able to move that voice around in space after it has been triggered (see below). Think of this like a unique handle
 
-*OSC address:*  `voice/start/`
-*Arguments*: 
-```c++
-string: <name-of-voice-file>, int: <voice-id>, float: <volume>, float: <x>, float: <y>, float: <z>
-```
+    OSC address: 'start/'
+    Arguments: string: <name-of-voice-file>  (or int: <index-of-voice-file>)
+                  int: <voice-id> 
+                float: <volume> 
+                float: <x>
+                float: <y> 
+                float: <z>
+
 This identifier allows you to update that sound's position for its duration with the following OSC message format:
   
-*OSC address:*  `voice/update/`
-*Arguments*: 
-```c++
-string: int: <voice-id>, float: <volume>, float: <x>, float: <y>, float: <z>
-```
+    OSC address: 'update/'
+    Arguments: string: <name-of-voice-file>  (or int: <index-of-voice-file>)
+                  int: <voice-id> 
+                float: <volume> 
+                float: <x>
+                float: <y> 
+                float: <z>
+
+### Examples
+
+Some practical examples of the above written in [Processing](https://processing.org/) can be found here.
+TODO: add link to processing examples on github.
 
 ### Current Limitations:
 
@@ -99,7 +114,7 @@ string: int: <voice-id>, float: <volume>, float: <x>, float: <y>, float: <z>
 
 ### Feature Wishlist:
 
-  - Use distance attenuation for sounds outside the convex hull
+  - Use distance attenuation for sounds outside the convex hull of speakers
   - Allow looping voices
   - Doppler shift with velocity?
   - Ambisonic file decoding and playback.
@@ -113,8 +128,7 @@ string: int: <voice-id>, float: <volume>, float: <x>, float: <y>, float: <z>
 
 
 TODO:   
-- Replace osc message listbox with proper console
-- Add multi page container
+- Replace osc message listbox with helpful console error output
 
 
 MIT License
