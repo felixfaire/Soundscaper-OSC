@@ -37,7 +37,9 @@ The software allows you to configure:
 ### Download:
 
   - [**Macos**](https://s3.eu-west-2.amazonaws.com/www.synaesthete.studio/soundscaper-osc/downloads/SoundscaperOSC+-+App_0.9.0.dmg)
-  - Windows prebuilt binaries coming soon..
+  - [**Windows**](https://s3.eu-west-2.amazonaws.com/www.synaesthete.studio/soundscaper-osc/downloads/SoundscaperOSC+-+App_0.9.0.zip)
+
+  (please share any feeback / crashes / issues on github issues)
 
 ## Instructions:
 
