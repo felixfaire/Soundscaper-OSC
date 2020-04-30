@@ -84,6 +84,9 @@ private:
 
     void updateSliderValue()
     {
+        if (mCurrentIndex >= mModel.mAtmosphereLevelState.getSoundAtmosphereAmpitudes().size())
+            return;
+
         const float level = mModel.mAtmosphereLevelState.getSoundAtmosphereAmpitude(mCurrentIndex);
         mLevelSlider->setValue(level, dontSendNotification);
     }
