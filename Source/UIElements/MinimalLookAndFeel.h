@@ -246,7 +246,7 @@ public:
     
     Typeface::Ptr getTypefaceForFont(const Font& f) override
     {
-        static Typeface::Ptr myFont = Typeface::createSystemTypefaceFor(BinaryData::MonoraleRegular_otf, BinaryData::MonoraleRegular_otfSize);
+        static Typeface::Ptr myFont = Typeface::createSystemTypefaceFor(BinaryData::MonoraleRegular_ttf, BinaryData::MonoraleRegular_ttfSize);
         return myFont;
     }
 

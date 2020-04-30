@@ -7,6 +7,8 @@
     <GROUP id="{C0A6F8B8-450C-163F-77B6-E0380DEB11BE}" name="Assets">
       <FILE id="CMWTCN" name="Monorale-Regular.otf" compile="0" resource="1"
             file="assets/Monorale-Regular.otf"/>
+      <FILE id="jJfaZ8" name="Monorale-Regular.ttf" compile="0" resource="1"
+            file="assets/Monorale-Regular.ttf"/>
     </GROUP>
     <GROUP id="{95A5C06C-B4E9-E01E-019B-DDE92792A038}" name="Source">
       <GROUP id="{732B9D9E-5FF9-27DE-B407-8BC635A18D83}" name="State">

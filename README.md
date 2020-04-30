@@ -24,6 +24,9 @@ The software allows you to configure:
   - 128 one shot voice polyphony.
   - Uses Distance Based Amplitude Panning.
   - Cross platform (Supports Mac, Windows and Linux (though not tested on Linux))
+  - Supports ASIO on windows.
+
+***Note:*** This has not been battle tested on large scale projects yet, please consider it in BETA and report any crashes in the github issues.
 
 ### Why:
 
@@ -121,29 +124,8 @@ Some practical examples of the above written in [Processing](https://processing.
 
 ### Build Instructions:
 
-  This project relies on the JUCE framework and glm library to build. These libraries should be placed at ../../JUCE and ../../glm or their locations can be respecified in the Projucer project (see JUCE docs for more info on using JUCE).
+  This project relies on the JUCE framework and glm library to build. These libraries should be placed at ../../JUCE and ../../glm or their locations can be respecified in the Projucer project (see JUCE docs for more info on using JUCE). You will also need to add the ASIO SDK location to the projucer project to use ASIO on windows.
+
+_Made by [Felix Faire](https://felixfaire.com/)_
 
 
-
-
-MIT License
-
-Copyright (c) 2020 Felix Faire
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
