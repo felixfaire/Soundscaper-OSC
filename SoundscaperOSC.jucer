@@ -5,8 +5,6 @@
               companyName="Synaesthete Ltd" companyWebsite="www.felixfaire.com">
   <MAINGROUP id="FyPVfO" name="SoundscaperOSC">
     <GROUP id="{C0A6F8B8-450C-163F-77B6-E0380DEB11BE}" name="Assets">
-      <FILE id="CMWTCN" name="Monorale-Regular.otf" compile="0" resource="1"
-            file="assets/Monorale-Regular.otf"/>
       <FILE id="jJfaZ8" name="Monorale-Regular.ttf" compile="0" resource="1"
             file="assets/Monorale-Regular.ttf"/>
     </GROUP>

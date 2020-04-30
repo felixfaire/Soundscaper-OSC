@@ -32,6 +32,8 @@ The software allows you to configure:
 
   This project comes out of a common difficulty / lack of support in handling multichannel audio in realtime software environments like Unity3D and Unreal Engine which are increasingly used to make physical interactive experiences as well as games. I also wanted to make a tool easy enough for students and artists to pick up quickly (Without having to learn MaxMSP / PureData which enable similar functionality) and be robust and performant enough to be used in permanent installations.
 
+  This is also a personal project that I wanted to open source to invite feedback and collaboration.
+
 ### Download:
 
   - [**Macos**](https://s3.eu-west-2.amazonaws.com/www.synaesthete.studio/soundscaper-osc/downloads/SoundscaperOSC+-+App_0.9.0.dmg)
