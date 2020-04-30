@@ -59,7 +59,7 @@ public:
             auto* helpInfo = new HelpInfoComponent(tl);
             helpInfo->setSize(tl.getWidth() + margin * 2, tl.getHeight() + margin * 2);
 
-            auto& cb = CallOutBox::launchAsynchronously(helpInfo, getScreenBounds(), getTopLevelComponent() );
+            auto& cb = CallOutBox::launchAsynchronously(helpInfo, getScreenBounds(), nullptr);
             cb.setDismissalMouseClicksAreAlwaysConsumed(true);
             
         };
