@@ -33,7 +33,7 @@ public:
         mHelpButton.reset(new HelpButton());
         
         mHelpButton->setTitle("Speaker Layout");
-        mHelpButton->setText("This window allows you to configure your speaker layout in 3D. Drag a speaker icon to move it or click to edit individual speaker coordinates. You can also switch to list view to view / edit all speaker coordinates. \n\nThe space view will show any currently playing clips. You can click (or drag) in empty space to trigger the first clip in the list for testing.");
+        mHelpButton->setText("This window allows you to configure your speaker layout in 3D. Drag a speaker icon to move it or click to edit individual speaker coordinates numerically. You can also switch to list view to view / edit all speaker coordinates. \n\nThe space view will show any currently playing clips. You can click (or drag) in empty space to trigger the first clip in the list for testing.");
 
         addAndMakeVisible(*mAddButton);
         addAndMakeVisible(*mRemoveButton);

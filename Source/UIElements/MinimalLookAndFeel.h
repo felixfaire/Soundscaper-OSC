@@ -129,14 +129,13 @@ public:
 
         if (!label.isBeingEdited())
         {
+            auto textArea = getLabelBorderSize(label).subtractedFrom(label.getLocalBounds());
+
             auto alpha = label.isEnabled() ? 1.0f : 0.5f;
             const Font font(getLabelFont(label));
 
             g.setColour(label.findColour(Label::textColourId).withMultipliedAlpha(alpha));
             g.setFont(font);
-
-            auto textArea = getLabelBorderSize(label).subtractedFrom(label.getLocalBounds());
-
             g.drawFittedText(label.getText(), textArea, label.getJustificationType(),
                 jmax(1,(int)(textArea.getHeight() / font.getHeight())),
                 label.getMinimumHorizontalScale());
@@ -246,7 +245,7 @@ public:
     
     Typeface::Ptr getTypefaceForFont(const Font& f) override
     {
-        static Typeface::Ptr myFont = Typeface::createSystemTypefaceFor(BinaryData::MonoraleRegular_otf, BinaryData::MonoraleRegular_otfSize);
+        static Typeface::Ptr myFont = Typeface::createSystemTypefaceFor(BinaryData::MonoraleRegular_ttf, BinaryData::MonoraleRegular_ttfSize);
         return myFont;
     }
 
