@@ -71,19 +71,24 @@ _Tip: You can also make the application window larger to see all the pages at on
   
   All files in the specified atmosphere folder will constantly loop in the background. Their volumes (0.0 - 1.0) can be controlled with the following OSC message format:
 
-    OSC address: 'atmosphere/'
+    OSC address: '/atmosphere'
     Arguments:   int: <index-of-atmosphere-file>
                float: <volume>
+
+    example: `(0, 0.0)`
 
 ### Triggering 'Voices':
 
 Simply trigger a sound from the 'voices' list at a certain 3D position with this osc message format:
 
-    OSC address: 'start/'
+    OSC address: '/start'
     Arguments: string: <name-of-voice-file>  (or int: <index-of-voice-file>)
                 float: <x>
                 float: <y> 
                 float: <z>
+
+    example 1: `/start ('my_sound_1', 0.2, 1.5, -0.3)`
+    example 2: `/start (2, 3.0, 2.0, 5.0)`
 
 (Note: _name-of-voice-file_ does not include the file extension)
 
@@ -91,25 +96,31 @@ Simply trigger a sound from the 'voices' list at a certain 3D position with this
   
 Optionally you can also trigger a voice with a unique integer 'voice-id' to be able to move that voice around in space after it has been triggered (see below). Think of this like a unique handle
 
-    OSC address: 'start/'
+    OSC address: '/start'
     Arguments: string: <name-of-voice-file>  (or int: <index-of-voice-file>)
                   int: <voice-id> 
                 float: <x>
                 float: <y> 
                 float: <z>
+    
+    example 1: `/start ('my_sound_4', 1, 0.2, 1.5, -0.3)`
+    example 2: `/start (1, 5, 3.0, 2.0, 5.0)`
 
 This identifier allows you to update that sound's position for its duration with the following OSC message format:
   
-    OSC address: 'update/'
+    OSC address: '/update'
     Arguments: string: <name-of-voice-file>  (or int: <index-of-voice-file>)
                   int: <voice-id> 
                 float: <x>
                 float: <y> 
                 float: <z>
 
+    example 1: `/update ('my_sound_4', 1, 0.2, 1.5, -0.3)`
+    example 2: `/update (1, 5, 3.0, 2.0, 5.0)`
+
 ### Examples
 
-Some practical examples of the above written in [Processing](https://processing.org/) can be found [here](https://github.com/felixfaire/Soundscaper-OSC-Examples).
+***Some practical examples of the above written in [Processing](https://processing.org/) can be found [HERE](https://github.com/felixfaire/Soundscaper-OSC-Examples).***
 
 ### Current Limitations:
 
