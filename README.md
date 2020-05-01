@@ -75,7 +75,7 @@ _Tip: You can also make the application window larger to see all the pages at on
     Arguments:   int: <index-of-atmosphere-file>
                float: <volume>
 
-    example: `(0, 0.0)`
+  **example**:   `/atmosphere (0, 0.5)`  
 
 ### Triggering 'Voices':
 
@@ -87,8 +87,8 @@ Simply trigger a sound from the 'voices' list at a certain 3D position with this
                 float: <y> 
                 float: <z>
 
-    example 1: `/start ('my_sound_1', 0.2, 1.5, -0.3)`
-    example 2: `/start (2, 3.0, 2.0, 5.0)`
+  **example 1:**   `/start ('my_sound_1', 0.2, 1.5, -0.3)`  
+  **example 2:**   `/start (2, 3.0, 2.0, 5.0)`  
 
 (Note: _name-of-voice-file_ does not include the file extension)
 
@@ -103,8 +103,8 @@ Optionally you can also trigger a voice with a unique integer 'voice-id' to be a
                 float: <y> 
                 float: <z>
     
-    example 1: `/start ('my_sound_4', 1, 0.2, 1.5, -0.3)`
-    example 2: `/start (1, 5, 3.0, 2.0, 5.0)`
+  **example 1:**   `/start ('my_sound_4', 1, 0.2, 1.5, -0.3)`  
+  **example 2:**   `/start (1, 5, 3.0, 2.0, 5.0)`  
 
 This identifier allows you to update that sound's position for its duration with the following OSC message format:
   
@@ -115,8 +115,8 @@ This identifier allows you to update that sound's position for its duration with
                 float: <y> 
                 float: <z>
 
-    example 1: `/update ('my_sound_4', 1, 0.2, 1.5, -0.3)`
-    example 2: `/update (1, 5, 3.0, 2.0, 5.0)`
+  **example 1:**   `/update ('my_sound_4', 1, 0.2, 1.5, -0.3)`  
+  **example 2:**   `/update (1, 5, 3.0, 2.0, 5.0)`  
 
 ### Examples
 
