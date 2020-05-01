@@ -141,6 +141,18 @@ This identifier allows you to update that sound's position for its duration with
 
   This project relies on the JUCE framework and glm library to build. These libraries should be placed at ../../JUCE and ../../glm or their locations can be respecified in the Projucer project (see JUCE docs for more info on using JUCE). You will also need to add the ASIO SDK location to the projucer project to use ASIO on windows.
 
+### Donate:
+
+If you find this tool useful or want to help future development please consider donating.  
+
+<p align="center"> 
+<a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=GPQG3GG8GJ62J&source=url" align="center">
+  <img src="https://www.paypalobjects.com/en_US/GB/i/btn/btn_donateCC_LG.gif" alt="Donate">
+</a>
+</p>
+<br>
+  
+  
 _Made by [Felix Faire](https://felixfaire.com/)_
 
 
