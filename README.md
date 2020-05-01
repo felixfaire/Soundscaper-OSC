@@ -143,6 +143,8 @@ This identifier allows you to update that sound's position for its duration with
 
 ### Donate:
 
+If you find this tool useful or want to help future development please consider donating.  
+
 <p align="center"> 
 <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=GPQG3GG8GJ62J&source=url" align="center">
   <img src="https://www.paypalobjects.com/en_US/GB/i/btn/btn_donateCC_LG.gif" alt="Donate">
